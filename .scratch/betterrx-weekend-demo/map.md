@@ -2,44 +2,43 @@
 
 ## Destination
 
-A locked spec for the Saturday BetterRX demo: a working two-sided hospice and DME app a judge can click through discharge-ready, post-death pickup, and prevent-a-miss. The spec is ready to collapse with `/to-spec` and slice into tracer-bullet tickets. This map does not build the app.
+A locked spec for the Saturday BetterRX demo: a working hospice-first DME app a judge can click through discharge-ready, post-death pickup, and prevent-a-miss. The spec is `docs/prd.md`. This map does not build the app.
 
 ## Notes
 
-- Domain: hospice DME coordination. Glossary: `CONTEXT.md`. Slice: `docs/primary-bounty.md`. Clock and rubric: `docs/hackathon.md`. Official brief: `docs/briefs/`.
-- Tracker: `docs/agents/issue-tracker.md`. Tickets are files under `.scratch/betterrx-weekend-demo/issues/`.
-- Plan, don't do. No product code on this map. When the map is clear, run `/to-spec` on it, then `/to-tickets`. Do not implement from open decision tickets.
-- Destination was named from Craig's own weekend slice in `docs/primary-bounty.md`, not from a live grill in this charting session. Redraw the destination if that cut is wrong.
-- HITL grilling: never answer for Craig. Research tickets may resolve in the charting session.
-- Craig is a healthcare PM, not a hospice or DME operator. Treat vendor-side ops as research, not lived experience.
+- Domain: hospice DME coordination. Glossary: `CONTEXT.md`. Slice: `docs/primary-bounty.md`. Clock and rubric: `docs/hackathon.md`. FAQ overlay: `docs/briefs/betterrx-bounty-faq.md`. Room notes: `docs/briefing-qa.md`.
+- Tracker: GitHub Issues (`docs/agents/issue-tracker.md`). These files are the charting notes.
+- Plan, don't do. No product code on this map. Next step is tracer-bullet tickets against `docs/prd.md`, not more grilling.
+- Craig is a healthcare PM, not a hospice or DME operator. Treat vendor-side ops as labeled assumptions.
 - Synthetic data only. No real patient, hospice, or vendor records.
 - Refer to tickets by name, not by bare number.
 
 ## Decisions so far
 
 - [What transaction shape do the sample orders imply?](issues/01-sample-order-shape.md) — One shared card (order, patient, hospice, HCPCS, note). Vendor nullable until Dispatched. Sample at-risk is ETA vs discharge window, or days since pickup with no retrieval.
-- [What BetterRX eRx surface can we sketch against?](issues/02-betterrx-erx-surface.md) — Partner-connection data share, not a public API. DME is a second order on the same patient key. Sketch MatrixCare or Axxess.
-- [Which stack ships a two-sided live board fastest this weekend?](issues/03-weekend-stack.md) — Nothing clearly faster than Next.js + hosted Supabase Realtime + Vercel. Not a lock; see [Which weekend stack do we lock?](issues/08-lock-weekend-stack.md).
+- [What BetterRX eRx surface can we sketch against?](issues/02-betterrx-erx-surface.md) — Partner-connection data share, not a public API. DME is a second order on the same patient key. PRD names HCHB as the primary EMR story.
+- [Which stack ships a two-sided live board fastest this weekend?](issues/03-weekend-stack.md) — Nothing clearly faster than Next.js + hosted Supabase Realtime + Vercel.
+- [What is the vendor-side original move?](issues/04-vendor-side-original-move.md) — SMS / magic-link confirm, no network-building. Hospice UX is the claim. See `docs/prd.md`.
+- [Where does AI earn its score versus an honest skip?](issues/05-ai-earn-or-skip.md) — Honest skip. At-risk and ranking are rules.
+- [How do hospice and vendor share one demo without real identity?](issues/06-demo-identity.md) — Hospice role switcher. Vendor confirm is a simulated SMS inbox. No real auth.
+- [How should the shared order board behave?](issues/07-shared-board-behavior.md) — Skip the throwaway. Build the running app from the PRD.
+- [Which weekend stack do we lock?](issues/08-lock-weekend-stack.md) — Next.js + TypeScript + Tailwind on Vercel. Supabase only if a real table is needed.
 
 ## Not yet specified
 
-- Which EMR the integration diagram names (MatrixCare vs Axxess vs HCHB), once we need a picture
-- Discharge override: who can override, and what reason is enough
-- Pickup delayed window (sample uses 4 days; brief says "expected window")
-- Whether DME spend next to meds appears in the demo UI or only in the pitch
-- Bedside mobile as a real layout vs a responsive board
-- Fixture design beyond the six sample orders (how many vendors, how an invite is seeded)
-- Pitch script for the 5-minute slot
-- Billing-on-delivery as a vendor-side signal vs left as a sketch
+- Fixture catalog size beyond the six sample orders (how many vendors, prices, preferred-option set)
+- Pitch script wording for the 5-minute slot (content is in `docs/prd.md`; sequence is not)
+- Whether the simulated SMS inbox is a panel in the same app or a second route
 
 ## Out of scope
 
 Work beyond this map's destination. Closed, never graduates.
 
-- Real vendor marketplace
+- Vendor marketplace / recruitment
 - GPS routing
 - Serialized warehouse inventory
 - Claims submission (X12 837)
-- Live EMR connection or SSO
-- Cost-of-care analytics beyond a simple DME-next-to-meds line
+- Live EMR connection, live SMS, or SSO
+- Native apps or a family app
+- Supplies as a second app (stretch on the same board only after DME works)
 - GOED, MadeThis, or other bounty tracks

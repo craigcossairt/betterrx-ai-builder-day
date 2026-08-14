@@ -8,31 +8,38 @@ GOED lives in [startup-state-2](https://github.com/craigcossairt/startup-state-2
 
 **Primary bounty: BetterRX ($10,000).**
 
-Two-sided hospice / DME coordination. Shared live status. At-risk **before** late. Explainable flag. Day-one value without an existing vendor network.
+Hospice-first DME ordering and shared status. Phone nurse. Three-factor choice (stock, ETA, price). Guardrails. At-risk **before** late, in plain words. Nurse-in-the-home pickup, EMR as backup. Vendor confirms by SMS/email. No network-building this weekend.
 
-Craig is a healthcare PM (PillPack, Infor), not a hospice or DME operator. Treat vendor-side ops as research, not lived experience.
+Craig is a healthcare PM (PillPack, Infor), not a hospice or DME operator. Treat vendor-side ops as labeled assumptions, not lived experience. BetterRX interviewed seven hospice executives and no DME dispatchers (`docs/briefs/betterrx-bounty-faq.md`).
 
 ## Weekend-sized slice
 
-The smallest path a judge can click against the rubric:
+The smallest path a judge can click against the rubric. Full spec: `docs/prd.md`. FAQ overlay: `docs/briefs/betterrx-bounty-faq.md`. Room notes: `docs/briefing-qa.md`.
 
-1. **Shared order board.** Hospice and vendor see the same order, same status, same timestamps. Lifecycle: Ordered → Dispatched → In Transit / At Risk → Delivered → Pickup Triggered → Pickup Delayed.
-2. **Discharge-readiness.** Hospice cannot mark a patient ready to go home until required equipment is Delivered (or they override with a reason).
-3. **Post-death pickup trigger.** Patient status change (death) automatically flags equipment for retrieval. No extra phone call as the happy path.
-4. **One explainable at-risk rule.** Fire *before* late. First rule: ETA vs discharge window (or pickup window after death). Surface "why flagged" in plain words. Escalate to a person.
-5. **Cold-start vendors.** Demo vendors are fixtures, plus a thin invite/onboard path so the story does not assume BetterRX already has a network.
+1. **Phone order with three facts.** Admissions nurse (default) or case manager picks equipment. Each option shows stock (or unknown), expected delivery, and price. Preferred option first. Open authorization: paperwork does not block STAT.
+2. **Shared status the hospice can see.** Lifecycle: Ordered → Vendor confirmed → Dispatched → In Transit / At Risk → Delivered → Pickup Triggered → Pickup Delayed. Vendor participation is a fixture; confirm via simulated SMS / magic-link, not a required portal.
+3. **Discharge-readiness.** Hospice cannot mark a patient ready to go home until required equipment is Delivered (or they override with a reason).
+4. **Post-death pickup.** Nurse in the field taps Pickup as the primary path. EMR/ADT death is the fallback. No extra phone call as the happy path.
+5. **One explainable at-risk rule.** Fire *before* late. First rule: ETA vs discharge window, or pickup window after death. Surface "why flagged" in plain words. Escalate to a person. Step timestamps so the DON can see hours-to-pickup.
+6. **DON cost gate, DME-next-to-meds, and DME PPD.** Threshold approval. Fixture med prices beside DME lines. Census DME PPD vs a labeled target, with drivers (idle pickup days, buffer days, preferred-option overrides). This screen answers Todd's buyer question: how do you decrease my DME PPD?
 
-Out of this slice: a real vendor marketplace, GPS routing, serialized warehouse inventory, claims submission, live EMR, SSO, cost-of-care analytics beyond a simple DME-next-to-meds line.
+The slice is a **running app**. Mockups and visual prototypes fail the brief and were restated in the room.
+
+**Stretch after the three DME scenarios click:** medical **supplies** on the same patient (third vendor today, beside pharmacy and DME). Same cards and status. No pickup. Pitch: one-stop shop. Do not start here.
+
+Out of this slice: vendor marketplace / recruitment, GPS routing, serialized warehouse inventory, claims submission, live EMR, live SMS, SSO, native apps, family app, condition QA as a required flow (optional photo is stretch), supplies as a second app.
+
+The original brief called vendor-side recruitment the differentiator. The **FAQ supersedes that for weekend scope**: network-building is out of scope; judging weight is hospice-side; no-login vendor UX is bonus, not table stakes.
 
 ## Demo scenarios (from the brief)
 
 1. Discharge-ready: bed + oxygen must land before the patient goes home. At-risk fires when ETA misses the window.
-2. Post-death pickup: death triggers pickup. Delayed pickup is visible to both sides.
-3. Prevent a miss: an at-risk flag escalates before the family or the discharge nurse finds out the hard way.
+2. Post-death pickup: nurse tap (then EMR fallback) triggers pickup. Delayed pickup is visible, with elapsed time.
+3. Prevent a miss: an at-risk flag escalates before the family or the discharge nurse finds out the hard way. DON PPD vs target is on screen for the buyer question.
 
 ## AI posture
 
-Rules first. The at-risk signal starts as a deterministic rule (ETA vs deadline, plus vendor on-time history if we have fixture numbers). Use AI only if it beats that baseline out loud. Statuses and patient facts stay grounded. High-stakes actions stay human-confirmed. "Rules are better here" is a valid answer.
+Rules first. The at-risk signal is a deterministic rule (ETA vs deadline). Ranking for guardrails is the same: beats window, then price, then known stock. Use AI only if it beats that baseline out loud. Statuses and patient facts stay grounded. High-stakes actions stay human-confirmed. "Rules are better here" is the planned answer for AI ROI.
 
 ## Scoring reminder
 
@@ -44,4 +51,4 @@ Rules first. The at-risk signal starts as a deterministic rule (ETA vs deadline,
 | AI ROI (or honest skip) | 15% |
 | UX | 15% |
 
-A working two-sided board beats a prettier hospice-only portal.
+A working hospice phone order that a nurse can tap, whose status actually moves, beats a prettier prototype. Supplies on that same patient is extra credit, not a substitute for the bed arriving.

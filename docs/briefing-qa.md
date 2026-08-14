@@ -1,0 +1,126 @@
+# Friday briefing Q&A notes
+
+Craig's notes from the BetterRX bounty presentation Q&A (AI Builder Day Part 2, Friday). Transcribed as captured, then interpreted against the official brief and FAQ.
+
+Raw notes are the source. Interpretations are labeled. Where notes collide with `docs/briefs/dme-hackathon-bounty-brief.html`, the **FAQ** (`docs/briefs/betterrx-bounty-faq.md`) plus these notes win for weekend scope.
+
+## Raw notes
+
+> Design for least technical users
+> Philosophy of care - guardrails for user to guide correct choices
+> Give clinicians visibility into what is happening within the DME
+> Use real prices for meds
+> Need DME on-time - 3 ordering decision factors (in-stock, when expected to be delivered, price)
+> Side issue to keep in mind - betterRX works with pharmacies. Hospice gets the blame for DME not showing up on time/dirty - How to help the hospice make the right choice and hold accountability
+> There are knowledge gaps for partnership (use their software?) - okay to make assumptions
+> 3 key personas
+> Admissions Nurse - most likely to be ordering DME. Entered into EMR (electronic medical record) flows into BetterRX system.
+> Case Manager - regularly visiting patient, making order when they see progression in diagnosis. IDT Meeting.
+> Director of Nursing - oversee staff. Makes approvals for cost thresholds. Manages reporting. Responsible for balance of care and cost.
+> DME not as regulated as prescriptions - open authorization
+> Want ordering capability within DME system
+> DME is not regulated by insurance/government
+> Primary device is phone, sometimes tablets, or laptops. Hospice is nurse working out of her care - no inventory in an office. Current software is web-based
+> Track/report timing for steps (i.e. how long to pickup)
+> Most hospice EMR homeware/homebase, well sky, etc Epic is more hospital focused.
+> ADT message can assume has been received. Paperwork does not always land before the patient. Care matters more than the paperwork.
+
+Follow-ups Craig added after the room:
+
+> They want to see real working code, not just a mockup or visual prototype.
+> Hospices have 3 separate vendors for pharmacy, DME, and supplies. BetterRX already handles the pharmacy side. This bounty is specifically about DME. If we are also able to help with supplies, that could put the submission over the top because they become a one-stop shop for everything needed for hospice care.
+
+Slack from Todd Blaquiere (BetterRX bounty channel, 4:44 PM). Prepare to answer a hospice buyer: **"How are you going to decrease my DME PPD (costs)?"**
+
+> PPD (Per Patient Day): The average medication or DME cost to care for one hospice patient for one day. A critical financial metric. Small increases compound across hundreds or thousands of patients. Hospices aim to keep PPD in a target range while still getting patients the medications and DME they need for comfort and quality of life.
+
+## Structured takeaways
+
+### Working app, not a prototype
+
+Judges must click a running application. Figma, Framer, static HTML, and "looks clickable" slides fail the brief and were restated in the room. Status has to move because code ran, not because a frame advanced.
+
+### Three vendor categories (pharmacy / DME / supplies)
+
+Hospices today split fulfillment across **three** vendors:
+
+| Category | Who handles it today | This weekend |
+|---|---|---|
+| **Pharmacy** | BetterRX already | Fixture meds on the patient (real prices). Do not rebuild eRx. |
+| **DME** | Separate DME company | **The bounty.** Bed, oxygen, wheelchair. Pickup after death. |
+| **Supplies** | A third vendor (wound care, incontinence, gloves, and similar consumables) | **Stretch after DME works.** Same order cards and status. No pickup (consumables stay used). Pitch: one-stop shop. |
+
+Do not let supplies steal the DME demo. The rubric is DME ordering and visibility. Supplies is the extra that makes BetterRX pharmacy + DME + supplies instead of "we only did the bounty."
+
+The original brief's "resupply cadence for consumables (CPAP supplies, wound care)" is the DME-attached version of this. Treat a third **supplies vendor** as the fuller one-stop-shop story, not as CPAP filters hiding inside a bed order.
+
+### DME PPD (the buyer question)
+
+Two different "PPD"s. Do not mix them.
+
+| Term | Whose money | Source |
+|---|---|---|
+| **Cost PPD** | What the hospice spends per patient per day on meds or DME | Todd, 4:44 PM. Same metric BetterRX already sells for pharmacy. |
+| **Tech PPD** | What the hospice pays BetterRX as a software / coordination fee | FAQ §5. Can be bundled with the existing pharmacy-tech PPD. |
+
+The pitch question is **cost PPD**: "How are you going to decrease my DME PPD?" Do not answer with "our SaaS fee is cheap." Show the spend going down, or show why it stops going up, without starving care.
+
+Levers we can actually demo (each has a brief quote or a BetterRX meds analog). Do not invent a dollar savings number.
+
+1. **Stop paying for idle equipment.** Delayed pickup bills extra days. Hospice COO in the brief: if they do not pick it up, the hospice pays an additional day.
+2. **Stop padding a buffer day.** Hospices park equipment a day early because they do not trust ETA. A trusted window removes that extra PPD day.
+3. **Steer the cheaper equivalent at order time.** Guardrails, same as BetterRX meds. Preferred option first. Override with a reason.
+4. **Do not double-order.** Case manager sees what is already in the home.
+5. **One picture.** Meds PPD (fixture, BetterRX already) next to DME PPD, plus supplies if the stretch landed. DON sees actual vs a labeled target.
+
+Balance is the point: PPD in range **and** the bed still arrives. A cheaper oxygen concentrator that misses discharge is a miss, not a win.
+
+### Design posture
+
+- **Least-technical users.** Phone-first, large tap targets, short copy, no DME jargon. BetterRX's own meds product is "100% mobile, works on every smartphone, no app required" ([betterrx.com/technology](https://www.betterrx.com/technology)). Copy that bar.
+- **Philosophy of care / guardrails.** Do not dump a catalog and hope. Guide the nurse to the clinically appropriate, cost-aware choice the way BetterRX Guardrails do for meds (preferred option first, exception with a reason, DON sees overrides).
+- **Assumptions are allowed** where partnership / "do we use their software?" is unknown. State them. The FAQ says the same for vendor ops.
+
+### Ordering
+
+- Ordering lives **in this DME surface**, not only as a tracker of orders placed by fax.
+- Three decision factors, in this order of "will it be there when we need it":
+  1. **In stock** (or unknown, with a fallback — FAQ: live inventory API is unlikely; design the option)
+  2. **When expected to be delivered**
+  3. **Price**
+- **Real prices for meds** on the same patient view so DME spend sits next to pharmacy spend (brief: total cost-of-care; BetterRX already sells transparent pass-through med pricing).
+- DME is **open authorization** (not eRx / DEA / payer prior-auth). That is why a nurse can place the order from the car. Do not copy pharmacy compliance chrome onto DME.
+
+### Personas (hospice)
+
+| Persona | When they order | What they need from the demo |
+|---|---|---|
+| **Admissions nurse** | Most likely to order DME. Patient entered in EMR, ADT flows into BetterRX. | Fast phone order at admission. STAT bed + oxygen. Discharge window visible. |
+| **Case manager** | Regular visits. Orders when diagnosis progresses. IDT meeting. | Visibility of what is already in the home. Add equipment without a new phone tree. |
+| **Director of nursing** | Rarely places the order. Approves cost thresholds. Reporting. Balance of care and cost. | Approval queue, override reasons, step-timing, **DME PPD vs target** next to meds PPD. |
+
+Vendor dispatcher is **not** a primary persona for judging (FAQ §3). Bonus: SMS / email confirm, optional photo of condition.
+
+### Accountability and blame
+
+Hospice gets blamed when DME is late or dirty even though BetterRX's current partners are pharmacies, not DME vendors. Help the hospice:
+
+- **Make the right vendor / item choice** up front (stock, ETA, price, condition history if we have fixture data)
+- **Hold a timestamped trail** of each step (ordered → vendor confirmed → dispatched → delivered → pickup requested → picked up) so "how long to pickup" is a number, not a he-said
+
+Condition / cleanliness is a **differentiator, not required** (FAQ §9). A photo or checklist on delivery / pickup is the smallest version.
+
+### Devices and setting
+
+- Primary device: **phone**. Tablets and laptops exist. No office inventory closet. Nurse is in the car / at the bedside.
+- Current BetterRX software is **web-based**. Do not require a native app install for the demo.
+
+### Integration facts from the room
+
+- Hospice EMRs: Homecare Homebase (HCHB), WellSky, and the rest of the brief's four (Axxess, MatrixCare). **Epic is hospital-focused**, not the hospice default.
+- **ADT can be assumed received.** BetterRX already gets admission / discharge / death into eRx (FAQ §4). Paperwork often lags the patient. **Care before paperwork** — do not block a STAT bed on a missing form.
+- Pickup: notes plus FAQ §8 — **nurse in the home is primary**; EMR death event is fallback.
+
+### SLA assumption to state in the pitch
+
+Urgent / admission (bed, oxygen): **same day**. Routine: **within 24 hours**. Configurable. Not a BetterRX contract term (FAQ §7).

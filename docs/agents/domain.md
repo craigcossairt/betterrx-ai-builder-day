@@ -1,14 +1,15 @@
 # Domain Docs
 
-How the engineering skills should consume this repo's domain documentation.
+How the engineering skills should consume this repo's domain documentation when exploring the codebase.
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root
-- **`docs/adr/`** — read ADRs that touch the area you're about to work in
-- **`docs/primary-bounty.md`** and **`docs/hackathon.md`** for the weekend slice (not glossary)
+- **`CONTEXT.md`** at the repo root (BetterRX glossary already exists)
+- **`CONTEXT-MAP.md`** at the repo root if it exists — it points at one `CONTEXT.md` per context. Read each one relevant to the topic.
+- **`docs/adr/`** — read ADRs that touch the area you're about to work in.
+- **`docs/primary-bounty.md`** and **`docs/hackathon.md`** — weekend slice and event clock, not domain language, but they bound what "in scope" means.
 
-If any of these files don't exist, proceed silently. `/domain-modeling` creates them lazily when terms or decisions actually get resolved.
+If a listed file doesn't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The `/domain-modeling` skill (reached via `/grill-with-docs` and `/improve-codebase-architecture`) creates them lazily when terms or decisions actually get resolved.
 
 ## File structure
 
@@ -18,15 +19,19 @@ Single-context repo:
 /
 ├── CONTEXT.md
 ├── docs/adr/
-└── docs/
+└── docs/agents/          ← issue tracker, triage labels, this file
 ```
+
+Do not introduce `CONTEXT-MAP.md` unless this becomes a genuine multi-package repo.
 
 ## Use the glossary's vocabulary
 
-When your output names a domain concept, use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
+When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
 
-If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use, or there's a real gap to note for `/domain-modeling`.
+If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
 
 ## Flag ADR conflicts
 
-If your output contradicts an existing ADR, surface it explicitly rather than silently overriding.
+If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
+
+> _Contradicts ADR-0001 (mattpocock skills + pstack) — but worth reopening because…_

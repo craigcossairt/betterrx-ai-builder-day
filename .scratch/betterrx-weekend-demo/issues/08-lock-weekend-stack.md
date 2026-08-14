@@ -1,7 +1,7 @@
 # Which weekend stack do we lock?
 
 Type: grilling
-Status: open
+Status: resolved
 Blocked by: 03
 
 ## Question
@@ -12,4 +12,6 @@ Do we lock that, or is there a reason to pay for something else (event credits, 
 
 Recommended starting point: lock Next.js + hosted Supabase + Vercel. Skip Docker. Skip full Auth until [How do hospice and vendor share one demo without real identity?](06-demo-identity.md) says otherwise.
 
-Do not resolve this ticket by picking for Craig.
+## Answer
+
+Lock Bloom's stack as the default: Next.js + TypeScript + Tailwind on Vercel. Supabase (Postgres) only if a real table is needed; otherwise fixture JSON for the first clickable slice. Skip Docker and full Auth. See `docs/prd.md` Implementation Decisions.

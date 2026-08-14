@@ -1,7 +1,7 @@
 # Where does AI earn its score versus an honest skip?
 
 Type: grilling
-Status: open
+Status: resolved
 Blocked by: 01
 
 ## Question
@@ -21,4 +21,6 @@ Options to stress:
 
 `docs/primary-bounty.md` already leans (1): rules first, AI only if it beats that baseline out loud.
 
-Recommended starting point: (1). Do not resolve this ticket by picking for Craig.
+## Answer
+
+Honest skip. `docs/prd.md` and `docs/primary-bounty.md`: at-risk is `eta > deadline` (or pickup SLA elapsed). Guardrail ranking is beats-window, then price, then known stock. Do not use a model to write the "why flagged" sentence. Optional later: diagnosis to suggested equipment with human confirm. Not this weekend.

@@ -1,7 +1,7 @@
 # What is the vendor-side original move?
 
 Type: grilling
-Status: open
+Status: resolved
 Blocked by: none
 
 ## Question
@@ -21,4 +21,8 @@ The brief also lists fleet routing, serialized inventory, SLA contracts, and res
 
 Recommended starting point: (1) plus a thin dispatcher board that can accept, set ETA, and capture proof of delivery. That is the cold-start the brief asked for, and it mirrors BetterRX's own Order Hub (preview / accept / status) without pretending we have a network.
 
-Do not resolve this ticket by picking for Craig.
+## Answer
+
+FAQ §3 plus `docs/prd.md` lock this. Network-building and invite-and-claim are out of weekend scope. Vendor baseline is SMS or magic-link confirm with no account. A dispatcher portal is stretch, not the original move. Proof of delivery (time, optional photo) is a hospice-visible timestamp, not a billing engine.
+
+The weekend original claim is hospice-side: phone order with three-factor cards, Guardrails, nurse-tap pickup, DON cost PPD.

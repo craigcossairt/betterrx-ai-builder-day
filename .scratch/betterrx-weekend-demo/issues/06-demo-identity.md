@@ -1,7 +1,7 @@
 # How do hospice and vendor share one demo without real identity?
 
 Type: grilling
-Status: open
+Status: resolved
 Blocked by: none
 
 ## Question
@@ -17,4 +17,6 @@ Options to stress:
 
 Recommended starting point: (2), plus a visible role control so a single laptop can still flip. Pitch line: production is hospice SSO and vendor invite; Saturday is two doors on one store.
 
-Do not resolve this ticket by picking for Craig.
+## Answer
+
+`docs/prd.md`: hospice role switcher (admissions nurse / case manager / DON). No real auth. Vendor does not need a portal login; confirm via a simulated SMS / magic-link inbox in the demo. A `/vendor` door is stretch.

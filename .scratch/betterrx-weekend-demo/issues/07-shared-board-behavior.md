@@ -1,7 +1,7 @@
 # How should the shared order board behave?
 
 Type: prototype
-Status: open
+Status: resolved
 Blocked by: 04, 06
 
 ## Question
@@ -14,4 +14,6 @@ Talking cannot settle the two-sided board. After [What is the vendor-side origin
 - Death to Pickup Triggered without a phone-call step
 - Whatever vendor-side move ticket 04 locked
 
-Link the prototype as an asset. Craig picks. Do not ship the prototype as the app.
+## Answer
+
+Skip the throwaway. The PRD already specifies board behavior (lifecycle, at-risk why, discharge-ready gate, nurse-tap pickup). Next step is the running app against `docs/prd.md`, not a second prototype.
