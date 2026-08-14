@@ -8,7 +8,7 @@ Certainty: brief and FAQ are BetterRX's written words. Q&A notes are Craig's cap
 
 A hospice nurse needs a hospital bed and oxygen in the home before the patient leaves the facility. After a death, that equipment has to leave the home quickly and respectfully. The hospice does not run the DME company. Families and CAHPS still blame the hospice when the bed is late, dirty, or still in the living room four days later.
 
-Today the nurse orders by phone, fax, or a vendor portal she barely uses. She cannot see stock, ETA, and price in one place. The admissions nurse is in her car, on a phone, not at a desk. The case manager notices progression at a visit or IDT and has to start another phone tree. The director of nursing finds out about cost and delays in a report after the miss.
+Today the nurse orders by phone, fax, or a vendor portal she barely uses. She cannot see stock, ETA, and price in one place. The admissions nurse is in her car, on a phone, not at a desk. The case manager notices progression at a visit or IDT and has to start another phone tree. The director of nursing finds out about cost and delays in a report after the miss. A hospice buyer will ask, in those words: **how are you going to decrease my DME PPD?** PPD here is cost per patient per day, the same metric BetterRX already tracks for medications. Small increases compound across the census. Cutting it by skipping the bed is not an answer.
 
 BetterRX already solved this shape for **medications**: mobile ordering, real prices, Guardrails that steer the right choice, DON approvals, EMR ADT in, pharmacy confirm out. DME has no equivalent. DME is also less regulated than prescriptions (open authorization), so the order can live in this product without pretending to be an eRx.
 
@@ -22,7 +22,7 @@ The admissions nurse (or case manager) places an order by choosing equipment wit
 
 Vendors in the demo are fixtures. They confirm by SMS or magic-link email. They do not need an account. A thin portal is a stretch, not the pitch.
 
-DME spend sits next to real medication prices on the patient. Each lifecycle step has a timestamp so the DON can see "hours to pickup" and hold a vendor to it.
+DME spend sits next to real medication prices on the patient. Each lifecycle step has a timestamp so the DON can see "hours to pickup" and hold a vendor to it. The DON view shows **DME PPD vs a labeled target**, next to meds PPD, and the drivers (idle rental days after death, buffer days, overrides of the preferred option). That screen is the answer to Todd's buyer question.
 
 The demo is a **running app** with real order state. A mockup or visual prototype does not count (brief + room).
 
@@ -66,6 +66,10 @@ The demo is a **running app** with real order state. A mockup or visual prototyp
 34. As a case manager, I want to order wound-care or incontinence supplies from the same patient screen as the bed, so that I am not calling a third vendor after I already called pharmacy and DME. (Stretch. Only after stories 1-32 work.)
 35. As a director of nursing, I want supply spend on the same PPD picture as meds and DME, so that the third vendor is not a blind spot. (Stretch.)
 36. As a BetterRX product person, I want supplies to reuse the DME order and status model with a `kind` of supply and no pickup states, so that one-stop-shop is a catalog plus a rule, not a second app. (Stretch.)
+37. As a director of nursing, I want census DME PPD (cost per patient per day) next to a labeled target, so that I can answer "how will you decrease my DME PPD" with a number on screen.
+38. As a director of nursing, I want PPD drivers listed (idle days after death, buffer days before discharge, preferred-option overrides), so that I know which lever moved the number.
+39. As a hospice buyer, I want cheaper clinically equivalent equipment preferred at order time without blocking a STAT bed, so that PPD falls without starving care.
+40. As a hospice buyer, I want pickup to stop the DME daily clock the same day as death, so that I stop paying for a bed the family no longer needs.
 
 ## Implementation Decisions
 
@@ -84,11 +88,13 @@ The demo is a **running app** with real order state. A mockup or visual prototyp
 - **Lifecycle timestamps** on every transition: Ordered, Vendor confirmed, Dispatched, In transit, Delivered, Pickup requested, Pickup scheduled, Picked up, plus At-risk and Pickup delayed flags.
 - **Discharge-readiness:** required items must be Delivered, or DON/nurse override with reason.
 - **DME next to meds:** patient view shows fixture meds from `erx-sample-payloads.json` with visible prices, plus DME lines. Prices are labeled synthetic except where we can cite CMS PUF averages.
+- **DME cost PPD (required on DON view):** average DME cost per patient per day for the census. Formula: sum of daily rates for equipment that is Delivered and not yet Picked up, divided by patient-days in the window. Show actual vs a fixture target. List drivers: extra days after pickup-triggered, buffer days before discharge, orders that overrode the preferred (cheaper) option. Label numbers synthetic. Do not claim a dollar savings we did not compute from the fixtures.
+- **Two PPD words:** cost PPD is the hospice spend metric (Todd). Tech PPD is BetterRX's fee (FAQ §5). The buyer question is cost PPD. The pitch may mention tech PPD as how BetterRX gets paid, not as the savings story.
 - **Identity of equipment:** HCPCS E-codes (E0250 bed, E0601 concentrator/CPAP, E1130 wheelchair as in sample orders).
 - **Working code bar:** Next.js (or equivalent) deployed or `npm run dev` that a judge can tap. Order create, status transition, at-risk, and pickup must persist in app state (memory or DB). Figma, Framer, v0 static, and click-dummy HTML fail.
 - **Supplies (stretch, after DME is clickable):** `Order.kind`: `dme` | `supply` | `medication`. Same three-factor cards and vendor-confirm SMS. Supplies use a small fixture catalog (wound care, incontinence, gloves). No pickup-triggered / pickup-delayed states. Optional HCPCS A-codes if we have a clean fixture; do not invent codes. Same DON cost gate.
 - **Condition photo:** optional on delivery and pickup confirm. Differentiator, not a blocker if time runs out.
-- **Who pays (pitch, not billing engine):** hospice PPD bundled with BetterRX pharmacy-tech PPD (FAQ §5). Do not invent a vendor-spread marketplace.
+- **Who pays (pitch, not billing engine):** hospice pays BetterRX a **tech PPD** that can be bundled with pharmacy-tech PPD (FAQ §5). That is not the answer to "decrease my DME PPD." Cost PPD is.
 - **Integration sketch (diagram, not live EMR):** BetterRX already receives ADT. Ingest `newOrUpdatePatient` and `newMedications`. Emit DME order/status events keyed by the same `patient.identifiers`. Name HCHB as the primary EMR story (dedicated DME integration layer); mention WellSky's 2024 DME acquisition as the competitive risk.
 - **Stack default:** Next.js + TypeScript + Tailwind on Vercel, Supabase (Postgres) if we need a real table, otherwise fixture JSON in-repo for the first clickable slice. Matches Bloom so Craig can steer it. Revisit only if something is clearly faster.
 - **Synthetic data only.** Seed from `docs/briefs/sample-orders.json` and `docs/briefs/erx-sample-payloads.json`. No real PHI.
@@ -96,9 +102,10 @@ The demo is a **running app** with real order state. A mockup or visual prototyp
 
 ## Testing Decisions
 
-- Test **observable behavior**, not React internals: order created, status moved, at-risk reason string, pickup from nurse tap vs EMR event, DON approval gate, discharge-ready blocked.
-- First seam: a pure function / service for order lifecycle + at-risk rule + pickup trigger. UI tests after that seam is green.
+- Test **observable behavior**, not React internals: order created, status moved, at-risk reason string, pickup from nurse tap vs EMR event, DON approval gate, discharge-ready blocked, DME PPD number on the DON view.
+- First seam: a pure function / service for order lifecycle + at-risk rule + pickup trigger + PPD. UI tests after that seam is green.
 - Good tests use the sample-order literals (DME-10305 misses 4:30 PM with 5:10 PM ETA; DME-09803 pickup delayed four days) as expected values, not recomputed copies of the scoring code.
+- PPD expected value from fixtures, not from the implementation: four extra billable days on DME-09803 vs picked-up-same-day. Mutate by stopping the clock at trigger and confirm the DON number drops.
 - No live EMR, SMS, or CMS API in unit tests. Fixtures only.
 - Mutate the at-risk condition (flip `eta > deadline` to `>=` or remove it) and confirm DME-10305 goes green-when-it-should-fail before trusting the suite.
 - If supplies stretch ships: assert a supply order cannot enter pickup-triggered. Mutate by allowing it and confirm that case fails.
@@ -115,6 +122,7 @@ The demo is a **running app** with real order state. A mockup or visual prototyp
 - Solving dirty/broken equipment as a required workflow (photo is optional stretch).
 - Spreading DME margin as a BetterRX-owned network.
 - Supplies as a second product, or supplies work that starts before the three DME demo scenarios run.
+- Claiming a DME PPD dollar savings we did not compute from fixtures.
 
 ## Further Notes
 
@@ -126,7 +134,16 @@ The demo is a **running app** with real order state. A mockup or visual prototyp
 
 1. **Discharge-ready.** Admissions nurse orders E0250 + oxygen for a same-day discharge. Card shows stock / ETA / price. ETA misses the window → at-risk explains why → escalate. Override discharge-ready is visible.
 2. **Post-death pickup.** Case manager taps Pickup in the home. Clock starts. If she does not, an EMR death event does. Delayed pickup shows hours elapsed and that the family has called (fixture).
-3. **Prevent a miss.** At-risk fires before late. DON sees the timing report. Nurse switches vendor or pulls discharge left.
+3. **Prevent a miss.** At-risk fires before late. DON sees the timing report and DME PPD vs target. Nurse switches vendor or pulls discharge left. Speak the buyer line: this is how DME PPD comes down without skipping the bed.
+
+**Pitch answer to "How are you going to decrease my DME PPD?"** (Todd). Say it out loud. Point at the DON screen.
+
+1. Pickup the same day as death so rental days stop (idle equipment is extra PPD).
+2. A trusted ETA so the hospice stops parking a buffer day.
+3. Guardrails: preferred, lower-cost equivalent first; STAT still goes through.
+4. Meds PPD and DME PPD on one census. Supplies if we got there.
+
+Do not quote a made-up savings percentage. The fixtures are the proof.
 
 **AI posture for the pitch:** rules for at-risk and ranking. Honest skip. If time allows, a small LLM pass that drafts the "why flagged" sentence from structured fields is worse than a template, so do not. Optional later: diagnosis → suggested equipment list with human confirm (C90.00 in the sample patient is multiple myeloma; still confirm, never auto-order).
 

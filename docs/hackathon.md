@@ -52,7 +52,7 @@ Close the coordination gap between hospices and durable medical equipment vendor
 
 **Data:** synthetic only. Sample orders are in `docs/briefs/dme-sample-orders.html`. CMS PUFs for distributions, not as fake orders.
 
-**Deliverables:** working app with real order state (Figma, Framer, and other visual prototypes will not count; restated in the room), AI rationale or skip rationale with rough cost, differentiation snapshot, integration diagram, 2-3 scenarios (discharge-ready, post-death pickup, prevent a miss). Supplies on the same patient is stretch, not a substitute for DME.
+**Deliverables:** working app with real order state (Figma, Framer, and other visual prototypes will not count; restated in the room), AI rationale or skip rationale with rough cost, differentiation snapshot, integration diagram, 2-3 scenarios (discharge-ready, post-death pickup, prevent a miss). DON screen must be ready to answer "how do you decrease my DME PPD." Supplies on the same patient is stretch, not a substitute for DME.
 
 **Scoring:** 30% differentiation vs today's DME, 25% real user problems, 15% architecture/integration, 15% AI ROI, 15% UX.
 

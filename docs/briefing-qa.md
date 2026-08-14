@@ -30,6 +30,10 @@ Follow-ups Craig added after the room:
 > They want to see real working code, not just a mockup or visual prototype.
 > Hospices have 3 separate vendors for pharmacy, DME, and supplies. BetterRX already handles the pharmacy side. This bounty is specifically about DME. If we are also able to help with supplies, that could put the submission over the top because they become a one-stop shop for everything needed for hospice care.
 
+Slack from Todd Blaquiere (BetterRX bounty channel, 4:44 PM). Prepare to answer a hospice buyer: **"How are you going to decrease my DME PPD (costs)?"**
+
+> PPD (Per Patient Day): The average medication or DME cost to care for one hospice patient for one day. A critical financial metric. Small increases compound across hundreds or thousands of patients. Hospices aim to keep PPD in a target range while still getting patients the medications and DME they need for comfort and quality of life.
+
 ## Structured takeaways
 
 ### Working app, not a prototype
@@ -49,6 +53,27 @@ Hospices today split fulfillment across **three** vendors:
 Do not let supplies steal the DME demo. The rubric is DME ordering and visibility. Supplies is the extra that makes BetterRX pharmacy + DME + supplies instead of "we only did the bounty."
 
 The original brief's "resupply cadence for consumables (CPAP supplies, wound care)" is the DME-attached version of this. Treat a third **supplies vendor** as the fuller one-stop-shop story, not as CPAP filters hiding inside a bed order.
+
+### DME PPD (the buyer question)
+
+Two different "PPD"s. Do not mix them.
+
+| Term | Whose money | Source |
+|---|---|---|
+| **Cost PPD** | What the hospice spends per patient per day on meds or DME | Todd, 4:44 PM. Same metric BetterRX already sells for pharmacy. |
+| **Tech PPD** | What the hospice pays BetterRX as a software / coordination fee | FAQ §5. Can be bundled with the existing pharmacy-tech PPD. |
+
+The pitch question is **cost PPD**: "How are you going to decrease my DME PPD?" Do not answer with "our SaaS fee is cheap." Show the spend going down, or show why it stops going up, without starving care.
+
+Levers we can actually demo (each has a brief quote or a BetterRX meds analog). Do not invent a dollar savings number.
+
+1. **Stop paying for idle equipment.** Delayed pickup bills extra days. Hospice COO in the brief: if they do not pick it up, the hospice pays an additional day.
+2. **Stop padding a buffer day.** Hospices park equipment a day early because they do not trust ETA. A trusted window removes that extra PPD day.
+3. **Steer the cheaper equivalent at order time.** Guardrails, same as BetterRX meds. Preferred option first. Override with a reason.
+4. **Do not double-order.** Case manager sees what is already in the home.
+5. **One picture.** Meds PPD (fixture, BetterRX already) next to DME PPD, plus supplies if the stretch landed. DON sees actual vs a labeled target.
+
+Balance is the point: PPD in range **and** the bed still arrives. A cheaper oxygen concentrator that misses discharge is a miss, not a win.
 
 ### Design posture
 
@@ -72,7 +97,7 @@ The original brief's "resupply cadence for consumables (CPAP supplies, wound car
 |---|---|---|
 | **Admissions nurse** | Most likely to order DME. Patient entered in EMR, ADT flows into BetterRX. | Fast phone order at admission. STAT bed + oxygen. Discharge window visible. |
 | **Case manager** | Regular visits. Orders when diagnosis progresses. IDT meeting. | Visibility of what is already in the home. Add equipment without a new phone tree. |
-| **Director of nursing** | Rarely places the order. Approves cost thresholds. Reporting. Balance of care and cost. | Approval queue, override reasons, step-timing report, DME next to meds. |
+| **Director of nursing** | Rarely places the order. Approves cost thresholds. Reporting. Balance of care and cost. | Approval queue, override reasons, step-timing, **DME PPD vs target** next to meds PPD. |
 
 Vendor dispatcher is **not** a primary persona for judging (FAQ §3). Bonus: SMS / email confirm, optional photo of condition.
 

@@ -52,6 +52,10 @@ _Avoid_: claiming a live EMR, inventing a DME eRx protocol, leading with Epic
 A running application whose order state moves because code ran. Judges click it.
 _Avoid_: Figma, Framer, static HTML, click-dummy slides, "visual prototype"
 
+**PPD**:
+Two meanings. **Cost PPD** is average med or DME spend per patient per day (Todd; the buyer question). **Tech PPD** is BetterRX's fee (FAQ §5). The demo shows cost PPD. Pickup stops the DME daily clock. Guardrails steer the cheaper equivalent. Do not invent a savings dollar.
+_Avoid_: answering "decrease my DME PPD" with the SaaS fee, cutting the bed to make the number pretty, mixing the two PPDs
+
 **Pharmacy / DME / supplies**:
 Three vendor contracts at a hospice today. BetterRX already is pharmacy. This bounty is DME. Supplies (consumables, third vendor) is stretch on the same board after DME works. Consumables are not picked up after death.
 _Avoid_: rebuilding eRx, starting with supplies, treating gloves as a hospital bed, a second supplies app

@@ -21,7 +21,7 @@ The smallest path a judge can click against the rubric. Full spec: `docs/prd.md`
 3. **Discharge-readiness.** Hospice cannot mark a patient ready to go home until required equipment is Delivered (or they override with a reason).
 4. **Post-death pickup.** Nurse in the field taps Pickup as the primary path. EMR/ADT death is the fallback. No extra phone call as the happy path.
 5. **One explainable at-risk rule.** Fire *before* late. First rule: ETA vs discharge window, or pickup window after death. Surface "why flagged" in plain words. Escalate to a person. Step timestamps so the DON can see hours-to-pickup.
-6. **DON cost gate and DME-next-to-meds.** Threshold approval. Real (fixture) med prices beside DME lines. Override reasons stay visible.
+6. **DON cost gate, DME-next-to-meds, and DME PPD.** Threshold approval. Fixture med prices beside DME lines. Census DME PPD vs a labeled target, with drivers (idle pickup days, buffer days, preferred-option overrides). This screen answers Todd's buyer question: how do you decrease my DME PPD?
 
 The slice is a **running app**. Mockups and visual prototypes fail the brief and were restated in the room.
 
@@ -35,7 +35,7 @@ The original brief called vendor-side recruitment the differentiator. The **FAQ 
 
 1. Discharge-ready: bed + oxygen must land before the patient goes home. At-risk fires when ETA misses the window.
 2. Post-death pickup: nurse tap (then EMR fallback) triggers pickup. Delayed pickup is visible, with elapsed time.
-3. Prevent a miss: an at-risk flag escalates before the family or the discharge nurse finds out the hard way.
+3. Prevent a miss: an at-risk flag escalates before the family or the discharge nurse finds out the hard way. DON PPD vs target is on screen for the buyer question.
 
 ## AI posture
 
