@@ -6,23 +6,25 @@ alwaysApply: true
 # pstack model configuration. One line per role. Delete a line to fall back to the skill default.
 # `inherit-parent` or `auto` as a value: the role runs on the parent chat model (omit Task `model`). Alias entries in a panel list still count toward its fan-out.
 #
-# Slugs below were confirmed against this cloud agent's Task `model` enum on 2026-08-14.
-# Upstream pstack defaults (`grok-4.6-fast-xhigh`, `gpt-5.6-sol-max`, `claude-fable-5-thinking-max`, `claude-opus-5-thinking-xhigh`) are not in that enum, so each maps to the closest available slug.
+# All roles use Grok 4.6 (discounted, requested 2026-08-14).
+# The only Grok 4.6 slug in this cloud agent's Task `model` enum is `cursor-grok-4.6-high-fast`.
+# Upstream names (`grok-4.6-fast-xhigh`, `grok-4.6-xhigh`) are not in that enum and must not be written.
+# Panel roles keep four entries so fan-out stays four parallel Grok runs, not mixed families.
 feature, refactoring: cursor-grok-4.6-high-fast
-bug-fix: gpt-5.6-sol-xhigh
-perf-issue: gpt-5.6-sol-xhigh
-hillclimb: gpt-5.6-sol-xhigh
-judgment and prose: claude-fable-5-thinking-xhigh
-hardest tasks: claude-fable-5-thinking-xhigh
+bug-fix: cursor-grok-4.6-high-fast
+perf-issue: cursor-grok-4.6-high-fast
+hillclimb: cursor-grok-4.6-high-fast
+judgment and prose: cursor-grok-4.6-high-fast
+hardest tasks: cursor-grok-4.6-high-fast
 how explorer: cursor-grok-4.6-high-fast
-how explainer: claude-fable-5-thinking-xhigh
-how critics: claude-fable-5-thinking-xhigh, gpt-5.6-sol-xhigh, cursor-grok-4.6-high-fast, claude-opus-5-thinking-high
+how explainer: cursor-grok-4.6-high-fast
+how critics: cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast
 why investigators: cursor-grok-4.6-high-fast
-why synthesizer: claude-fable-5-thinking-xhigh
-reflect tooling: gpt-5.6-sol-xhigh
-reflect judgment, divergent, synthesizer: claude-fable-5-thinking-xhigh
-arena runners: claude-fable-5-thinking-xhigh, gpt-5.6-sol-xhigh, cursor-grok-4.6-high-fast, claude-opus-5-thinking-high
-arena cross-judge pool: claude-fable-5-thinking-xhigh, gpt-5.6-sol-xhigh, cursor-grok-4.6-high-fast, claude-opus-5-thinking-high
+why synthesizer: cursor-grok-4.6-high-fast
+reflect tooling: cursor-grok-4.6-high-fast
+reflect judgment, divergent, synthesizer: cursor-grok-4.6-high-fast
+arena runners: cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast
+arena cross-judge pool: cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast
 swarm workers: cursor-grok-4.6-high-fast
-architect runners: claude-fable-5-thinking-xhigh, gpt-5.6-sol-xhigh, cursor-grok-4.6-high-fast, claude-opus-5-thinking-high
-interrogate reviewers: claude-fable-5-thinking-xhigh, gpt-5.6-sol-xhigh, cursor-grok-4.6-high-fast, claude-opus-5-thinking-high
+architect runners: cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast
+interrogate reviewers: cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast, cursor-grok-4.6-high-fast
