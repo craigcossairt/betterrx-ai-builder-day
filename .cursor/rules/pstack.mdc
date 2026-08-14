@@ -6,7 +6,7 @@ alwaysApply: true
 pstack is vendored at `vendor/pstack` (https://github.com/cursor/plugins/tree/main/pstack).
 
 - Default entry: `/poteto-mode` → read `.claude/skills/poteto-mode/SKILL.md`, which loads `vendor/pstack/skills/poteto-mode/SKILL.md`.
-- Model overrides: `.cursor/rules/pstack-models.mdc` (every role is `cursor-grok-4.6-high-fast`).
+- Model overrides: `.cursor/rules/pstack-models.mdc` (Grok 4.6 for everyday roles; Grok + Sol + Opus on adversarial panels).
 - Desktop Cursor: `/add-plugin pstack` still works; the vendor copy is for cloud agents and non-Cursor harnesses.
 - Do not copy pstack skill bodies into `.cursor/skills/` (those files are routers to `.claude/` only).
 - Project TDD authority remains `docs/methodology/tdd.md`. pstack's `/tdd` playbook may wrap it; do not skip the red-green-refactor rules.

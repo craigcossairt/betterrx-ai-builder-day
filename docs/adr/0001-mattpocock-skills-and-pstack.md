@@ -20,4 +20,4 @@ Agents on this hackathon repo need two things: a grilling/spec/ticket loop that 
 - `npx skills update` refreshes Matt Pocock skills; re-copy `vendor/pstack` to refresh pstack.
 - Name collisions (`teach`, `prototype`) resolve to the `.claude/skills/` copy. pstack's versions are reached only when `/poteto-mode` reads `vendor/pstack`.
 - Desktop Cursor can still `/add-plugin pstack`. Cloud agents use the vendor copy plus `.cursor/environment.json` install.
-- pstack roles all use `cursor-grok-4.6-high-fast` (the only Grok 4.6 slug this cloud agent can spawn). See `.cursor/rules/pstack-models.mdc`.
+- pstack everyday roles use `cursor-grok-4.6-high-fast`. Adversarial panels (how critics, arena, architect, interrogate) mix that Grok slug with `gpt-5.6-sol-xhigh` and `claude-opus-5-thinking-high` so reviewers catch different classes of issue. See `.cursor/rules/pstack-models.mdc`.
