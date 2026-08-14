@@ -7,26 +7,46 @@ changes. If the project grows into a workspace, this file graduates to `Files/Co
 
 ## Background
 
-<!-- FILL IN: what you've done before - roles, industries, companies, education. 2-5 bullets. -->
+- Craig Cossairt, solo founder/CEO of Bloom Dating, Inc. (Delaware C-Corp, incorporated 2026-03-16).
+- Career product manager. Chose PM because he likes problems with real-world impact.
+- Healthcare background: PillPack and Infor. Knows the industry at a basic working level, including
+  what a PBM is. Not a hospice or DME operator.
+- Won the Data Governance bounty at HITLAB x UVU World Cup Hackathon 2026, sponsored by the Utah
+  Office of Data Privacy. Public repo: github.com/craigcossairt/HITLAB-UVU-World-Cup-Hackathon-2026.
+  That is a different event from AI Builder Day. Do not call it an AI Builder Day win.
+- Building Bloom daily with AI coding agents (Claude Code, Cursor, Grok Build). This Trellis
+  template is extracted from that setup.
+- Utah-based. This repo is the BetterRX bounty submission for JustBuild AI Builder Day Part 2
+  (Aug 14-15 2026).
 
 ## Technical level
 
-<!-- FILL IN: honest calibration. Examples: "non-technical, first time building software",
-"can read code but don't write it", "senior engineer, new to mobile". This single line changes
-how much agents should explain vs. assume. -->
+Non-technical PM background, now a daily vibe-coder. Can read code, steer architecture, and
+ship with agents. Needs plain-language explanations of technical tradeoffs. Do not assume
+he will hand-write production code.
 
 ## Working style
 
-<!-- FILL IN: how you like to work and be worked with. Examples: "give me the direct answer
-first, detail after", "flag risks explicitly, don't soften", "I decide fast, optimize for
-options not consensus". -->
+- Address him as Craig.
+- Direct answer first, detail after. No long preambles.
+- Flag risks explicitly. Do not soften.
+- He decides fast. Optimize for a small set of ranked options, not consensus.
+- Password manager is Bitwarden, not 1Password.
 
 ## Strengths / gaps
 
-<!-- FILL IN: what you're great at, and where you want agents to compensate. Example:
-"strong at product and sales; lean on agents for architecture judgment and security review". -->
+- Strong at product judgment, founder-market fit, copy, and deciding what to build.
+- Healthcare context from PillPack and Infor is enough to talk PBM, claims, and care-ops
+  problems without faking clinician or vendor-dispatcher expertise.
+- Lean on agents for architecture, security review, test design, and implementation details.
+- Has a production Next.js + Supabase + Vercel stack on Bloom. Prefer that stack here unless
+  something else is clearly faster for a two-sided DME board.
 
 ## Current constraints
 
-<!-- FILL IN: time (nights/weekends? full-time?), budget posture, runway, other commitments -
-anything that should shape "what should I do this week" advice. -->
+- Full-time on Bloom. This is a two-day hackathon, not a new company.
+- Solo. BetterRX recommends 1-3 and caps their room at 8 teams.
+- Competitive build clock: Friday 1:30 PM to Saturday 2:00 PM (about 24 hours). Judging 2:00 PM Saturday.
+- Scope for a working demo, not a finished marketplace.
+- Budget: use free tiers and whatever credits the event provides.
+- Synthetic data only. No real patient, hospice, or vendor records.

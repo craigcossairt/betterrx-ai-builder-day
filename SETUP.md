@@ -8,23 +8,24 @@ Work top to bottom. Delete this file when done (or keep it until the project has
 
 ## 1. Identity (5 min)
 
-- [ ] `AGENTS.md` - fill every `<!-- FILL IN -->` slot: project name, owner, stage, tech stack
-      table, getting-started commands.
-- [ ] `AGENTS.md` § Delegation - fill in the current model names for each tier (they turn over
+- [x] `AGENTS.md` - fill every `<!-- FILL IN -->` slot: project name, owner, stage, tech stack
+      table, getting-started commands. Stack left TBD until the app is scaffolded.
+- [x] `AGENTS.md` § Delegation - fill in the current model names for each tier (they turn over
       every few months; the tier structure is the stable part).
-- [ ] Decide the em-dash rule (keep or delete the optional content rule).
-- [ ] `docs/about-me.md` - fill in your background, technical level, and working style. Five
+- [x] Decide the em-dash rule (keep or delete the optional content rule).
+- [x] `docs/about-me.md` - fill in your background, technical level, and working style. Five
       minutes here upgrades every piece of advice agents give you.
 
 ## 2. Tracker + docs (2 min)
 
-- [ ] Point the "Active issues + priorities" line in AGENTS.md at your issue tracker (Linear
+- [x] Point the "Active issues + priorities" line in AGENTS.md at your issue tracker (Linear
       project, GitHub Issues, etc.).
-- [ ] `docs/decision-log.md` - add your first entry: the decision to start this project.
+- [x] `docs/decision-log.md` - add your first entry: the decision to start this project.
 
 ## 3. Secrets (3 min)
 
-- [ ] `cp .env.example .env` and fill values from your password manager. `.env` is gitignored.
+- [x] `cp .env.example .env` and fill values from your password manager. `.env` is gitignored.
+      Empty stub only until a stack exists.
 - [ ] If using MCP servers: `cp .mcp.json.example .mcp.json` and fill in. Also gitignored -
       commit a scrubbed version only if the whole team should share server config.
 
@@ -59,7 +60,7 @@ Everything is optional. Delete what this project won't use:
       nothing.
 - [ ] `brain/` if the project is small enough to not need a knowledge base (you can add it back
       later - it's self-contained).
-- [ ] `examples/` once you've filled in your own AGENTS.md (it's a reference sample, nothing
+- [x] `examples/` once you've filled in your own AGENTS.md (it's a reference sample, nothing
       points to it).
 
 ## 6. Third-party tooling (optional, 5 min)

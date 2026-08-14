@@ -1,4 +1,4 @@
-# AGENTS.md - <!-- FILL IN: Project Name -->
+# AGENTS.md - BetterRX AI Builder Day
 
 > Canonical instructions for AI coding agents (Claude Code, Cursor, Codex, Gemini CLI, and others).
 > Keep this file **harness-agnostic**: anything specific to one tool belongs in that tool's own
@@ -7,10 +7,10 @@
 
 ## Project
 
-- **Name:** <!-- FILL IN -->
-- **What it is:** <!-- FILL IN: one-line description -->
-- **Owner:** <!-- FILL IN: name - email -->
-- **Stage:** <!-- FILL IN: idea / prototype / MVP / production -->
+- **Name:** BetterRX AI Builder Day
+- **What it is:** Weekend hackathon submission for the BetterRX DME Ordering and Visibility bounty ($10,000) at JustBuild AI Builder Day Part 2 (Aug 14-15 2026). Live notes: `docs/hackathon.md`, `docs/primary-bounty.md`. Official briefs: `docs/briefs/`.
+- **Owner:** Craig Cossairt - craig@bloom.date
+- **Stage:** idea
 - For the owner's background and working style, see `docs/about-me.md`
 
 ## What I Need From Agents
@@ -28,7 +28,7 @@
 too fast for a static config file. Read the live sources below before acting on anything that
 depends on what's currently active or due:
 
-- **Active issues + priorities** - <!-- FILL IN: issue tracker URL (Linear, GitHub Issues, ...) -->
+- **Active issues + priorities** - https://github.com/craigcossairt/betterrx-ai-builder-day/issues
 - **Decision history (what was decided, when, why)** - `docs/decision-log.md`
 - **Known bug patterns** - `docs/common-gotchas.md`
 
@@ -38,20 +38,20 @@ If no, it goes in the issue tracker, not here.
 
 ## Tech Stack
 
-<!-- FILL IN: delete rows that don't apply, add your own -->
+Stack is undecided. Default to whatever ships a working two-sided demo fastest. Prefer the Bloom production stack unless something is clearly faster.
 
 | Layer | Technology |
 |---|---|
-| Frontend | |
-| Backend | |
-| Database | |
-| Hosting | |
-| Issue Tracking | |
-| Error Tracking | |
+| Frontend | TBD (likely Next.js / React / TypeScript / Tailwind) |
+| Backend | TBD |
+| Database | TBD |
+| Hosting | TBD (likely Vercel) |
+| Issue Tracking | GitHub Issues |
+| Error Tracking | none yet |
 
 ## Getting Started
 
-<!-- FILL IN: the commands a fresh clone needs to run -->
+No app yet. After a stack is chosen, put the real commands here.
 
 ```bash
 # install deps:
@@ -67,6 +67,9 @@ If no, it goes in the issue tracker, not here.
 ```
 .
 ├── docs/
+│   ├── hackathon.md         # event clock + BetterRX bounty notes
+│   ├── primary-bounty.md    # why this track, weekend-sized slice
+│   ├── briefs/              # official dme-hackathon-bounty-brief + landscape + sample orders
 │   ├── common-gotchas.md    # symptom → root cause → fix table (append after every bug fix)
 │   ├── decision-log.md      # one line per decision
 │   └── methodology/         # TDD workflow, bug protocol, session habits
@@ -174,10 +177,10 @@ delegate:
 
 | Tier | Best for | Delegate to it when |
 |---|---|---|
-| Fast <!-- FILL IN: current model --> | Bulk mechanical work: exhaustive greps, file inventories, formatting | Output is large, judgment is minimal, correctness is cheap to verify |
-| Mid <!-- FILL IN --> | Routine implementation following an established pattern | The pattern exists in the repo and a review pass will catch mistakes |
-| Strong <!-- FILL IN --> | Complex implementation, debugging, refactors, code review | The task needs real reasoning within known constraints |
-| Frontier <!-- FILL IN --> | Architecture decisions, auth/security design, ambiguous tradeoffs | One-shot hard calls; the escalation target |
+| Fast (Haiku 4.5) | Bulk mechanical work: exhaustive greps, file inventories, formatting | Output is large, judgment is minimal, correctness is cheap to verify |
+| Mid (Sonnet 5) | Routine implementation following an established pattern | The pattern exists in the repo and a review pass will catch mistakes |
+| Strong (Opus 4.8) | Complex implementation, debugging, refactors, code review | The task needs real reasoning within known constraints |
+| Frontier (Grok 4.6) | Architecture decisions, auth/security design, ambiguous tradeoffs | One-shot hard calls; the escalation target |
 
 Refresh the model names when the model family turns over; the tier structure is the stable part.
 
@@ -185,11 +188,10 @@ Refresh the model names when the model family turns over; the tier structure is 
 
 - Never fabricate statistics or market data - search first
 - All externally-facing content must be original - no copying from competitors
-- <!-- OPTIONAL, keep or delete: --> No em dashes (—) in externally-facing content (marketing
-  copy, user-facing UI text, emails to outside parties, public posts). Use hyphens, commas,
-  parentheses, or separate sentences. Em dashes are fine in internal docs, code comments, and
-  commit messages.
-- <!-- OPTIONAL, keep or delete: --> **Writing rules for prose (Orwell, 1946).** Scope: the
+- No em dashes (—) in externally-facing content (marketing copy, user-facing UI text, emails to
+  outside parties, public posts). Use hyphens, commas, parentheses, or separate sentences. Em
+  dashes are fine in internal docs, code comments, and commit messages.
+- **Writing rules for prose (Orwell, 1946).** Scope: the
   externally-facing content above, plus PR descriptions and commit messages. Prose only, never
   code, identifiers, or established technical terms; swap in everyday words only where
   precision survives.
@@ -199,7 +201,7 @@ Refresh the model names when the model family turns over; the tier structure is 
   4. Never use the passive where you can use the active.
   5. Never use jargon or a scientific word where everyday English will do.
   6. Break any of these rules sooner than write something clumsy.
-- <!-- OPTIONAL, keep or delete: --> **Banned in that same scope**, as a mechanical check like
+- **Banned in that same scope**, as a mechanical check like
   the em-dash rule: *comprehensive, robust, seamless, leverage* (as a verb), *delve, utilize,
   game-changer*; the "it's not just X, it's Y" construction; rule-of-three padding ("faster,
   smarter, better"); achievement language in commits and PRs ("significantly improved",
@@ -246,5 +248,5 @@ Refresh the model names when the model family turns over; the tier structure is 
 - Use bullet points for action items
 - Use Markdown: sections, tables, numbered lists where appropriate
 - When writing externally-facing content, align with the brand voice
-  (<!-- FILL IN: link brand/voice doc when one exists -->)
+  (no brand doc yet; keep copy short, specific, and human)
 - When writing internal/working docs, prioritize clarity and speed
