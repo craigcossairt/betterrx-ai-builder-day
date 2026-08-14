@@ -70,14 +70,17 @@ No app yet. After a stack is chosen, put the real commands here.
 │   ├── hackathon.md         # event clock + BetterRX bounty notes
 │   ├── primary-bounty.md    # why this track, weekend-sized slice
 │   ├── briefs/              # official dme-hackathon-bounty-brief + landscape + sample orders
+│   ├── agents/              # issue tracker, triage labels, domain-doc layout
+│   ├── adr/                 # architecture decision records (lazy; created when needed)
 │   ├── common-gotchas.md    # symptom → root cause → fix table (append after every bug fix)
 │   ├── decision-log.md      # one line per decision
 │   └── methodology/         # TDD workflow, bug protocol, session habits
 ├── .claude/                 # Claude Code adapter (hooks, commands, skills, agents)
-├── .cursor/                 # Cursor adapter (rules + hooks + skill routers)
+├── .cursor/                 # Cursor adapter (rules + hooks + skill routers + environment.json)
 ├── .grok/                   # Grok Build adapter (config + hooks)
 ├── .githooks/               # real git pre-push hook (opt-in push gate)
 ├── bin/                     # verify-green, git-hook installer, harness hook adapter
+├── vendor/pstack/           # Lauren Tan's pstack (Cursor plugin, MIT)
 └── brain/                   # optional local knowledge base (see brain/README.md)
 ```
 
@@ -106,6 +109,32 @@ router for any harness that cannot load it directly. **While an adapter is prese
 or command needs its router in the same commit** - a procedure the harness cannot reach looks
 exactly like one that was never written. Each adapter's own directory documents its router
 format; delete the adapter and the rule goes with it.
+
+Third-party packs: Matt Pocock skills live under `.claude/skills/` like our own. pstack stays
+in `vendor/pstack`; only `/poteto-mode` and `/setup-pstack` have wrappers. Do not dump pstack
+bodies into `.cursor/skills/` (hooks CI treats those as routers to `.claude/`).
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `craigcossairt/betterrx-ai-builder-day`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`.
+See `docs/agents/triage-labels.md`. Create missing labels with `bash bin/ensure-github-labels.sh`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` at the repo root plus `docs/adr/`. See `docs/agents/domain.md`.
+
+### Which flow to use
+
+- **Shape the work:** `/grill-with-docs` then `/to-spec` then `/to-tickets`. `/ask-matt` if lost.
+- **Build it:** `/implement` (drives TDD) or `/poteto-mode` for Cursor-native playbooks.
+- **TDD authority:** `docs/methodology/tdd.md` via `/tdd`. Matt Pocock's `tdd` skill is not installed. pstack's `/tdd` may wrap the same loop; do not skip red-green-refactor.
+- **Older Trellis path:** `/write-a-prd` and `/prd-to-issues` still exist. Prefer the Matt Pocock flow above for new work.
 
 ## Rules
 
@@ -138,7 +167,8 @@ format; delete the adapter and the rule goes with it.
 - **Autonomous bug fixing** - when given a bug report, follow `docs/methodology/bug-protocol.md`
   automatically. If details are missing, ask for them.
 - **TDD by default** - for code work, follow `docs/methodology/tdd.md`. Write failing tests first,
-  then implement.
+  then implement. That file is the TDD authority even when `/implement` or a pstack playbook
+  also mentions tests.
 - **Simplicity first** - make every change as simple as possible. Minimize code impact. No
   temporary fixes - find root causes.
 
@@ -250,3 +280,29 @@ Refresh the model names when the model family turns over; the tier structure is 
 - When writing externally-facing content, align with the brand voice
   (no brand doc yet; keep copy short, specific, and human)
 - When writing internal/working docs, prioritize clarity and speed
+
+## Cursor Cloud
+
+Durable notes for cloud agents. Update as the project grows a real stack.
+
+- **No application yet (idea stage).** There is no dev server, build step, database, or web UI to
+  run. The runnable content is bash guardrail scripts plus docs. Once a stack lands, replace this
+  section's lint/test note and fill in `## Getting Started` with the real commands.
+- **Lint/test = the `hooks-ci` checks.** The canonical suite lives in
+  `.github/workflows/hooks-ci.yml`: CRLF scan, `bash -n`, `shellcheck -S warning -x`, exec-bit
+  check on `.githooks/*` and `bin/*`, skill/command/router frontmatter validation, and JSON parse
+  of the harness config files. Run those same commands locally to reproduce CI; there is no
+  separate `npm test`.
+- **`shellcheck` is the only tool not already in the base image.** `bash`, `git`, `node`, `npm`,
+  `jq`, and `python3` are preinstalled; `bin/cloud-agent-install.sh` installs `shellcheck` (apt)
+  and copies vendored pstack into `~/.cursor/plugins/local/pstack`. If a `shellcheck: not found`
+  error appears, rerun `sudo apt-get install -y shellcheck`.
+- **The tracked pre-push gate does not run in cloud agent sessions.** Cursor sets `core.hooksPath`
+  to its own agent-hooks dir, so `.githooks/pre-push` (and thus `bin/verify-green.sh`) is bypassed.
+  The push gate is also OFF by default (`GREEN_COMMANDS` empty in `bin/verify-green.sh`). When the
+  project gains real checks, fill that array and run `bash bin/verify-green.sh` manually before
+  pushing.
+- **Verify guardrails with a deliberate violation, never absence of complaints.** A no-op hook
+  looks identical to a passing one. Example: `echo '{"file_path":".env"}' | bash
+  bin/run-claude-hook.sh cursor block-sensitive-files` must exit 2 (blocked); a normal path like
+  `README.md` exits 0 (allowed).

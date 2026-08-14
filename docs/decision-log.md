@@ -10,3 +10,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 
 - **2026-08-14** - Created this private repo from craigcossairt/trellis for the BetterRX DME Ordering and Visibility bounty at AI Builder Day Part 2. Git history starts here on purpose. Sibling repos (ai-builder-day-part-2, startup-state-2) stay on their own tracks.
 - **2026-08-14** - This repo is the BetterRX product only. Do not fold GOED or MadeThis into it. See `docs/primary-bounty.md`.
+- **2026-08-14** - Installed mattpocock/skills (skip his `tdd`) and vendored poteto's pstack. GitHub Issues + default triage labels + single-context `CONTEXT.md`. TDD authority stays `docs/methodology/tdd.md`. See `docs/adr/0001-mattpocock-skills-and-pstack.md`.

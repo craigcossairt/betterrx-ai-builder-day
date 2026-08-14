@@ -248,7 +248,7 @@ jobs:
           # error the harness reports - it declines to load the file and the
           # guardrails silently cease to exist.
           fail=0
-          for f in .claude/settings.json .cursor/hooks.json .grok/hooks/hooks.json .mcp.json.example; do
+          for f in .claude/settings.json .cursor/hooks.json .cursor/environment.json .grok/hooks/hooks.json .mcp.json.example skills-lock.json vendor/pstack/.cursor-plugin/plugin.json; do
             [ -f "$f" ] || continue
             if node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" 2>/dev/null; then
               echo "ok $f"

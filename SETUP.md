@@ -21,6 +21,11 @@ Work top to bottom. Delete this file when done (or keep it until the project has
 - [x] Point the "Active issues + priorities" line in AGENTS.md at your issue tracker (Linear
       project, GitHub Issues, etc.).
 - [x] `docs/decision-log.md` - add your first entry: the decision to start this project.
+- [x] Matt Pocock `/setup-matt-pocock-skills`: GitHub Issues, default triage labels, single-context
+      `CONTEXT.md` + `docs/adr/`. Config lives in `docs/agents/`.
+- [ ] On a laptop with `gh` write access, run `bash bin/ensure-github-labels.sh` so `/triage` and
+      `/wayfinder` labels exist. Cloud-agent tokens often cannot create labels. `wontfix` is already
+      on the repo.
 
 ## 3. Secrets (3 min)
 
@@ -28,46 +33,47 @@ Work top to bottom. Delete this file when done (or keep it until the project has
       Empty stub only until a stack exists.
 - [ ] If using MCP servers: `cp .mcp.json.example .mcp.json` and fill in. Also gitignored -
       commit a scrubbed version only if the whole team should share server config.
+      Google Drive is already attached at the Cursor account level for the bounty folder; it
+      still needs a one-time MCP auth in desktop/cloud (`needsAuth` until you sign in).
 
 ## 4. Hooks (3 min)
 
-- [ ] `.claude/hooks/format-on-edit.sh` - check the extension → formatter map covers your stack;
-      add/remove languages. It silently no-ops for missing formatters, so over-including is safe.
-- [ ] `.claude/hooks/block-sensitive-files.sh` - add project-specific generated-file patterns
-      (e.g. `*.g.dart` for Flutter, `*_pb2.py` for protobuf).
-- [ ] Hooks run through `.claude/settings.json` with `$CLAUDE_PROJECT_DIR` paths - nothing to
+- [x] `.claude/hooks/format-on-edit.sh` - JS/TS/JSON/CSS/MD prettier branches are already there
+      for the likely Next.js stack. Add/remove languages when the stack is chosen. The hook
+      silently no-ops for missing formatters.
+- [x] `.claude/hooks/block-sensitive-files.sh` - no extra generated-file patterns yet (no
+      protobuf/Flutter codegen). Add them when the stack produces them.
+- [x] Hooks run through `.claude/settings.json` with `$CLAUDE_PROJECT_DIR` paths - nothing to
       edit there unless you add hooks.
 - [ ] Optional push gate: fill in `GREEN_COMMANDS` in `bin/verify-green.sh` (your lint/test
       commands). Once non-empty, `git push` refuses any commit whose checks were never seen
       passing - run `bash bin/verify-green.sh` before pushing to record the proof. The wiring
       (`core.hooksPath=.githooks`) self-installs at session start; bypass with
-      `PROJECT_SKIP_VERIFY=1` for docs-only pushes. Leave the array empty to keep the gate off.
+      `PROJECT_SKIP_VERIFY=1` for docs-only pushes. Leave the array empty to keep the gate off
+      until there is an app.
 
 ## 5. Prune (2 min)
 
 Everything is optional. Delete what this project won't use:
 
-- [ ] Skills you won't need (`.claude/skills/*`) - e.g. `launch-check` is for user-facing apps.
-      Delete the matching Cursor router (`.cursor/skills/<name>/`) in the same commit; hooks CI
-      fails a router left pointing at a file you removed.
-- [ ] Harness adapters nobody on the project uses: `.cursor/`, `.grok/`, `GEMINI.md`,
-      `.github/copilot-instructions.md`. (If you keep `.cursor/` or `.grok/`, keep
-      `bin/run-claude-hook.sh` too - it's their shared hook adapter. Keeping `.cursor/` also
-      means keeping one router per skill and command - that is what makes them reachable
-      there, and CI checks the pair both ways.)
-- [ ] The push gate (`.githooks/`, `bin/verify-green.sh`, `bin/install-git-hooks.sh`) if you
-      never want push-time verification. It's inert until configured, so keeping it costs
-      nothing.
-- [ ] `brain/` if the project is small enough to not need a knowledge base (you can add it back
-      later - it's self-contained).
+- [x] Skills kept: Trellis set plus Matt Pocock engineering/productivity skills. His `tdd` was
+      skipped on purpose. pstack is vendored, not copied into `.cursor/skills/`. `launch-check`
+      stays for the Saturday demo. Matching Cursor routers exist for every `.claude/` skill and
+      command.
+- [x] Harness adapters kept (Cursor, Grok, Gemini, Copilot) - this weekend uses more than one.
+- [x] Push gate kept, still inert (`GREEN_COMMANDS` empty).
+- [x] `brain/` kept, not ingested (nothing to search yet).
 - [x] `examples/` once you've filled in your own AGENTS.md (it's a reference sample, nothing
       points to it).
 
-## 6. Third-party tooling (optional, 5 min)
+## 6. Third-party tooling
 
-- [ ] Skim `docs/recommended-tooling.md` - curated third-party skill packs (engineering
-      discipline, frontend design, persona commands) with install commands and collision
-      warnings. All user-level; install once per machine.
+- [x] Matt Pocock skills installed in-repo (`npx skills add mattpocock/skills`, pin in
+      `skills-lock.json`). Refresh with `npx skills update`.
+- [x] pstack vendored at `vendor/pstack`. Desktop: `/add-plugin pstack` still works. Cloud:
+      `bin/cloud-agent-install.sh` copies it to `~/.cursor/plugins/local/pstack`.
+- [x] pstack models: `.cursor/rules/pstack-models.mdc` (slugs confirmed on this cloud agent).
+- [ ] Optional later: Impeccable (`npx impeccable install`) once there is a UI to polish.
 
 ## 7. Brain (optional, 10 min)
 

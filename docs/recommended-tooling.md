@@ -1,28 +1,47 @@
 # Recommended third-party tooling
 
-Optional, battle-tested third-party skill packs worth installing alongside this template. These
-are **user-level installs** (they live in `~/.claude`, shared across all your projects) - install
-them once per machine, not per project. They are referenced here rather than vendored so they
-update from source and their licensing stays clean.
+Skill packs this project actually uses, plus optional ones worth knowing. Matt Pocock's skills
+and pstack are **in this repo** so cloud agents get them. Impeccable and gstack stay user-level
+until we need them.
 
 ## Matt Pocock's skills - engineering discipline
 
-Eleven skills that force the agent to slow down: grill you on the plan, run a real debug loop,
-zoom out before architecting. (`/grill-me`, `/grill-with-docs`, `/diagnose`, `/zoom-out`,
-`/improve-codebase-architecture`, `/to-prd`, `/to-issues`, `/caveman`, `/write-a-skill`, ...)
+Installed **in this repo** (not only user-level) so every harness and every cloud agent sees
+the same files. Canonical bodies: `.claude/skills/`. Pin: `skills-lock.json`. Source:
+https://github.com/mattpocock/skills
 
 ```bash
 npx skills@latest add mattpocock/skills
+# refresh later:
+npx skills update
 ```
 
-The installer is interactive - pick the skills you want and which coding agents to install them
-for, then run `/setup-matt-pocock-skills` inside your agent.
+His `tdd` skill is **not** installed. This repo's TDD authority is `docs/methodology/tdd.md`
+(`.claude/commands/tdd.md`). `/implement` still drives that `/tdd` command.
 
-**Collision warning:** his `tdd` and `implement` skills overlap with this template's `/tdd`
-command and methodology docs. Pick one TDD authority - either skip installing his `tdd`, or
-delete this template's version. Running both gives the agent two conflicting workflows.
+Preferred flow: `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement`. `/ask-matt`
+routes if you are unsure. `/write-a-prd` and `/prd-to-issues` remain as the older Trellis path.
 
-Source: https://github.com/mattpocock/skills
+## pstack - Cursor execution style (poteto)
+
+Vendored at `vendor/pstack` from https://github.com/cursor/plugins/tree/main/pstack (MIT,
+Lauren Tan). Wrappers: `/poteto-mode`, `/setup-pstack`. Model map:
+`.cursor/rules/pstack-models.mdc`.
+
+```bash
+# desktop Cursor (optional; vendor copy already works)
+# type in chat: /add-plugin pstack
+
+# cloud / this machine
+bash bin/install-pstack-local.sh
+```
+
+Do not copy pstack skill bodies into `.cursor/skills/` — hooks CI requires those files to be
+routers that name a `.claude/` target. Refresh the vendor tree using `vendor/pstack/UPSTREAM.md`.
+
+pstack also has a `/tdd` playbook inside the vendor tree. When it runs, still follow
+`docs/methodology/tdd.md`.
+
 
 ## Impeccable - frontend design quality
 
