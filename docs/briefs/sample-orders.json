@@ -1,0 +1,82 @@
+{
+  "_comment": "Synthetic sample orders from docs/briefs/dme-sample-orders.html. AI-generated placeholders. Not real patients, hospices, or vendors.",
+  "orders": [
+    {
+      "id": "DME-10231",
+      "status": "ordered",
+      "patientId": "PT-88421",
+      "hospice": "Sample Hospice A",
+      "equipment": [{ "hcpcs": "E0250", "name": "Hospital Bed" }],
+      "orderType": "admission",
+      "orderedAt": "2026-08-03T09:14:00",
+      "targetAt": "2026-08-04T14:00:00",
+      "vendorId": null,
+      "notes": "Discharge scheduled for tomorrow afternoon. No vendor assigned yet."
+    },
+    {
+      "id": "DME-10198",
+      "status": "dispatched",
+      "patientId": "PT-88190",
+      "hospice": "Sample Hospice B",
+      "equipment": [{ "hcpcs": "E1130", "name": "Wheelchair" }],
+      "orderType": "routine",
+      "vendorId": "vendor-1",
+      "eta": "today-15:40",
+      "notes": "Assigned to route 4. No urgency flag."
+    },
+    {
+      "id": "DME-10305",
+      "status": "in_transit_at_risk",
+      "patientId": "PT-88502",
+      "hospice": "Sample Hospice A",
+      "equipment": [{ "hcpcs": "E0601", "name": "CPAP / Oxygen Concentrator" }],
+      "orderType": "stat",
+      "vendorId": "vendor-2",
+      "eta": "today-17:10",
+      "dischargeAt": "today-16:30",
+      "risk": {
+        "flagged": true,
+        "why": "Discharge is scheduled for 4:30 PM. Current ETA misses that window by roughly 40 minutes."
+      }
+    },
+    {
+      "id": "DME-10087",
+      "status": "delivered",
+      "patientId": "PT-87950",
+      "hospice": "Sample Hospice C",
+      "equipment": [{ "hcpcs": "E0250", "name": "Hospital Bed" }],
+      "orderType": "admission",
+      "vendorId": "vendor-1",
+      "deliveredAt": "yesterday-11:52",
+      "proofOfDelivery": { "signature": true, "timestamp": true }
+    },
+    {
+      "id": "DME-09911",
+      "status": "pickup_triggered",
+      "patientId": "PT-87602",
+      "hospice": "Sample Hospice B",
+      "equipment": [
+        { "hcpcs": "E1130", "name": "Wheelchair" },
+        { "hcpcs": "E0601", "name": "Oxygen Concentrator" }
+      ],
+      "trigger": "patient_status_deceased",
+      "vendorId": "vendor-2",
+      "triggeredAt": "today-07:05",
+      "notes": "Pickup request sent automatically from EMR status change. Awaiting vendor scheduling."
+    },
+    {
+      "id": "DME-09803",
+      "status": "pickup_delayed",
+      "patientId": "PT-87411",
+      "hospice": "Sample Hospice C",
+      "equipment": [{ "hcpcs": "E0250", "name": "Hospital Bed" }],
+      "trigger": "patient_status_deceased",
+      "vendorId": "vendor-3",
+      "triggeredAt": "4-days-ago",
+      "risk": {
+        "flagged": true,
+        "why": "Pickup was triggered four days ago with no scheduled retrieval. Family has called the hospice twice asking for the bed to be removed."
+      }
+    }
+  ]
+}
