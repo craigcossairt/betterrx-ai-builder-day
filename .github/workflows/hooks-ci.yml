@@ -75,7 +75,12 @@ jobs:
       - name: shellcheck
         run: |
           command -v shellcheck >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck; }
-          git ls-files '*.sh' '.githooks/*' | xargs -r shellcheck -S warning -x
+          # Skip Matt Pocock's wizard library template: it declares RED for generated
+          # stages and tells us not to hand-edit the library. Everything else, including
+          # vendored pstack scripts, still has to pass.
+          git ls-files '*.sh' '.githooks/*' \
+            | grep -vE '^\.claude/skills/wizard/template\.sh$' \
+            | xargs -r shellcheck -S warning -x
 
       - name: Exec bits on git hooks (git skips non-executable hooks silently)
         run: |
