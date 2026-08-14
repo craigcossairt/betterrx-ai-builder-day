@@ -40,7 +40,7 @@ he will hand-write production code.
   problems without faking clinician or vendor-dispatcher expertise.
 - Lean on agents for architecture, security review, test design, and implementation details.
 - Has a production Next.js + Supabase + Vercel stack on Bloom. Prefer that stack here unless
-  something else is clearly faster for a two-sided DME board.
+  something else is clearly faster for a hospice-first DME order board.
 
 ## Current constraints
 
