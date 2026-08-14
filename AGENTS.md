@@ -28,7 +28,7 @@
 too fast for a static config file. Read the live sources below before acting on anything that
 depends on what's currently active or due:
 
-- **Active issues + priorities** - https://github.com/craigcossairt/betterrx-ai-builder-day/issues
+- **Active issues + priorities** - wayfinder map at `.scratch/betterrx-weekend-demo/map.md` (GitHub Issues is the intended tracker: https://github.com/craigcossairt/betterrx-ai-builder-day/issues)
 - **Decision history (what was decided, when, why)** - `docs/decision-log.md`
 - **Known bug patterns** - `docs/common-gotchas.md`
 
@@ -66,13 +66,16 @@ No app yet. After a stack is chosen, put the real commands here.
 
 ```
 .
+├── CONTEXT.md               # domain glossary (hospice DME coordination)
 ├── docs/
 │   ├── hackathon.md         # event clock + BetterRX bounty notes
 │   ├── primary-bounty.md    # why this track, weekend-sized slice
 │   ├── briefs/              # official dme-hackathon-bounty-brief + landscape + sample orders
+│   ├── agents/              # issue tracker + domain-doc pointers for engineering skills
 │   ├── common-gotchas.md    # symptom → root cause → fix table (append after every bug fix)
 │   ├── decision-log.md      # one line per decision
 │   └── methodology/         # TDD workflow, bug protocol, session habits
+├── .scratch/                # local wayfinder map (weekend planning)
 ├── .claude/                 # Claude Code adapter (hooks, commands, skills, agents)
 ├── .cursor/                 # Cursor adapter (rules + hooks + skill routers)
 ├── .grok/                   # Grok Build adapter (config + hooks)
@@ -83,6 +86,16 @@ No app yet. After a stack is chosen, put the real commands here.
 
 If this project outgrows a single repo (second repo, non-code assets piling up), see
 `docs/growing-into-a-workspace.md` for the graduation path.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues is the intended tracker. The active wayfinder map is local markdown until issues are writable from agents. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` at the repo root, ADRs under `docs/adr/` when they exist. See `docs/agents/domain.md`.
 
 ## Harness Wiring (summary)
 
