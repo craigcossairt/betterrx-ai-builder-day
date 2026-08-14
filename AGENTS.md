@@ -8,9 +8,9 @@
 ## Project
 
 - **Name:** BetterRX AI Builder Day
-- **What it is:** Weekend hackathon submission for the BetterRX DME Ordering and Visibility bounty ($10,000) at JustBuild AI Builder Day Part 2 (Aug 14-15 2026). Live notes: `docs/hackathon.md`, `docs/primary-bounty.md`. Official briefs: `docs/briefs/`.
+- **What it is:** Weekend hackathon submission for the BetterRX DME Ordering and Visibility bounty ($10,000) at JustBuild AI Builder Day Part 2 (Aug 14-15 2026). Live notes: `docs/hackathon.md`, `docs/primary-bounty.md`, `docs/prd.md`. Official briefs and FAQ: `docs/briefs/`. Friday Q&A: `docs/briefing-qa.md`.
 - **Owner:** Craig Cossairt - craig@bloom.date
-- **Stage:** idea
+- **Stage:** PRD ready, no app yet
 - For the owner's background and working style, see `docs/about-me.md`
 
 ## What I Need From Agents
@@ -38,7 +38,7 @@ If no, it goes in the issue tracker, not here.
 
 ## Tech Stack
 
-Stack is undecided. Default to whatever ships a working two-sided demo fastest. Prefer the Bloom production stack unless something is clearly faster.
+Stack is undecided. Default to whatever ships a working hospice-first demo fastest. Prefer the Bloom production stack unless something is clearly faster.
 
 | Layer | Technology |
 |---|---|
@@ -69,7 +69,9 @@ No app yet. After a stack is chosen, put the real commands here.
 ├── docs/
 │   ├── hackathon.md         # event clock + BetterRX bounty notes
 │   ├── primary-bounty.md    # why this track, weekend-sized slice
-│   ├── briefs/              # official dme-hackathon-bounty-brief + landscape + sample orders
+│   ├── prd.md               # weekend PRD (personas, stories, modules)
+│   ├── briefing-qa.md       # Friday presentation Q&A notes
+│   ├── briefs/              # official HTML briefs, FAQ, eRx payloads, sample-order JSON
 │   ├── common-gotchas.md    # symptom → root cause → fix table (append after every bug fix)
 │   ├── decision-log.md      # one line per decision
 │   └── methodology/         # TDD workflow, bug protocol, session habits

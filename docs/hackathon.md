@@ -18,8 +18,15 @@ This repo is the BetterRX submission. Do not reuse May Part 1 tracks from aibuil
 | [`docs/briefs/dme-hackathon-bounty-brief.html`](briefs/dme-hackathon-bounty-brief.html) | Full bounty brief (tabs: overview through judging) |
 | [`docs/briefs/dme-market-landscape.html`](briefs/dme-market-landscape.html) | Competitive and market landscape |
 | [`docs/briefs/dme-sample-orders.html`](briefs/dme-sample-orders.html) | Synthetic sample orders across the lifecycle |
+| [`docs/briefs/betterrx-bounty-faq.md`](briefs/betterrx-bounty-faq.md) | Pre-build FAQ (survey answers). Weekend-scope overlay on the brief. |
+| [`docs/briefs/erx-sample-payloads.json`](briefs/erx-sample-payloads.json) | Representative BetterRX eRx patient + medication payloads |
+| [`docs/briefs/sample-orders.json`](briefs/sample-orders.json) | Same six sample orders, machine-readable |
+| [`docs/briefing-qa.md`](briefing-qa.md) | Craig's Friday presentation Q&A notes |
+| [`docs/prd.md`](prd.md) | Weekend PRD synthesized from the above |
 
-Filenames match the official Drive zip so the brief's local links work.
+Filenames of the three HTML briefs match the official Drive zip so the brief's local links work.
+
+**Read order:** FAQ + Q&A notes first for weekend scope, then the HTML brief for problem quotes and rubric. Where they collide (vendor recruitment, pickup trigger, judging weight), FAQ + Q&A win.
 
 ---
 
@@ -29,14 +36,14 @@ Close the coordination gap between hospices and durable medical equipment vendor
 
 **Pain:** A new patient needs a bed/oxygen in place before discharge home. After a death, equipment must be picked up quickly and respectfully. Hospices do not control the vendor, but they take the blame (and CAHPS hit) when either moment fails. Today this is phone, fax, and vendor portals.
 
-**BetterRX's own bet to pressure-test:** delivery visibility, not DME ownership, is the higher-leverage problem. They have **no vendor network**, so day-one value cannot assume vendors are already plugged in. Cold-start is part of the problem.
+**BetterRX's own bet to pressure-test:** delivery visibility, not DME ownership, is the higher-leverage problem. They have **no vendor network**. The FAQ then scoped the weekend: treat vendor *participation* as given, do not build the network, judge mainly on hospice UX, vendor baseline is SMS/email with no login.
 
-**Lifecycle to cover:** Ordered → Dispatched → In Transit / At Risk → Delivered → Pickup Triggered → Pickup Delayed.
+**Lifecycle to cover:** Ordered → Vendor confirmed → Dispatched → In Transit / At Risk → Delivered → Pickup Triggered → Pickup Delayed.
 
 **Required surfaces:**
 
 - Hospice: patient + equipment need, discharge-readiness, post-death pickup trigger, multi-vendor, DME spend next to meds, bedside mobile/tablet.
-- Vendor (called the hardest / differentiating side): capacity, inventory, proof of delivery, SLA, resupply, billing trigger on delivery, and a path to recruit/onboard vendors from a cold start.
+- Vendor (brief still calls this the hard/original side; FAQ says bonus only this weekend): SMS/email confirm without an account. Capacity, inventory API, recruitment, and a portal are out of weekend scope or stretch.
 - Shared: real-time status both sides can see, at-risk scoring **before** something is late, escalation, explainable "why flagged."
 
 **AI bar:** if you use AI, name the rules-based alternative and why AI beats it. Defend safety (no hallucinated status/patient facts, low-confidence flagged, human confirm on high-stakes). Honest "rules are better here" is scored as judgment, not a penalty.
@@ -54,7 +61,7 @@ Close the coordination gap between hospices and durable medical equipment vendor
 ## Ground rules that will fail a demo
 
 - Figma or a static mock instead of a clickable app.
-- Assuming a vendor network already exists.
+- Building a vendor marketplace / recruitment story instead of a hospice order the FAQ told us to judge.
 - Hallucinated order status, inventory, or patient facts.
 - AI with no named rules baseline.
 - Real patient or hospice data.

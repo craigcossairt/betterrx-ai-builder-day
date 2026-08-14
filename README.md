@@ -5,6 +5,9 @@ Private hackathon repo for the [BetterRX](https://www.betterrx.com/) **DME Order
 Close the coordination gap between hospices and durable medical equipment vendors, from admission to pickup. Prize: **$10,000**. Max 8 teams.
 
 - Brief: [`docs/briefs/dme-hackathon-bounty-brief.html`](docs/briefs/dme-hackathon-bounty-brief.html)
+- FAQ (weekend overlay): [`docs/briefs/betterrx-bounty-faq.md`](docs/briefs/betterrx-bounty-faq.md)
+- Friday Q&A notes: [`docs/briefing-qa.md`](docs/briefing-qa.md)
+- PRD: [`docs/prd.md`](docs/prd.md)
 - Market landscape: [`docs/briefs/dme-market-landscape.html`](docs/briefs/dme-market-landscape.html)
 - Sample orders: [`docs/briefs/dme-sample-orders.html`](docs/briefs/dme-sample-orders.html)
 - Weekend slice: [`docs/primary-bounty.md`](docs/primary-bounty.md)
@@ -17,8 +20,8 @@ Sibling repos this weekend: [ai-builder-day-part-2](https://github.com/craigcoss
 ## Status
 
 - Repo: private, `main`
-- Stage: idea
-- Stack: TBD (prefer Next.js + Vercel unless something is clearly faster)
+- Stage: PRD ready, no app yet
+- Stack: TBD (default Next.js + Tailwind on Vercel; Supabase only if a real table is needed)
 - Issues: https://github.com/craigcossairt/betterrx-ai-builder-day/issues
 
 ## Day-1 setup
