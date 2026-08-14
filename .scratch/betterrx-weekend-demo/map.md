@@ -10,7 +10,7 @@ A locked spec for the Saturday BetterRX demo: a working hospice-first DME app a 
 
 - Domain: hospice DME coordination. Glossary: `CONTEXT.md`. Slice: `docs/primary-bounty.md`. Clock and rubric: `docs/hackathon.md`. FAQ overlay: `docs/briefs/betterrx-bounty-faq.md`. Room notes: `docs/briefing-qa.md`.
 - Tracker: GitHub Issues (`docs/agents/issue-tracker.md`). These files are the charting notes.
-- Plan, don't do. No product code on this map. After the remaining catalog decision, next step is tracer-bullet tickets against `docs/prd.md`. Do not reopen FAQ-locked grilling (vendor network, AI skip, stack lock).
+- Plan, don't do. No product code on this map. Destination reached: spec is `docs/prd.md`. Next step is tracer-bullet implementation tickets, not more grilling.
 - Craig is a healthcare PM, not a hospice or DME operator. Treat vendor-side ops as labeled assumptions.
 - Synthetic data only. No real patient, hospice, or vendor records.
 - Refer to tickets by name, not by a bare number.
@@ -26,6 +26,7 @@ A locked spec for the Saturday BetterRX demo: a working hospice-first DME app a 
 - Simulated SMS inbox is an in-app panel, not a second route. A `/vendor` door is stretch. See `docs/prd.md`.
 - [How should the shared order board behave?](issues/07-shared-board-behavior.md) — Skip the throwaway. Build the running app from the PRD.
 - [Which weekend stack do we lock?](issues/08-lock-weekend-stack.md) — Next.js + TypeScript + Tailwind on Vercel. Supabase only if a real table is needed.
+- [What fixture catalog sits under the six sample orders?](https://github.com/craigcossairt/betterrx-ai-builder-day/issues/7) — Six orders, three SKUs (E0250, E1390, E1130), two vendor options, CMS-shaped daily rates, NADAC morphine. Sample E0601-as-oxygen maps to E1390.
 
 ## Not yet specified
 

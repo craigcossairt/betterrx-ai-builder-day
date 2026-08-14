@@ -87,17 +87,18 @@ The demo is a **running app** with real order state. A mockup or visual prototyp
 - **At-risk rule (deterministic):** fire when `eta > deadline` (discharge time for delivery, trigger + pickup SLA for retrieval) **or** when a step has no vendor confirm past a short grace period. Surface the comparison in words. No model required. AI ROI story is "rules beat an LLM here."
 - **Lifecycle timestamps** on every transition: Ordered, Vendor confirmed, Dispatched, In transit, Delivered, Pickup requested, Pickup scheduled, Picked up, plus At-risk and Pickup delayed flags.
 - **Discharge-readiness:** required items must be Delivered, or DON/nurse override with reason.
-- **DME next to meds:** patient view shows fixture meds from `erx-sample-payloads.json` with visible prices, plus DME lines. Prices are labeled synthetic except where we can cite CMS PUF averages.
+- **DME next to meds:** patient view shows fixture meds from `erx-sample-payloads.json` with visible prices, plus DME lines. Morphine concentrate NDC `00054051741` shows **$0.49/mL**, labeled NADAC (CMS weekly file effective 2026-07-22, $0.48576/mL). Other DME dollars are labeled synthetic except where the fixture catalog cites CMS DMEPOS.
 - **DME cost PPD (required on DON view):** average DME cost per patient per day for the census. Formula: sum of daily rates for equipment that is Delivered and not yet Picked up, divided by patient-days in the window. Show actual vs a fixture target. List drivers: extra days after pickup-triggered, buffer days before discharge, orders that overrode the preferred (cheaper) option. Label numbers synthetic. Do not claim a dollar savings we did not compute from the fixtures.
 - **Two PPD words:** cost PPD is the hospice spend metric (Todd). Tech PPD is BetterRX's fee (FAQ §5). The buyer question is cost PPD. The pitch may mention tech PPD as how BetterRX gets paid, not as the savings story.
-- **Identity of equipment:** HCPCS E-codes (E0250 bed, E0601 concentrator/CPAP, E1130 wheelchair as in sample orders).
+- **Identity of equipment:** HCPCS E-codes. Demo catalog is E0250 hospital bed, E1390 oxygen concentrator, E1130 wheelchair. Sample-order rows that say E0601 oxygen map to E1390. Do not add CPAP (E0601) as a fourth SKU. Do not rename the wheelchair to K0001.
+- **Fixture catalog (locked):** six sample orders only; no extra SKUs. Three vendor ids from the samples (`vendor-1`, `vendor-2`, `vendor-3`). Two options on an order card: preferred (cheaper, known stock, beats the window) vs alternate (higher price and/or unknown stock and/or later ETA). Daily rates: E0250 **$2.57** (CMS July 2026 DMEPOS AL non-rural RR $76.95/mo / 30), E1390 **$3.34** ($100.21/mo / 30), E1130 **$2.00 synthetic** (no CMS row). Label CMS-shaped vs synthetic. Preferred ranking stays beats-window, then price, then known stock. Vendor-3 stays the delayed-pickup vendor on DME-09803. Do not edit `docs/briefs/sample-orders.json`; mapping lives in our seed.
 - **Working code bar:** Next.js (or equivalent) deployed or `npm run dev` that a judge can tap. Order create, status transition, at-risk, and pickup must persist in app state (memory or DB). Figma, Framer, v0 static, and click-dummy HTML fail.
 - **Supplies (stretch, after DME is clickable):** `Order.kind`: `dme` | `supply` | `medication`. Same three-factor cards and vendor-confirm SMS. Supplies use a small fixture catalog (wound care, incontinence, gloves). No pickup-triggered / pickup-delayed states. Optional HCPCS A-codes if we have a clean fixture; do not invent codes. Same DON cost gate.
 - **Condition photo:** optional on delivery and pickup confirm. Differentiator, not a blocker if time runs out.
 - **Who pays (pitch, not billing engine):** hospice pays BetterRX a **tech PPD** that can be bundled with pharmacy-tech PPD (FAQ §5). That is not the answer to "decrease my DME PPD." Cost PPD is.
 - **Integration sketch (diagram, not live EMR):** BetterRX already receives ADT. Ingest `newOrUpdatePatient` and `newMedications`. Emit DME order/status events keyed by the same `patient.identifiers`. Name HCHB as the primary EMR story (dedicated DME integration layer); mention WellSky's 2024 DME acquisition as the competitive risk.
 - **Stack default:** Next.js + TypeScript + Tailwind on Vercel, Supabase (Postgres) if we need a real table, otherwise fixture JSON in-repo for the first clickable slice. Matches Bloom so Craig can steer it. Revisit only if something is clearly faster.
-- **Synthetic data only.** Seed from `docs/briefs/sample-orders.json` and `docs/briefs/erx-sample-payloads.json`. No real PHI.
+- **Synthetic data only.** Seed from `docs/briefs/sample-orders.json` and `docs/briefs/erx-sample-payloads.json`. Map sample E0601-as-oxygen to E1390. No real PHI.
 - **Vendor ops assumptions to label in the demo:** ETAs are fixture; stock is fixture or unknown; driver routing is out of scope; SMS is simulated in-app (message inbox panel) unless a free SMS sandbox is already wired.
 
 ## Testing Decisions
@@ -109,6 +110,7 @@ The demo is a **running app** with real order state. A mockup or visual prototyp
 - No live EMR, SMS, or CMS API in unit tests. Fixtures only.
 - Mutate the at-risk condition (flip `eta > deadline` to `>=` or remove it) and confirm DME-10305 goes green-when-it-should-fail before trusting the suite.
 - If supplies stretch ships: assert a supply order cannot enter pickup-triggered. Mutate by allowing it and confirm that case fails.
+- Seed maps sample E0601-as-oxygen to E1390. A test that still shows E0601 as oxygen on a STAT discharge card is wrong.
 
 ## Out of Scope
 
@@ -132,7 +134,7 @@ The demo is a **running app** with real order state. A mockup or visual prototyp
 
 **Demo script (the three required scenarios):**
 
-1. **Discharge-ready.** Admissions nurse orders E0250 + oxygen for a same-day discharge. Card shows stock / ETA / price. ETA misses the window → at-risk explains why → escalate. Override discharge-ready is visible.
+1. **Discharge-ready.** Admissions nurse orders E0250 + E1390 oxygen for a same-day discharge. Card shows stock / ETA / price. ETA misses the window → at-risk explains why → escalate. Override discharge-ready is visible.
 2. **Post-death pickup.** Case manager taps Pickup in the home. Clock starts. If she does not, an EMR death event does. Delayed pickup shows hours elapsed and that the family has called (fixture).
 3. **Prevent a miss.** At-risk fires before late. DON sees the timing report and DME PPD vs target. Nurse switches vendor or pulls discharge left. Speak the buyer line: this is how DME PPD comes down without skipping the bed.
 
