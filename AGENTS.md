@@ -250,3 +250,28 @@ Refresh the model names when the model family turns over; the tier structure is 
 - When writing externally-facing content, align with the brand voice
   (no brand doc yet; keep copy short, specific, and human)
 - When writing internal/working docs, prioritize clarity and speed
+
+## Cursor Cloud specific instructions
+
+Durable notes for cloud agents. Update as the project grows a real stack.
+
+- **No application yet (idea stage).** There is no dev server, build step, database, or web UI to
+  run. The runnable content is bash guardrail scripts plus docs. Once a stack lands, replace this
+  section's "lint/test" note and fill in `## Getting Started` with the real commands.
+- **Lint/test = the `hooks-ci` checks.** The canonical suite lives in
+  `.github/workflows/hooks-ci.yml`: CRLF scan, `bash -n`, `shellcheck -S warning -x`, exec-bit
+  check on `.githooks/*` and `bin/*`, skill/command/router frontmatter validation, and JSON parse
+  of the harness config files. Run those same commands locally to reproduce CI; there is no
+  separate `npm test`.
+- **`shellcheck` is the only tool not already in the base image.** `bash`, `git`, `node`, `npm`,
+  `jq`, and `python3` are preinstalled; the startup update script installs `shellcheck` (apt). If
+  a `shellcheck: not found` error appears, rerun `sudo apt-get install -y shellcheck`.
+- **The tracked pre-push gate does not run in cloud agent sessions.** Cursor sets `core.hooksPath`
+  to its own agent-hooks dir, so `.githooks/pre-push` (and thus `bin/verify-green.sh`) is bypassed.
+  The push gate is also OFF by default (`GREEN_COMMANDS` empty in `bin/verify-green.sh`). When the
+  project gains real checks, fill that array and run `bash bin/verify-green.sh` manually before
+  pushing.
+- **Verify guardrails with a deliberate violation, never absence of complaints.** A no-op hook
+  looks identical to a passing one. Example: `echo '{"file_path":".env"}' | bash
+  bin/run-claude-hook.sh cursor block-sensitive-files` must exit 2 (blocked); a normal path like
+  `README.md` exits 0 (allowed).
