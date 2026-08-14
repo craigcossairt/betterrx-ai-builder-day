@@ -1,0 +1,30 @@
+---
+description: pstack per-role model choices (overrides skill defaults)
+alwaysApply: true
+---
+
+# pstack model configuration. One line per role. Delete a line to fall back to the skill default.
+# `inherit-parent` or `auto` as a value: the role runs on the parent chat model (omit Task `model`). Alias entries in a panel list still count toward its fan-out.
+#
+# Everyday roles: Grok 4.6 (discounted). Only available 4.6 slug: `cursor-grok-4.6-high-fast`.
+# Adversarial panels mix Grok, Sol, and Opus so reviewers disagree on different classes of issue.
+# Slugs confirmed against this cloud agent's Task `model` enum. Do not write upstream names
+# that are missing from that enum (`grok-4.6-fast-xhigh`, `gpt-5.6-sol-max`, `claude-opus-5-thinking-xhigh`).
+feature, refactoring: cursor-grok-4.6-high-fast
+bug-fix: cursor-grok-4.6-high-fast
+perf-issue: cursor-grok-4.6-high-fast
+hillclimb: cursor-grok-4.6-high-fast
+judgment and prose: cursor-grok-4.6-high-fast
+hardest tasks: cursor-grok-4.6-high-fast
+how explorer: cursor-grok-4.6-high-fast
+how explainer: cursor-grok-4.6-high-fast
+how critics: cursor-grok-4.6-high-fast, gpt-5.6-sol-xhigh, claude-opus-5-thinking-high
+why investigators: cursor-grok-4.6-high-fast
+why synthesizer: cursor-grok-4.6-high-fast
+reflect tooling: cursor-grok-4.6-high-fast
+reflect judgment, divergent, synthesizer: cursor-grok-4.6-high-fast
+arena runners: cursor-grok-4.6-high-fast, gpt-5.6-sol-xhigh, claude-opus-5-thinking-high
+arena cross-judge pool: cursor-grok-4.6-high-fast, gpt-5.6-sol-xhigh, claude-opus-5-thinking-high
+swarm workers: cursor-grok-4.6-high-fast
+architect runners: cursor-grok-4.6-high-fast, gpt-5.6-sol-xhigh, claude-opus-5-thinking-high
+interrogate reviewers: cursor-grok-4.6-high-fast, gpt-5.6-sol-xhigh, claude-opus-5-thinking-high
