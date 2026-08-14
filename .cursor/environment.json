@@ -1,0 +1,4 @@
+{
+  "name": "BetterRX AI Builder Day",
+  "install": "bash bin/cloud-agent-install.sh"
+}

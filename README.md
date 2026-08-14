@@ -23,4 +23,7 @@ Sibling repos this weekend: [ai-builder-day-part-2](https://github.com/craigcoss
 
 ## Day-1 setup
 
-Work through [`SETUP.md`](SETUP.md). Identity, about-me, decision log, and the BetterRX briefs are already in place. Secrets, formatter map, and prune wait until a stack exists.
+Work through [`SETUP.md`](SETUP.md). Identity, about-me, decision log, BetterRX briefs, Matt Pocock
+skills, and vendored pstack are in place. Create GitHub triage labels from a laptop
+(`bash bin/ensure-github-labels.sh`). Secrets, MCP auth, and the push gate wait until a stack
+exists.
