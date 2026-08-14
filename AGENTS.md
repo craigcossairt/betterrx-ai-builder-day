@@ -28,7 +28,7 @@
 too fast for a static config file. Read the live sources below before acting on anything that
 depends on what's currently active or due:
 
-- **Active issues + priorities** - https://github.com/craigcossairt/betterrx-ai-builder-day/issues
+- **Active issues + priorities** - https://github.com/craigcossairt/betterrx-ai-builder-day/issues (weekend planning notes also in `.scratch/betterrx-weekend-demo/`)
 - **Decision history (what was decided, when, why)** - `docs/decision-log.md`
 - **Known bug patterns** - `docs/common-gotchas.md`
 
@@ -66,6 +66,7 @@ No app yet. After a stack is chosen, put the real commands here.
 
 ```
 .
+├── CONTEXT.md               # domain glossary (hospice DME coordination)
 ├── docs/
 │   ├── hackathon.md         # event clock + BetterRX bounty notes
 │   ├── primary-bounty.md    # why this track, weekend-sized slice
@@ -77,6 +78,7 @@ No app yet. After a stack is chosen, put the real commands here.
 │   ├── common-gotchas.md    # symptom → root cause → fix table (append after every bug fix)
 │   ├── decision-log.md      # one line per decision
 │   └── methodology/         # TDD workflow, bug protocol, session habits
+├── .scratch/                # local wayfinder map (weekend planning)
 ├── .claude/                 # Claude Code adapter (hooks, commands, skills, agents)
 ├── .cursor/                 # Cursor adapter (rules + hooks + skill routers + environment.json)
 ├── .grok/                   # Grok Build adapter (config + hooks)
@@ -88,6 +90,16 @@ No app yet. After a stack is chosen, put the real commands here.
 
 If this project outgrows a single repo (second repo, non-code assets piling up), see
 `docs/growing-into-a-workspace.md` for the graduation path.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues is the tracker. Weekend planning notes also live at `.scratch/betterrx-weekend-demo/`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` at the repo root, ADRs under `docs/adr/` when they exist. See `docs/agents/domain.md`.
 
 ## Harness Wiring (summary)
 
@@ -287,7 +299,7 @@ Refresh the model names when the model family turns over; the tier structure is 
 
 Durable notes for cloud agents. Update as the project grows a real stack.
 
-- **No application yet (idea stage).** There is no dev server, build step, database, or web UI to
+- **No application yet (PRD ready).** There is no dev server, build step, database, or web UI to
   run. The runnable content is bash guardrail scripts plus docs. Once a stack lands, replace this
   section's lint/test note and fill in `## Getting Started` with the real commands.
 - **Lint/test = the `hooks-ci` checks.** The canonical suite lives in

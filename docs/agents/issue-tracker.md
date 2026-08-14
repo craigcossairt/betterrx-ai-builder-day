@@ -14,7 +14,9 @@ Issues and specs for this repo live as GitHub issues on
 
 Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
-Cloud-agent `gh` tokens are often **read-only** (list/view work; create/edit/label may 403). If a write fails, put the issue body in the session output and ask Craig to create it, or use a token with `issues: write`.
+Cloud-agent `gh` tokens are often **read-only** (list/view work; create/edit/label may 403). This repo's current cloud token can create, comment, label, and close issues (verified 2026-08-14, probe #5). If a write still 403s, put the issue body in the session output and ask Craig to create it.
+
+Weekend charting notes also live at `.scratch/betterrx-weekend-demo/`. GitHub Issues remains the tracker; do not grow a second live ticket system in markdown.
 
 ## Pull requests as a triage surface
 
