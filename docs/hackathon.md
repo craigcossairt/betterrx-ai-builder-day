@@ -52,7 +52,7 @@ Close the coordination gap between hospices and durable medical equipment vendor
 
 **Data:** synthetic only. Sample orders are in `docs/briefs/dme-sample-orders.html`. CMS PUFs for distributions, not as fake orders.
 
-**Deliverables:** working app (Figma/static will not count), AI rationale or skip rationale with rough cost, differentiation snapshot, integration diagram, 2-3 scenarios (discharge-ready, post-death pickup, prevent a miss).
+**Deliverables:** working app with real order state (Figma, Framer, and other visual prototypes will not count; restated in the room), AI rationale or skip rationale with rough cost, differentiation snapshot, integration diagram, 2-3 scenarios (discharge-ready, post-death pickup, prevent a miss). Supplies on the same patient is stretch, not a substitute for DME.
 
 **Scoring:** 30% differentiation vs today's DME, 25% real user problems, 15% architecture/integration, 15% AI ROI, 15% UX.
 
@@ -60,7 +60,7 @@ Close the coordination gap between hospices and durable medical equipment vendor
 
 ## Ground rules that will fail a demo
 
-- Figma or a static mock instead of a clickable app.
+- Figma, Framer, static mock, or other visual prototype instead of running code.
 - Building a vendor marketplace / recruitment story instead of a hospice order the FAQ told us to judge.
 - Hallucinated order status, inventory, or patient facts.
 - AI with no named rules baseline.

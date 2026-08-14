@@ -1,6 +1,6 @@
 # BetterRX AI Builder Day
 
-Language for the BetterRX DME Ordering and Visibility bounty. A hospice nurse orders DME from her phone and sees the same status the vendor just confirmed. Quality bar: an admissions nurse, case manager, or DON has a better day. Figma does not count.
+Language for the BetterRX DME Ordering and Visibility bounty. A hospice nurse orders DME from her phone and sees the same status the vendor just confirmed. Quality bar: an admissions nurse, case manager, or DON has a better day. Figma, Framer, and other visual prototypes do not count.
 
 ## Language
 
@@ -47,6 +47,14 @@ _Avoid_: copying pharmacy compliance chrome onto DME, blocking care on missing f
 **Integration sketch**:
 A diagram, not a live pipe. BetterRX eRx already receives ADT. Payloads in `docs/briefs/erx-sample-payloads.json`. Plus one of HCHB, Axxess, WellSky, MatrixCare. Equipment uses HCPCS E-codes. Epic is hospital-focused, not the hospice default. DME has no pharmacy-style e-prescribing standard.
 _Avoid_: claiming a live EMR, inventing a DME eRx protocol, leading with Epic
+
+**Working app**:
+A running application whose order state moves because code ran. Judges click it.
+_Avoid_: Figma, Framer, static HTML, click-dummy slides, "visual prototype"
+
+**Pharmacy / DME / supplies**:
+Three vendor contracts at a hospice today. BetterRX already is pharmacy. This bounty is DME. Supplies (consumables, third vendor) is stretch on the same board after DME works. Consumables are not picked up after death.
+_Avoid_: rebuilding eRx, starting with supplies, treating gloves as a hospital bed, a second supplies app
 
 **Synthetic order**:
 Fixture data only. Use `docs/briefs/dme-sample-orders.html` / `docs/briefs/sample-orders.json` and CMS PUFs for distributions. Never real patients, hospices, or vendors.

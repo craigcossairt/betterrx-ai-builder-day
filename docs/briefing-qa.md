@@ -25,7 +25,30 @@ Raw notes are the source. Interpretations are labeled. Where notes collide with 
 > Most hospice EMR homeware/homebase, well sky, etc Epic is more hospital focused.
 > ADT message can assume has been received. Paperwork does not always land before the patient. Care matters more than the paperwork.
 
+Follow-ups Craig added after the room:
+
+> They want to see real working code, not just a mockup or visual prototype.
+> Hospices have 3 separate vendors for pharmacy, DME, and supplies. BetterRX already handles the pharmacy side. This bounty is specifically about DME. If we are also able to help with supplies, that could put the submission over the top because they become a one-stop shop for everything needed for hospice care.
+
 ## Structured takeaways
+
+### Working app, not a prototype
+
+Judges must click a running application. Figma, Framer, static HTML, and "looks clickable" slides fail the brief and were restated in the room. Status has to move because code ran, not because a frame advanced.
+
+### Three vendor categories (pharmacy / DME / supplies)
+
+Hospices today split fulfillment across **three** vendors:
+
+| Category | Who handles it today | This weekend |
+|---|---|---|
+| **Pharmacy** | BetterRX already | Fixture meds on the patient (real prices). Do not rebuild eRx. |
+| **DME** | Separate DME company | **The bounty.** Bed, oxygen, wheelchair. Pickup after death. |
+| **Supplies** | A third vendor (wound care, incontinence, gloves, and similar consumables) | **Stretch after DME works.** Same order cards and status. No pickup (consumables stay used). Pitch: one-stop shop. |
+
+Do not let supplies steal the DME demo. The rubric is DME ordering and visibility. Supplies is the extra that makes BetterRX pharmacy + DME + supplies instead of "we only did the bounty."
+
+The original brief's "resupply cadence for consumables (CPAP supplies, wound care)" is the DME-attached version of this. Treat a third **supplies vendor** as the fuller one-stop-shop story, not as CPAP filters hiding inside a bed order.
 
 ### Design posture
 

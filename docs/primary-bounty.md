@@ -23,7 +23,11 @@ The smallest path a judge can click against the rubric. Full spec: `docs/prd.md`
 5. **One explainable at-risk rule.** Fire *before* late. First rule: ETA vs discharge window, or pickup window after death. Surface "why flagged" in plain words. Escalate to a person. Step timestamps so the DON can see hours-to-pickup.
 6. **DON cost gate and DME-next-to-meds.** Threshold approval. Real (fixture) med prices beside DME lines. Override reasons stay visible.
 
-Out of this slice: vendor marketplace / recruitment, GPS routing, serialized warehouse inventory, claims submission, live EMR, live SMS, SSO, native apps, family app, condition QA as a required flow (optional photo is stretch).
+The slice is a **running app**. Mockups and visual prototypes fail the brief and were restated in the room.
+
+**Stretch after the three DME scenarios click:** medical **supplies** on the same patient (third vendor today, beside pharmacy and DME). Same cards and status. No pickup. Pitch: one-stop shop. Do not start here.
+
+Out of this slice: vendor marketplace / recruitment, GPS routing, serialized warehouse inventory, claims submission, live EMR, live SMS, SSO, native apps, family app, condition QA as a required flow (optional photo is stretch), supplies as a second app.
 
 The original brief called vendor-side recruitment the differentiator. The **FAQ supersedes that for weekend scope**: network-building is out of scope; judging weight is hospice-side; no-login vendor UX is bonus, not table stakes.
 
@@ -47,4 +51,4 @@ Rules first. The at-risk signal is a deterministic rule (ETA vs deadline). Ranki
 | AI ROI (or honest skip) | 15% |
 | UX | 15% |
 
-A working hospice phone order that a nurse could actually tap beats a prettier vendor portal the FAQ told us not to require.
+A working hospice phone order that a nurse can tap, whose status actually moves, beats a prettier prototype. Supplies on that same patient is extra credit, not a substitute for the bed arriving.

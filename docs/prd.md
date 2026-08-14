@@ -24,6 +24,10 @@ Vendors in the demo are fixtures. They confirm by SMS or magic-link email. They 
 
 DME spend sits next to real medication prices on the patient. Each lifecycle step has a timestamp so the DON can see "hours to pickup" and hold a vendor to it.
 
+The demo is a **running app** with real order state. A mockup or visual prototype does not count (brief + room).
+
+**Supplies stretch:** hospices also buy medical supplies from a third vendor (pharmacy, DME, and supplies are three contracts today). After the three DME scenarios work, the same patient can order consumables on the same cards. Consumables are not picked up after death. Pitch line: BetterRX already is pharmacy; this product adds DME; supplies makes it one place for hospice fulfillment. Do not start here.
+
 ## User Stories
 
 1. As an admissions nurse, I want to order a hospital bed and oxygen from my phone in the car, so that a new patient can go home the same day without a fax.
@@ -58,6 +62,10 @@ DME spend sits next to real medication prices on the patient. Each lifecycle ste
 30. As a BetterRX product person, I want stated assumptions about vendor ops visible in the demo, so that judges can see what is fixture versus product.
 31. As a family member (indirect), I want the bed gone within a day of death, so that the house is not a medical warehouse while I grieve. (We serve this by making pickup fast and visible to hospice, not by building a family app.)
 32. As a judge, I want to click a discharge-ready miss, a death pickup, and a prevented miss on a running app, so that the rubric has evidence.
+33. As a judge, I want those clicks to change stored order state, so that I am not watching a prototype advance frames.
+34. As a case manager, I want to order wound-care or incontinence supplies from the same patient screen as the bed, so that I am not calling a third vendor after I already called pharmacy and DME. (Stretch. Only after stories 1-32 work.)
+35. As a director of nursing, I want supply spend on the same PPD picture as meds and DME, so that the third vendor is not a blind spot. (Stretch.)
+36. As a BetterRX product person, I want supplies to reuse the DME order and status model with a `kind` of supply and no pickup states, so that one-stop-shop is a catalog plus a rule, not a second app. (Stretch.)
 
 ## Implementation Decisions
 
@@ -77,6 +85,8 @@ DME spend sits next to real medication prices on the patient. Each lifecycle ste
 - **Discharge-readiness:** required items must be Delivered, or DON/nurse override with reason.
 - **DME next to meds:** patient view shows fixture meds from `erx-sample-payloads.json` with visible prices, plus DME lines. Prices are labeled synthetic except where we can cite CMS PUF averages.
 - **Identity of equipment:** HCPCS E-codes (E0250 bed, E0601 concentrator/CPAP, E1130 wheelchair as in sample orders).
+- **Working code bar:** Next.js (or equivalent) deployed or `npm run dev` that a judge can tap. Order create, status transition, at-risk, and pickup must persist in app state (memory or DB). Figma, Framer, v0 static, and click-dummy HTML fail.
+- **Supplies (stretch, after DME is clickable):** `Order.kind`: `dme` | `supply` | `medication`. Same three-factor cards and vendor-confirm SMS. Supplies use a small fixture catalog (wound care, incontinence, gloves). No pickup-triggered / pickup-delayed states. Optional HCPCS A-codes if we have a clean fixture; do not invent codes. Same DON cost gate.
 - **Condition photo:** optional on delivery and pickup confirm. Differentiator, not a blocker if time runs out.
 - **Who pays (pitch, not billing engine):** hospice PPD bundled with BetterRX pharmacy-tech PPD (FAQ §5). Do not invent a vendor-spread marketplace.
 - **Integration sketch (diagram, not live EMR):** BetterRX already receives ADT. Ingest `newOrUpdatePatient` and `newMedications`. Emit DME order/status events keyed by the same `patient.identifiers`. Name HCHB as the primary EMR story (dedicated DME integration layer); mention WellSky's 2024 DME acquisition as the competitive risk.
@@ -91,6 +101,7 @@ DME spend sits next to real medication prices on the patient. Each lifecycle ste
 - Good tests use the sample-order literals (DME-10305 misses 4:30 PM with 5:10 PM ETA; DME-09803 pickup delayed four days) as expected values, not recomputed copies of the scoring code.
 - No live EMR, SMS, or CMS API in unit tests. Fixtures only.
 - Mutate the at-risk condition (flip `eta > deadline` to `>=` or remove it) and confirm DME-10305 goes green-when-it-should-fail before trusting the suite.
+- If supplies stretch ships: assert a supply order cannot enter pickup-triggered. Mutate by allowing it and confirm that case fails.
 
 ## Out of Scope
 
@@ -103,6 +114,7 @@ DME spend sits next to real medication prices on the patient. Each lifecycle ste
 - Measuring at-risk accuracy against a hidden dataset (does not exist).
 - Solving dirty/broken equipment as a required workflow (photo is optional stretch).
 - Spreading DME margin as a BetterRX-owned network.
+- Supplies as a second product, or supplies work that starts before the three DME demo scenarios run.
 
 ## Further Notes
 
@@ -118,4 +130,6 @@ DME spend sits next to real medication prices on the patient. Each lifecycle ste
 
 **AI posture for the pitch:** rules for at-risk and ranking. Honest skip. If time allows, a small LLM pass that drafts the "why flagged" sentence from structured fields is worse than a template, so do not. Optional later: diagnosis → suggested equipment list with human confirm (C90.00 in the sample patient is multiple myeloma; still confirm, never auto-order).
 
-**Ground rules that still fail a demo:** Figma-only, hallucinated status, real PHI, AI with no baseline.
+**Supplies in the pitch, not the critical path.** Say the three-vendor split out loud. Show meds (already BetterRX) + DME (the bounty) on one patient. If the stretch landed, tap one supply order on that same patient. If it did not, still say the one-stop-shop path: same board, third catalog, no pickup.
+
+**Ground rules that still fail a demo:** Figma / visual prototype instead of running code, hallucinated status, real PHI, AI with no baseline, a supplies tour that never shows a bed arriving before discharge.
