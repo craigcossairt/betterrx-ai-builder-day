@@ -8,7 +8,7 @@ import {
   type DeliveredOrder,
   type OrderedOrder,
 } from "@/domain/order";
-import { dischargeReady } from "@/domain/discharge";
+import { dischargeReady, showDischargeGate } from "@/domain/discharge";
 
 const patient = asPatientId("PT-1");
 const hospice = asHospiceName("Sample Hospice A");
@@ -40,8 +40,14 @@ describe("dischargeReady", () => {
   it("blocks when required equipment is not delivered", () => {
     expect(dischargeReady([ordered])).toEqual({
       ready: false,
-      blocking: ["DME-NEW"],
+      blocking: ["Hospital Bed"],
     });
+  });
+
+  it("hides the discharge gate on pickup and deceased rows", () => {
+    expect(showDischargeGate("delivered")).toBe(true);
+    expect(showDischargeGate("pickup_triggered")).toBe(false);
+    expect(showDischargeGate("pickup_delayed")).toBe(false);
   });
 
   it("allows discharge once required equipment is delivered", () => {

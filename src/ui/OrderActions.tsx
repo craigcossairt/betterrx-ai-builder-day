@@ -2,11 +2,12 @@ import {
   confirmOrderAction,
   declineOrderAction,
   markDeliveredAction,
-  markDischargeReadyAction,
   requestPickupAction,
 } from "@/app/actions";
+import { showDischargeGate } from "@/domain/discharge";
 import type { Order } from "@/domain/order";
 import { Button } from "@/ui/Button";
+import { DischargeReadyForm } from "@/ui/DischargeReadyForm";
 import type { RoleId } from "@/ui/roles";
 
 export function OrderActions({
@@ -63,23 +64,9 @@ export function OrderActions({
           </form>
         </>
       ) : null}
-      <form action={markDischargeReadyAction} style={{ display: "flex", gap: 8 }}>
-        <input type="hidden" name="patientId" value={order.patientId} />
-        <input
-          name="reason"
-          placeholder="Override reason"
-          style={{
-            border: "1px solid var(--line-200)",
-            borderRadius: 6,
-            padding: "8px 10px",
-            fontFamily: "inherit",
-            fontSize: 13,
-          }}
-        />
-        <Button variant="outline" size="sm" type="submit">
-          Discharge ready
-        </Button>
-      </form>
+      {showDischargeGate(order.status) ? (
+        <DischargeReadyForm patientId={order.patientId} />
+      ) : null}
     </div>
   );
 }

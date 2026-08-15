@@ -19,13 +19,29 @@ export function queueSms(message: SmsMessage): void {
   messages.push(message);
 }
 
+export function resetSms(): void {
+  messages.length = 0;
+}
+
+export function queueConfirmSms(input: {
+  now: Instant;
+  orderId: OrderId;
+  equipmentName: string;
+}): void {
+  messages.unshift({
+    id: `sms-${input.orderId}`,
+    orderId: input.orderId,
+    body: `BetterRX: confirm ${input.equipmentName} (${input.orderId})? Reply CONFIRM or DECLINE.`,
+    at: input.now,
+    kind: "confirm",
+  });
+}
+
 export function seedSmsIfEmpty(now: Instant, orderId: OrderId): void {
   if (messages.length > 0) return;
-  messages.push({
-    id: "sms-1",
+  queueConfirmSms({
+    now,
     orderId,
-    body: `BetterRX: confirm ${orderId} hospital bed? Reply CONFIRM or DECLINE.`,
-    at: now,
-    kind: "confirm",
+    equipmentName: "Hospital Bed",
   });
 }
