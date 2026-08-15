@@ -118,7 +118,7 @@ export function PlaceOrderForm({
         <Button
           variant="app"
           type="submit"
-          disabled={pending}
+          disabled={pending || Boolean(state.ok)}
           style={{ width: "100%", minHeight: 48, justifyContent: "center" }}
         >
           {pending ? "Sending…" : sendLabel(hcpcs)}
