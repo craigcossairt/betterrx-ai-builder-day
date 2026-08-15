@@ -121,6 +121,11 @@ body {
   border-bottom: 1px solid var(--line-200);
 }
 
+.app-shell-home {
+  display: flex;
+  align-items: center;
+}
+
 .role-badge {
   background: var(--surface-100);
   font-size: 12px;
@@ -435,6 +440,11 @@ body {
   color: var(--ink-900);
 }
 
+.census-lede-link {
+  display: block;
+  text-decoration: none;
+}
+
 .census-board {
   flex: 1;
   padding: 14px 16px 0;
@@ -457,6 +467,10 @@ body {
 
 .loud-card--coral {
   background: var(--coral-50);
+}
+
+.loud-card--on {
+  outline: 2px solid var(--blue-500);
 }
 
 .loud-card-top {
@@ -533,6 +547,12 @@ body {
   align-items: center;
   gap: 12px;
   min-height: 52px;
+}
+
+.quiet-row--on {
+  background: var(--blue-50);
+  border-radius: 10px;
+  padding: 0 8px;
 }
 
 .census-foot {
@@ -843,6 +863,30 @@ body {
   font-size: 13px;
   color: var(--ink-500);
   line-height: 1.45;
+}
+
+.don-over-link {
+  display: block;
+  margin-top: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.don-over-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blue-500);
+}
+
+.oversight-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.oversight-screen .phone-back {
+  padding: 12px 20px 0;
 }
 
 .quiet-row-block {

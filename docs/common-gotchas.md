@@ -24,3 +24,4 @@ Include a commit SHA and issue reference when known.
 | Order tiles do nothing on `127.0.0.1:3000` | Next 16 blocks `/_next/static` for that host; the form still posts without JS | Set `allowedDevOrigins: ["127.0.0.1", "localhost"]` in `next.config.ts` | 2026-08-15 | #18 |
 | Vendor → Admissions RN still shows the vendor inbox | Demo chrome kept `panel=inbox` when leaving vendor | `chromeQuery` clears panel when the role leaves vendor | 2026-08-15 | #18 |
 | Claude Design drew Helen as an on-service $3 hold | Locked 2a census has Helen deceased with pickup in motion | Bind DON hold/retro to live `costGate` rows. Do not rewrite Helen or June to match a mock. | 2026-08-15 | 2a frames |
+| DON desktop shows Equipment oversight with no way back after a census tap | Right pane swapped to the chart and nothing in the product cleared `patient` | `panel=oversight` plus a labeled footer link. Logo and census lede clear panel and patient. | 2026-08-15 | nav |

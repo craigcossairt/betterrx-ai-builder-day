@@ -5,10 +5,12 @@ import { TrackMark } from "@/ui/census/TrackMark";
 export function QuietRow({
   line,
   href,
+  selected,
   children,
 }: {
   line: CensusLine;
   href?: string;
+  selected?: boolean;
   children?: ReactNode;
 }) {
   const inner = (
@@ -20,12 +22,13 @@ export function QuietRow({
       <TrackMark label={line.trackLabel} />
     </>
   );
+  const rowClass = selected ? "quiet-row quiet-row--on" : "quiet-row";
   const row = href ? (
-    <a className="quiet-row" href={href}>
+    <a className={rowClass} href={href}>
       {inner}
     </a>
   ) : (
-    <div className="quiet-row">{inner}</div>
+    <div className={rowClass}>{inner}</div>
   );
   if (!children) return row;
   return (

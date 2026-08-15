@@ -10,7 +10,7 @@ export function PhoneBack({
 }) {
   return (
     <a className="phone-back" href={boardHref({ role, surface })}>
-      Census
+      All patients
     </a>
   );
 }

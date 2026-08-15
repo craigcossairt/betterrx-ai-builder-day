@@ -5,6 +5,7 @@ import {
   parsePanel,
   parseSurface,
   parseTab,
+  resolveBoardView,
 } from "@/ui/nav";
 import { parseRole } from "@/ui/roles";
 
@@ -14,6 +15,7 @@ describe("boardHref", () => {
       "/?role=case_manager&panel=inbox",
     );
     expect(parsePanel("order")).toBe("order");
+    expect(parsePanel("oversight")).toBe("oversight");
     expect(parsePanel("nope")).toBeNull();
   });
 
@@ -49,6 +51,68 @@ describe("parseRole", () => {
   });
 });
 
+describe("resolveBoardView", () => {
+  it("opens equipment oversight on DON desktop when no patient is selected", () => {
+    expect(
+      resolveBoardView({
+        role: "don",
+        surface: "desktop",
+        panel: null,
+        hasPatient: false,
+      }),
+    ).toEqual({ kind: "desk", main: "oversight" });
+  });
+
+  it("keeps a DON chart open until oversight is requested", () => {
+    expect(
+      resolveBoardView({
+        role: "don",
+        surface: "desktop",
+        panel: null,
+        hasPatient: true,
+      }),
+    ).toEqual({ kind: "desk", main: "patient" });
+    expect(
+      resolveBoardView({
+        role: "don",
+        surface: "desktop",
+        panel: "oversight",
+        hasPatient: true,
+      }),
+    ).toEqual({ kind: "desk", main: "oversight" });
+  });
+
+  it("opens full oversight on the DON phone only when asked", () => {
+    expect(
+      resolveBoardView({
+        role: "don",
+        surface: "phone",
+        panel: null,
+        hasPatient: false,
+      }),
+    ).toEqual({ kind: "census" });
+    expect(
+      resolveBoardView({
+        role: "don",
+        surface: "phone",
+        panel: "oversight",
+        hasPatient: false,
+      }),
+    ).toEqual({ kind: "oversight" });
+  });
+
+  it("keeps the vendor on the SMS task on every surface", () => {
+    expect(
+      resolveBoardView({
+        role: "vendor",
+        surface: "desktop",
+        panel: "oversight",
+        hasPatient: true,
+      }),
+    ).toEqual({ kind: "vendor_task" });
+  });
+});
+
 describe("chromeQuery", () => {
   it("drops the open patient when switching to DON so PPD is first", () => {
     expect(
@@ -66,6 +130,25 @@ describe("chromeQuery", () => {
       panel: null,
       patient: null,
       tab: "patient",
+    });
+  });
+
+  it("drops oversight when leaving the DON persona", () => {
+    expect(
+      chromeQuery({
+        role: "don",
+        nextRole: "admissions",
+        surface: "desktop",
+        panel: "oversight",
+        patient: null,
+        tab: null,
+      }),
+    ).toEqual({
+      role: "admissions",
+      surface: "desktop",
+      panel: null,
+      patient: null,
+      tab: null,
     });
   });
 

@@ -1,6 +1,6 @@
 import type { RoleId } from "@/ui/roles";
 
-export type BoardPanel = "order" | "inbox";
+export type BoardPanel = "order" | "inbox" | "oversight";
 export type SurfaceId = "phone" | "split" | "desktop";
 export type PatientTab = "patient" | "medication" | "dme" | "supplies";
 
@@ -36,8 +36,50 @@ export function boardHref(query: BoardQuery): string {
 }
 
 export function parsePanel(raw: string | null | undefined): BoardPanel | null {
-  if (raw === "order" || raw === "inbox") return raw;
+  if (raw === "order" || raw === "inbox" || raw === "oversight") return raw;
   return null;
+}
+
+export type BoardMain = "order" | "inbox" | "oversight" | "patient" | "empty";
+
+export type BoardView =
+  | { kind: "vendor_task" }
+  | { kind: "order" }
+  | { kind: "inbox" }
+  | { kind: "oversight" }
+  | { kind: "patient" }
+  | { kind: "census" }
+  | { kind: "desk"; main: BoardMain };
+
+export function resolveBoardView(input: {
+  role: RoleId;
+  surface: SurfaceId;
+  panel: BoardPanel | null;
+  hasPatient: boolean;
+}): BoardView {
+  if (input.role === "vendor") return { kind: "vendor_task" };
+  if (input.surface === "phone") {
+    if (input.panel === "order") return { kind: "order" };
+    if (input.panel === "inbox") return { kind: "inbox" };
+    if (input.panel === "oversight" && input.role === "don") {
+      return { kind: "oversight" };
+    }
+    if (input.hasPatient) return { kind: "patient" };
+    return { kind: "census" };
+  }
+  const main: BoardMain =
+    input.panel === "order"
+      ? "order"
+      : input.panel === "inbox"
+        ? "inbox"
+        : input.panel === "oversight" && input.role === "don"
+          ? "oversight"
+          : input.hasPatient
+            ? "patient"
+            : input.role === "don"
+              ? "oversight"
+              : "empty";
+  return { kind: "desk", main };
 }
 
 export function chromeQuery(input: {
@@ -49,15 +91,17 @@ export function chromeQuery(input: {
   tab: string | null;
 }): BoardQuery {
   const leaveVendor = input.role === "vendor" && input.nextRole !== "vendor";
+  const leaveDon = input.role === "don" && input.nextRole !== "don";
+  const panel = parsePanel(input.panel);
   return {
     role: input.nextRole,
     surface: input.surface,
     panel:
       input.nextRole === "vendor"
         ? "inbox"
-        : leaveVendor
+        : leaveVendor || (leaveDon && panel === "oversight")
           ? null
-          : parsePanel(input.panel),
+          : panel,
     patient:
       input.nextRole === "vendor" || input.nextRole === "don"
         ? null

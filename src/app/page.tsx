@@ -15,11 +15,19 @@ import {
 import { AppFrame } from "@/ui/chrome/AppFrame";
 import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
 import { InboxScreen } from "@/ui/order";
+import { PhoneBack } from "@/ui/order/PhoneBack";
 import { VendorTaskScreen } from "@/ui/order/VendorTaskScreen";
 import { DonReport } from "@/ui/don/DonReport";
 import { PatientPicture } from "@/ui/patient/PatientPicture";
 import { parseRole } from "@/ui/roles";
-import { parsePanel, parseSurface, parseTab } from "@/ui/nav";
+import {
+  boardHref,
+  parsePanel,
+  parseSurface,
+  parseTab,
+  resolveBoardView,
+  type BoardMain,
+} from "@/ui/nav";
 
 export default async function Home({
   searchParams,
@@ -63,7 +71,20 @@ export default async function Home({
   };
   const shared = Boolean(supabaseConfig());
   const sharedNote = role !== "don" && shared ? "Shared census." : undefined;
+  const homeHref = boardHref({ role, surface });
+  const view = resolveBoardView({
+    role,
+    surface,
+    panel,
+    hasPatient: Boolean(patient),
+  });
   const donReport = <DonReport ppd={ppd} orders={snapshot} now={now} />;
+  const oversightScreen = (
+    <div className="oversight-screen">
+      {surface === "phone" ? <PhoneBack role={role} surface={surface} /> : null}
+      {donReport}
+    </div>
+  );
 
   const orderScreen = (
     <PlaceOrderForm
@@ -86,13 +107,28 @@ export default async function Home({
     );
   const censusScreen = (
     <>
-      <CensusHeader lede={census.lede} />
-      <CensusBoard lines={census.lines} role={role} surface={surface} />
+      <CensusHeader lede={census.lede} href={homeHref} />
+      <CensusBoard
+        lines={census.lines}
+        role={role}
+        surface={surface}
+        selectedPatientId={patient}
+      />
       <CensusFooter
         role={role}
         surface={surface}
         note={sharedNote}
-        strip={role === "don" ? <DonReport ppd={ppd} compact /> : null}
+        strip={
+          role === "don" ? (
+            <a
+              className="don-over-link"
+              href={boardHref({ role, surface, panel: "oversight" })}
+            >
+              <span className="don-over-label">Equipment oversight</span>
+              <DonReport ppd={ppd} compact />
+            </a>
+          ) : null
+        }
       />
     </>
   );
@@ -107,38 +143,40 @@ export default async function Home({
     />
   ) : null;
 
-  let body;
-  if (role === "vendor") {
-    body = inboxScreen;
-  } else if (surface === "phone") {
-    if (panel === "order") body = orderScreen;
-    else if (panel === "inbox") body = inboxScreen;
-    else if (patientScreen) body = patientScreen;
-    else body = censusScreen;
-  } else {
-    body = (
-      <div className="desk-split">
-        <aside className="desk-census">{censusScreen}</aside>
-        <main className="desk-main">
-          {panel === "order"
-            ? orderScreen
-            : panel === "inbox"
-              ? inboxScreen
-              : patientScreen ??
-                (role === "don" ? (
-                  donReport
-                ) : (
-                  <p className="order-sub desk-empty">
-                    Select a patient from the census.
-                  </p>
-                ))}
-        </main>
-      </div>
-    );
+  const emptyMain = (
+    <p className="order-sub desk-empty">Select a patient from the census.</p>
+  );
+
+  function deskMain(main: BoardMain) {
+    if (main === "order") return orderScreen;
+    if (main === "inbox") return inboxScreen;
+    if (main === "oversight") return oversightScreen;
+    if (main === "patient") return patientScreen;
+    return emptyMain;
   }
 
+  const body =
+    view.kind === "vendor_task" ? (
+      inboxScreen
+    ) : view.kind === "order" ? (
+      orderScreen
+    ) : view.kind === "inbox" ? (
+      inboxScreen
+    ) : view.kind === "oversight" ? (
+      oversightScreen
+    ) : view.kind === "patient" ? (
+      patientScreen
+    ) : view.kind === "census" ? (
+      censusScreen
+    ) : (
+      <div className="desk-split">
+        <aside className="desk-census">{censusScreen}</aside>
+        <main className="desk-main">{deskMain(view.main)}</main>
+      </div>
+    );
+
   return (
-    <AppFrame role={role} surface={surface}>
+    <AppFrame role={role} surface={surface} homeHref={homeHref}>
       {body}
     </AppFrame>
   );
