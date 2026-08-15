@@ -1,6 +1,6 @@
 # BetterRX AI Builder Day
 
-Private hackathon repo for the [BetterRX](https://www.betterrx.com/) **DME Ordering and Visibility** bounty at [AI Builder Day Part 2](https://www.aibuilderday.com/) (Aug 14-15 2026). Scaffolded from [trellis](https://github.com/craigcossairt/trellis).
+Hospice DME board for the [BetterRX](https://www.betterrx.com/) **DME Ordering and Visibility** bounty at [AI Builder Day Part 2](https://www.aibuilderday.com/) (Aug 14-15 2026). Scaffolded from [trellis](https://github.com/craigcossairt/trellis).
 
 Close the coordination gap between hospices and durable medical equipment vendors, from admission to pickup. Prize: **$10,000**. Max 8 teams.
 
@@ -19,7 +19,7 @@ Sibling repos this weekend: [ai-builder-day-part-2](https://github.com/craigcoss
 
 ## Status
 
-- Repo: private, `main`
+- Repo: public, `main`
 - Stage: running hospice DME board. Phone-first. Orders persist in memory, or in Supabase when env is set.
 - Stack: Next.js + TypeScript + Tailwind on Vercel.
 - Pitch paper: `/integration` (AI skip, differentiation, HCHB sketch, three demo taps)
