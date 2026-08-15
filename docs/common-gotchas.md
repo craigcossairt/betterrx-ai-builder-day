@@ -22,3 +22,4 @@ Include a commit SHA and issue reference when known.
 | Vercel `next build` fails TS2339 on `assessed.riskWhy` | `confirmQuotedOrder` returns a union; Next typechecks `*.test.ts` | Narrow with `if (assessed.status !== "in_transit_at_risk") throw` before reading `riskWhy` | 2026-08-15 | #17 |
 | `tsc` fails TS2339 on `order.eta` inside a status speaker table | `Record<OrderStatus, (order: Order) => …>` widens every arm to the full union | Map `{ [S in OrderStatus]: Speaker<S> }` and switch on `order.status` before the call | 2026-08-15 | #18 |
 | Order tiles do nothing on `127.0.0.1:3000` | Next 16 blocks `/_next/static` for that host; the form still posts without JS | Set `allowedDevOrigins: ["127.0.0.1", "localhost"]` in `next.config.ts` | 2026-08-15 | #18 |
+| Vendor → Admissions RN still shows the vendor inbox | Demo chrome kept `panel=inbox` when leaving vendor | `chromeQuery` clears panel when the role leaves vendor | 2026-08-15 | #18 |

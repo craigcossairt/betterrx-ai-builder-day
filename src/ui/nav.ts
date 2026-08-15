@@ -37,3 +37,29 @@ export function parsePanel(raw: string | null | undefined): BoardPanel | null {
   if (raw === "order" || raw === "inbox") return raw;
   return null;
 }
+
+export function chromeQuery(input: {
+  role: RoleId;
+  nextRole: RoleId;
+  surface: SurfaceId;
+  panel: string | null;
+  patient: string | null;
+  tab: string | null;
+}): BoardQuery {
+  const leaveVendor = input.role === "vendor" && input.nextRole !== "vendor";
+  return {
+    role: input.nextRole,
+    surface: input.surface,
+    panel:
+      input.nextRole === "vendor"
+        ? "inbox"
+        : leaveVendor
+          ? null
+          : parsePanel(input.panel),
+    patient: input.nextRole === "vendor" ? null : input.patient,
+    tab:
+      input.tab === "medication" || input.tab === "supplies" || input.tab === "dme"
+        ? input.tab
+        : null,
+  };
+}

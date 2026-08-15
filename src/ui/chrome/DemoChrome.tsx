@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { resetDemoAction } from "@/app/actions";
-import { boardHref, parseSurface, type SurfaceId } from "@/ui/nav";
+import { boardHref, chromeQuery, parseSurface, type SurfaceId } from "@/ui/nav";
 import { parseRole, ROLES, type RoleId } from "@/ui/roles";
 
 const SURFACES: { id: SurfaceId; label: string }[] = [
@@ -21,20 +21,17 @@ export function DemoChrome() {
   const tab = params.get("tab");
 
   function go(next: { role?: RoleId; surface?: SurfaceId }) {
-    const nextRole = next.role ?? role;
     router.push(
-      boardHref({
-        role: nextRole,
-        surface: next.surface ?? surface,
-        panel:
-          nextRole === "vendor"
-            ? "inbox"
-            : panel === "order" || panel === "inbox"
-              ? panel
-              : null,
-        patient: nextRole === "vendor" ? null : patient,
-        tab: tab === "medication" || tab === "supplies" || tab === "dme" ? tab : null,
-      }),
+      boardHref(
+        chromeQuery({
+          role,
+          nextRole: next.role ?? role,
+          surface: next.surface ?? surface,
+          panel,
+          patient,
+          tab,
+        }),
+      ),
     );
   }
 
