@@ -7,16 +7,8 @@ export function RoleSwitcher({ role }: { role: RoleId }) {
   const router = useRouter();
   const params = useSearchParams();
   return (
-    <label
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        fontSize: 13,
-        color: "var(--ink-700)",
-      }}
-    >
-      <span style={{ fontWeight: 600 }}>Role</span>
+    <label className="role-pill">
+      <span className="sr-only">Role</span>
       <select
         aria-label="Role"
         value={role}
@@ -24,15 +16,6 @@ export function RoleSwitcher({ role }: { role: RoleId }) {
           const next = new URLSearchParams(params.toString());
           next.set("role", event.target.value);
           router.push(`/?${next.toString()}`);
-        }}
-        style={{
-          fontFamily: "var(--font-ui)",
-          fontSize: 13,
-          padding: "6px 10px",
-          border: "1px solid var(--line-200)",
-          borderRadius: "var(--radius-sm)",
-          background: "#fff",
-          color: "var(--ink-900)",
         }}
       >
         {ROLES.map((item) => (

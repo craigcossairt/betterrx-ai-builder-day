@@ -26,112 +26,174 @@ body {
   font-family: var(--font-ui);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .app-frame {
   min-height: 100vh;
-  background: var(--surface-100);
-}
-
-.app-topbar {
   background: #fff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  padding-top: max(12px, env(safe-area-inset-top));
-  padding-left: max(16px, env(safe-area-inset-left));
-  padding-right: max(16px, env(safe-area-inset-right));
-  border-bottom: 1px solid var(--line-200);
-}
-
-.app-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-
-.app-eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--coral-600);
 }
 
 .app-title {
   font-size: 18px;
   font-weight: 700;
   color: var(--ink-900);
-  line-height: 1.1;
 }
 
-.app-topbar-meta {
+.phone-shell {
+  min-height: 100vh;
+  background: #fff;
   display: flex;
+  flex-direction: column;
+}
+
+.census-head {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--surface-100);
+}
+
+.census-head-bar {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 12px;
 }
 
-.app-store-flag {
-  display: none;
-  font-size: 12px;
-  color: var(--ink-500);
+.role-pill select {
+  appearance: none;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-700);
+  background: var(--surface-100);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 28px 8px 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235C6B77' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
 }
 
-.app-main {
-  width: min(72rem, 100%);
-  margin: 0 auto;
-  padding: 16px;
-  padding-bottom: max(24px, env(safe-area-inset-bottom));
-  display: grid;
-  gap: 12px;
-}
-
-.app-toolbar {
-  display: grid;
-  gap: 12px;
-}
-
-.app-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.app-chip {
-  background: #fff;
-  border: 1px solid var(--line-200);
-  border-radius: 10px;
-  padding: 10px 12px;
-  min-width: 6.5rem;
-  display: grid;
-  gap: 2px;
-}
-
-.app-chip strong {
-  font-size: 20px;
+.census-lede {
+  margin: 10px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
   color: var(--ink-900);
 }
 
-.app-chip span {
-  font-size: 12px;
+.census-board {
+  flex: 1;
+  padding: 14px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.loud-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.loud-card {
+  background: var(--red-50);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.loud-card--coral {
+  background: var(--coral-50);
+}
+
+.loud-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.loud-card-who,
+.quiet-row-who {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.quiet-row-who {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.loud-card-sentence {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-900);
+}
+
+.loud-card-aside,
+.quiet-row-sentence {
+  margin: 3px 0 0;
+  font-size: 13px;
   color: var(--ink-500);
 }
 
-.app-chip--alert {
-  border-color: color-mix(in srgb, var(--red-500) 35%, var(--line-200));
-  background: var(--red-50);
+.loud-card-action {
+  margin-top: 10px;
 }
 
-.app-chip--ppd {
-  border-color: color-mix(in srgb, var(--blue-500) 35%, var(--line-200));
-  background: var(--blue-50);
+.track-mark {
+  flex: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
-.app-toolbar-actions {
+.track-mark--coral {
+  color: var(--coral-600);
+}
+
+.track-mark--red {
+  color: var(--red-500);
+}
+
+.track-mark--green {
+  color: #2e7d36;
+}
+
+.track-mark--muted {
+  color: var(--ink-400);
+}
+
+.quiet-list {
+  border-top: 1px solid var(--surface-100);
+  padding-top: 10px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quiet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+}
+
+.census-foot {
+  padding: 12px 16px 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
 }
 
 .app-btn {
@@ -152,83 +214,53 @@ body {
   color: #fff;
 }
 
+.app-btn--block {
+  width: 100%;
+  min-height: 48px;
+  font-size: 16px;
+}
+
 .app-btn--outline {
   background: #fff;
   color: var(--ink-900);
   border: 2px solid var(--ink-900);
 }
 
-.app-ppd-note {
-  margin: 0;
+.census-foot-note,
+.app-ppd-note,
+.census-line {
+  margin: 0 0 8px;
   font-size: 13px;
   color: var(--ink-500);
   line-height: 1.45;
 }
 
-.census {
-  background: #fff;
-  border: 1px solid var(--line-200);
-  border-radius: 10px;
-  overflow: hidden;
+.census-footnote {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--ink-400);
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0 2px;
 }
 
-.census-lede {
-  margin: 0;
-  padding: 14px 16px 4px;
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--ink-900);
-}
-
-.census-row {
-  border-top: 1px solid var(--line-200);
-}
-
-.census-row:first-child {
-  border-top: none;
-}
-
-.census-row--attention {
-  background: color-mix(in srgb, var(--red-50) 70%, #fff);
-}
-
-.census-summary {
-  list-style: none;
-  display: grid;
-  gap: 8px;
-  padding: 14px 16px;
+.census-footnote a,
+.census-footnote button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.census-summary::-webkit-details-marker {
-  display: none;
-}
-
-.census-patient {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--ink-900);
-}
-
-.census-sub,
-.census-equip,
-.census-line {
-  font-size: 13px;
-  color: var(--ink-500);
-}
-
-.census-equip {
-  color: var(--ink-700);
-}
-
-.census-body {
-  padding: 0 16px 16px;
-}
-
-.census-why {
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--red-500);
+.census-footnote-form {
+  display: inline;
 }
 
 .inbox-item {
@@ -246,28 +278,17 @@ body {
 }
 
 @media (min-width: 720px) {
-  .app-store-flag {
-    display: block;
+  body {
+    padding: 24px 16px 40px;
   }
 
-  .app-main {
-    padding: 24px;
-    gap: 16px;
-  }
-
-  .app-toolbar {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-  }
-
-  .census-summary {
-    grid-template-columns: minmax(10rem, 1.1fr) minmax(0, 1.4fr) auto;
-    align-items: center;
-  }
-}
-
-@media (min-width: 1100px) {
-  .app-main {
-    padding: 28px 24px 40px;
+  .phone-shell {
+    width: min(400px, 100%);
+    min-height: 780px;
+    margin: 0 auto;
+    border: 1px solid var(--line-200);
+    border-radius: 26px;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
   }
 }
