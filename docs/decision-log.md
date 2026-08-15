@@ -34,10 +34,16 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Judge-placed orders keep the chosen vendor quote on `OrderedOrder`. Confirm uses that quote and the stored target. Demo reset reseeds the six fixtures. See the Fable review.
 - **2026-08-15** - Census direction is 2a sentences. Locked names are primary (Helen Vargas for PT-87602). STAT never waits on the $3 gate. Elapsed uses hours under 48 hours.
 - **2026-08-15** - DON hold is strictly over $3. A rate of exactly $3 stays open. Census lines are quiet or loud; coral is only at-risk.
-- **2026-08-15** - Demo chrome (persona + Phone / Side-by-side / Desktop) sits outside the app. The app badge only names the role. Vendor sees inbox only. Patient picture has Medication / DME / Supplies. New order is patient search, then kind, then EMR or catalog search. No three-SKU chips. See #18.
+- **2026-08-15** - Demo chrome (persona + Phone / Desktop) sits outside the app. The app badge only names the role. Vendor sees inbox only. Patient picture has Medication / DME / Supplies. New order is patient search, then kind, then EMR or catalog search. No three-SKU chips. See #18.
 - **2026-08-15** - Patient tab shows eRx-shaped chart (DOB, gender, address, phone, diagnoses, allergies). SSN is omitted. Household contact is a hospice fixture, not an eRx field. Medication tab uses newMedications events. See #18.
 - **2026-08-15** - Claude Design resume is 2a remaining frames only (chart, med events, supplies, vendor phone, DON approve + clock stop, two-line order). Do not redraw census or 1a/1b/2b/2c. See `docs/claude-design-2a-remaining.md`.
-- **2026-08-15** - Judge pitch lives on `/integration` as a typed `pitchPacket` (AI skip at $0, today vs us, mermaid). See #19.
+- **2026-08-15** - Round 3 frames land as read-only projectors over the existing Order/chart/PPD types. Tokens stay the ones already in `src/ui/tokens`. Clinician actions stay `Button variant="app"` (blue, 6px). Coral-gradient pills in the mock stay marketing-only.
+- **2026-08-15** - Do not change locked census stories to match Claude's hold/death fixtures. Helen stays deceased. June stays admitted. Hold and retro rows bind to `costGate`. A routine over $3 is `ordered` plus a `DON hold` note until approve. `picked_up` is a new status because that tap stops the rental clock.
+- **2026-08-15** - Equipment oversight is a named panel (`panel=oversight`). The DON census footer and the logo/lede are the in-product ways back.
+- **2026-08-15** - Clinician phone is the Phone surface for Admissions RN, Case Mgr, and DON. It is not a fifth persona. Side-by-side is removed. Old `surface=split` links open Desktop.
+- **2026-08-15** - `/integration` is a judge note titled How it connects. The typed `pitchPacket` (AI skip at $0, today vs us, mermaid) lives on that same page. It is not a product screen and it does not call a live EMR. See #19.
+- **2026-08-15** - Tracker V6 binds to notes, seed, and inbox maps. Ask why stays on the held line. Propose a time is day and hour chips. Delivery photo is stored on the order. Per-line Try Wasatch/Uintah can split send by vendor. Unknown ICD codes get a fallback sentence. Sam Whitaker `DME-10322` is the non-Helen hold. Ray keeps the wound-care kit. Ray trail timestamps stay the 3e honesty rule.
+- **2026-08-15** - Product tabs Census / New order / Oversight live in the app chrome. The clinician inbox is projected from orders. Add supplies keeps the open patient. Switching to DON keeps the open chart. Side-by-side stays removed. Helen stay deceased. June stays admitted.
 - **2026-08-15** - Pickup ends in `picked_up` with `pickedUpAt`. `triggerPickup` leaves a delayed row delayed. PPD stops billing that order. See #20.
 - **2026-08-15** - Unconfirmed orders stay `ordered`. A 24-hour grace projection flags DME-10231 at-risk. No new status. See #21.
 - **2026-08-15** - DON PPD does not print a buffer-day count. The fixture never computed that driver. See #24.
@@ -46,3 +52,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Supplies are real orders with `kind: supply` on the same Order union. Pickup throws. Discharge and PPD ignore them. See #25.
 - **2026-08-15** - Proof of delivery may carry an optional fixture `photoUrl`. Missing photo does not block delivered. See #26.
 - **2026-08-15** - Discharge override is visible on the patient DME banner. The write-only map was a silent no-op for judges.
+- **2026-08-15** - The six-item supply catalog (wound kit, foam, saline, briefs, underpads, gloves) places `kind: supply` orders. Ray's fixture kit still shows until a seed supply order exists. See #25 #29.

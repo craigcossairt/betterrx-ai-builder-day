@@ -1,7 +1,13 @@
-export function CensusHeader({ lede }: { lede: string }) {
+export function CensusHeader({ lede, href }: { lede: string; href?: string }) {
   return (
     <header className="census-head">
-      <p className="census-lede">{lede}</p>
+      {href ? (
+        <a className="census-lede census-lede-link" href={href}>
+          {lede}
+        </a>
+      ) : (
+        <p className="census-lede">{lede}</p>
+      )}
     </header>
   );
 }

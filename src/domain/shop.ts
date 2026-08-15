@@ -9,28 +9,72 @@ export type ShopItem = {
   code: string;
   name: string;
   dailyRateUsd: number | null;
+  category?: string;
+  pack?: string;
 };
+
+export const SUPPLY_CATS = ["Wound care", "Incontinence", "Gloves"] as const;
 
 export const SUPPLIES: readonly ShopItem[] = [
   {
     kind: "supplies",
     code: "SUP-WOUND",
     name: "Wound care kit",
-    dailyRateUsd: 1.1,
+    dailyRateUsd: null,
+    category: "Wound care",
+    pack: "kit · one per dressing change",
+  },
+  {
+    kind: "supplies",
+    code: "SUP-FOAM",
+    name: "Foam dressing 4x4",
+    dailyRateUsd: null,
+    category: "Wound care",
+    pack: "box of 10",
+  },
+  {
+    kind: "supplies",
+    code: "SUP-SALINE",
+    name: "Saline wound wash",
+    dailyRateUsd: null,
+    category: "Wound care",
+    pack: "7.1 oz can",
   },
   {
     kind: "supplies",
     code: "SUP-BRIEFS",
     name: "Incontinence briefs",
-    dailyRateUsd: 0.8,
+    dailyRateUsd: null,
+    category: "Incontinence",
+    pack: "bag of 20 · size L",
+  },
+  {
+    kind: "supplies",
+    code: "SUP-PADS",
+    name: "Underpads 23x36",
+    dailyRateUsd: null,
+    category: "Incontinence",
+    pack: "pack of 25",
   },
   {
     kind: "supplies",
     code: "SUP-GLOVES",
     name: "Nitrile gloves",
-    dailyRateUsd: 0.4,
+    dailyRateUsd: null,
+    category: "Gloves",
+    pack: "box of 100 · size M",
   },
 ];
+
+export function supplyCatalog(): {
+  category: string;
+  items: readonly ShopItem[];
+}[] {
+  return SUPPLY_CATS.map((category) => ({
+    category,
+    items: SUPPLIES.filter((item) => item.category === category),
+  }));
+}
 
 const DME: readonly ShopItem[] = CATALOG.map((sku) => ({
   kind: "dme" as const,

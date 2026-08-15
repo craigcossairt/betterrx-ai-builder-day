@@ -4,7 +4,7 @@ import { useActionState, useMemo, useState } from "react";
 import { placeOrderAction } from "@/app/actions";
 import type { Instant } from "@/domain/clock";
 import { costGate, supplyOffers, type OfferCard } from "@/domain/offers";
-import { asPatientId, type Hcpcs } from "@/domain/order";
+import { asPatientId, asVendorId, type Hcpcs, type OrderType } from "@/domain/order";
 import {
   lookupPatient,
   searchPatients,
@@ -13,15 +13,17 @@ import {
 import {
   searchShop,
   shopItems,
+  supplyCatalog,
   vendorRecord,
   type ShopItem,
   type ShopKind,
 } from "@/domain/shop";
 import { costNote, offerStory, preferredLineStory } from "@/project/order-copy";
+import { reviewLines } from "@/project/line-review";
 import { Button } from "@/ui/Button";
 import { Input } from "@/ui/Input";
 import { Toast } from "@/ui/Toast";
-import { formatVendor } from "@/ui/format";
+import { formatVendor, formatWhen } from "@/ui/format";
 import { PhoneBack } from "@/ui/order/PhoneBack";
 import type { SurfaceId } from "@/ui/nav";
 import type { RoleId } from "@/ui/roles";
@@ -39,8 +41,8 @@ export function PlaceOrderForm({
   lateEta,
   role,
   surface,
-  initialPatientId,
-  initialKind,
+  initialPatientId = null,
+  initialKind = "dme",
 }: {
   offerSets: Record<Hcpcs, OfferCard[]>;
   deadline: Instant;
@@ -48,24 +50,35 @@ export function PlaceOrderForm({
   lateEta: Instant;
   role: RoleId;
   surface: SurfaceId;
-  initialPatientId?: string;
+  initialPatientId?: string | null;
   initialKind?: ShopKind;
 }) {
   const [query, setQuery] = useState("");
-  const [patient, setPatient] = useState<CensusPatient | null>(
+  const [patient, setPatient] = useState<CensusPatient | null>(() =>
     initialPatientId ? lookupPatient(asPatientId(initialPatientId)) : null,
   );
-  const [kind, setKind] = useState<ShopKind>(initialKind ?? "dme");
+  const [kind, setKind] = useState<ShopKind>(initialKind);
   const [itemQuery, setItemQuery] = useState("");
   const [lines, setLines] = useState<ShopItem[]>([]);
+  const [qty, setQty] = useState<Record<string, number>>({});
   const [vendorId, setVendorId] = useState("vendor-1");
+  const [lineVendors, setLineVendors] = useState<Record<string, string>>({});
+  const [orderType, setOrderType] = useState<OrderType>("stat");
+  const [reviewing, setReviewing] = useState(false);
   const [state, formAction, pending] = useActionState(placeOrderAction, {});
 
   const people = searchPatients(query);
   const emr = patient ? shopItems({ kind, emrFor: patient.id }) : [];
   const hits = searchShop({ kind, query: itemQuery });
   const dmeLines = lines.filter((line) => line.kind === "dme");
-  const supplyLines = lines.filter((line) => line.kind === "supplies");
+  const supplyLines = Object.entries(qty).flatMap(([code, count]) => {
+    const item = supplyCatalog()
+      .flatMap((row) => row.items)
+      .find((row) => row.code === code);
+    return item && count > 0
+      ? Array.from({ length: count }, () => item)
+      : [];
+  });
   const primary = (dmeLines.find((line) => line.code === "E1390")?.code ??
     dmeLines[0]?.code ??
     "E0250") as Hcpcs;
@@ -80,17 +93,29 @@ export function PlaceOrderForm({
       : (offerSets[primary] ?? offerSets.E0250);
   const selected = cards.find((card) => card.vendorId === vendorId) ?? cards[0];
   const total = lines.reduce((sum, line) => sum + (line.dailyRateUsd ?? 0), 0);
-  const needsOverride = selected && !selected.preferred;
+  const reviews = reviewLines(
+    dmeLines,
+    asVendorId(vendorId),
+    offerSets,
+    deadline,
+    lineVendors,
+  );
+  const needsOverride = reviews.some((line) => {
+    const preferred = offerSets[line.code]?.find((card) => card.preferred);
+    return Boolean(preferred && preferred.vendorId !== line.vendorId);
+  });
   const note =
     kind === "dme" && selected
       ? costNote({
-          orderType: "stat",
+          orderType,
           dailyRateUsd: selected.dailyRateUsd,
           hcpcs: primary,
         })
       : null;
-  const canSend =
-    kind === "supplies" ? supplyLines.length > 0 : dmeLines.length > 0;
+  const gate = selected
+    ? costGate({ orderType, dailyRateUsd: selected.dailyRateUsd })
+    : { verdict: "open" as const };
+  const canSend = dmeLines.length > 0 || supplyLines.length > 0;
 
   const results = useMemo(
     () => hits.filter((item) => !lines.some((line) => line.code === item.code)),
@@ -115,9 +140,17 @@ export function PlaceOrderForm({
       {dmeLines.map((line) => (
         <input key={line.code} type="hidden" name="hcpcs" value={line.code} />
       ))}
-      {supplyLines.map((line) => (
+      {dmeLines.map((line) => (
         <input
-          key={line.code}
+          key={`vendor-${line.code}`}
+          type="hidden"
+          name="lineVendor"
+          value={`${line.code}:${lineVendors[line.code] ?? vendorId}`}
+        />
+      ))}
+      {supplyLines.map((line, index) => (
+        <input
+          key={`${line.code}-${index}`}
           type="hidden"
           name="supplyCode"
           value={line.code}
@@ -125,6 +158,7 @@ export function PlaceOrderForm({
       ))}
       <input type="hidden" name="vendorId" value={selected?.vendorId ?? ""} />
       <input type="hidden" name="patientId" value={patient?.id ?? ""} />
+      <input type="hidden" name="orderType" value={orderType} />
       <header className="census-head">
         <PhoneBack role={role} surface={surface} />
         <p className="census-lede">New order</p>
@@ -167,6 +201,25 @@ export function PlaceOrderForm({
                 Change
               </button>
             </div>
+            <div className="seg" role="group" aria-label="Urgency">
+              {(
+                [
+                  { id: "stat" as const, label: "STAT" },
+                  { id: "routine" as const, label: "Routine" },
+                ] as const
+              ).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={
+                    orderType === item.id ? "seg-btn seg-btn--on" : "seg-btn"
+                  }
+                  onClick={() => setOrderType(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
             <div className="seg" role="group" aria-label="Order type">
               {KINDS.map((item) => (
                 <button
@@ -206,35 +259,81 @@ export function PlaceOrderForm({
                     </div>
                   </>
                 ) : null}
-                <input
-                  className="search-box"
-                  value={itemQuery}
-                  onChange={(event) => setItemQuery(event.target.value)}
-                  placeholder={
-                    kind === "dme" ? "Search equipment" : "Search supplies"
-                  }
-                  aria-label="Search items"
-                />
-                <div className="search-list">
-                  {results.map((item) => (
-                    <button
-                      key={item.code}
-                      type="button"
-                      className="search-hit"
-                      onClick={() => add(item)}
-                    >
-                      <span>
-                        <b>{item.name}</b>
-                        <span className="order-sub">{item.code}</span>
-                      </span>
-                      <span className="search-pick">
-                        {item.dailyRateUsd != null
-                          ? `$${item.dailyRateUsd.toFixed(2)}/day`
-                          : "Add"}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                {kind === "supplies" ? (
+                  <div className="supply-pick">
+                    {supplyCatalog().map((group) => (
+                      <div key={group.category}>
+                        <div className="eyebrow">{group.category}</div>
+                        {group.items.map((item) => {
+                          const count = qty[item.code] ?? 0;
+                          return (
+                            <div key={item.code} className="supply-qty-row">
+                              <span>
+                                <b>{item.name}</b>
+                                <span className="order-sub">{item.pack}</span>
+                              </span>
+                              <div className="supply-qty">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setQty((current) => ({
+                                      ...current,
+                                      [item.code]: Math.max(0, count - 1),
+                                    }))
+                                  }
+                                >
+                                  −
+                                </button>
+                                <span>{count}</span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setQty((current) => ({
+                                      ...current,
+                                      [item.code]: count + 1,
+                                    }))
+                                  }
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      className="search-box"
+                      value={itemQuery}
+                      onChange={(event) => setItemQuery(event.target.value)}
+                      placeholder="Search equipment"
+                      aria-label="Search items"
+                    />
+                    <div className="search-list">
+                      {results.map((item) => (
+                        <button
+                          key={item.code}
+                          type="button"
+                          className="search-hit"
+                          onClick={() => add(item)}
+                        >
+                          <span>
+                            <b>{item.name}</b>
+                            <span className="order-sub">{item.code}</span>
+                          </span>
+                          <span className="search-pick">
+                            {item.dailyRateUsd != null
+                              ? `$${item.dailyRateUsd.toFixed(2)}/day`
+                              : "Add"}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
                 {lines.length > 0 ? (
                   <>
                     <div className="eyebrow">This order</div>
@@ -297,7 +396,10 @@ export function PlaceOrderForm({
                                   ? "offer-card offer-card--best"
                                   : "offer-card"
                             }
-                            onClick={() => setVendorId(card.vendorId)}
+                            onClick={() => {
+                              setVendorId(card.vendorId);
+                              setLineVendors({});
+                            }}
                           >
                             <div className="offer-card-top">
                               <b>{formatVendor(card.vendorId)}</b>
@@ -312,7 +414,7 @@ export function PlaceOrderForm({
                         );
                       })}
                     </div>
-                    {needsOverride ? (
+                    {needsOverride && !reviewing ? (
                       <Input
                         name="overrideReason"
                         label="Why this vendor?"
@@ -320,15 +422,11 @@ export function PlaceOrderForm({
                         required
                       />
                     ) : null}
-                    {costGate({
-                      orderType: "stat",
-                      dailyRateUsd: selected?.dailyRateUsd ?? 0,
-                    }).verdict === "hold" ? (
-                      <Input
-                        name="donReason"
-                        label="Director of nursing reason"
-                        required
-                      />
+                    {gate.verdict === "hold" ? (
+                      <p className="cost-note">
+                        Over $3 a day. The order is held for the director of
+                        nursing. It does not go to a vendor until she approves.
+                      </p>
                     ) : null}
                   </>
                 ) : null}
@@ -347,8 +445,75 @@ export function PlaceOrderForm({
           </Toast>
         ) : null}
       </div>
-      {patient && kind !== "medication" ? (
-        <footer className="census-foot">
+      {patient && kind !== "medication" && reviewing ? (
+        <div className="review-sheet" role="dialog" aria-label="Send lines">
+          <p className="patient-title">
+            Send {dmeLines.length + supplyLines.length}{" "}
+            {dmeLines.length + supplyLines.length === 1 ? "line" : "lines"}?
+          </p>
+          <p className="order-sub">
+            Discharge window {formatWhen(deadline)}
+          </p>
+          {supplyLines.map((line, index) => (
+            <div key={`${line.code}-${index}`} className="review-line">
+              <div>
+                <b>{line.name}</b>
+                <span className="order-sub">
+                  {line.pack ?? "by contract"} · stays in the home
+                </span>
+              </div>
+            </div>
+          ))}
+          {reviews.map((line) => {
+            const other =
+              line.vendorId === "vendor-1" ? "vendor-2" : "vendor-1";
+            return (
+              <button
+                key={line.code}
+                type="button"
+                className={
+                  line.vsWindow === "late"
+                    ? "review-line review-line--late"
+                    : "review-line"
+                }
+                onClick={() =>
+                  setLineVendors((current) => ({
+                    ...current,
+                    [line.code]: other,
+                  }))
+                }
+              >
+                <div>
+                  <b>{line.name}</b>
+                  <span className="order-sub">
+                    {line.code} · {formatVendor(line.vendorId)}
+                  </span>
+                  <span className="review-try">
+                    Try {formatVendor(other)}
+                  </span>
+                </div>
+                <div className="review-eta">
+                  <b>{line.whenLabel}</b>
+                  <span>{line.deltaLabel}</span>
+                </div>
+              </button>
+            );
+          })}
+          {note ? <p className="cost-note">{note}</p> : null}
+          {needsOverride ? (
+            <Input
+              name="overrideReason"
+              label="Why this vendor?"
+              hint="Required when a line skips the recommended option."
+              required
+            />
+          ) : null}
+          {gate.verdict === "hold" ? (
+            <p className="cost-note">
+              Routine over $3 is held for the director of nursing. STAT would
+              send now.
+            </p>
+          ) : null}
           <Button
             variant="app"
             type="submit"
@@ -357,13 +522,42 @@ export function PlaceOrderForm({
           >
             {pending
               ? "Sending…"
-              : canSend
-                ? kind === "supplies"
-                  ? "Send supply order"
-                  : "Send STAT order"
+              : gate.verdict === "hold"
+                ? "Hold for DON"
                 : kind === "supplies"
-                  ? "Add a supply to send"
-                  : "Add a DME item to send"}
+                  ? "Send supply order"
+                  : `Send ${dmeLines.length + supplyLines.length} ${
+                      dmeLines.length + supplyLines.length === 1
+                        ? "line"
+                        : "lines"
+                    }`}
+          </Button>
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => setReviewing(false)}
+            style={{ width: "100%", minHeight: 44, justifyContent: "center" }}
+          >
+            Back
+          </Button>
+        </div>
+      ) : null}
+      {patient && kind !== "medication" && !reviewing ? (
+        <footer className="census-foot">
+          <Button
+            variant="app"
+            type="button"
+            disabled={pending || Boolean(state.ok) || !canSend}
+            onClick={() => setReviewing(true)}
+            style={{ width: "100%", minHeight: 48, justifyContent: "center" }}
+          >
+            {canSend
+              ? `Review ${dmeLines.length + supplyLines.length} ${
+                  dmeLines.length + supplyLines.length === 1 ? "line" : "lines"
+                }`
+              : kind === "supplies"
+                ? "Add a supply to send"
+                : "Add a DME item to send"}
           </Button>
         </footer>
       ) : null}

@@ -162,9 +162,10 @@ export function triggerPickup(
 }
 
 export function markPickedUp(
-  order: PickupTriggeredOrder | PickupDelayedOrder,
+  order: PickupTriggeredOrder | PickupDelayedOrder | PickedUpOrder,
   now: Instant,
 ): PickedUpOrder {
+  if (order.status === "picked_up") return order;
   return {
     id: order.id,
     patientId: order.patientId,

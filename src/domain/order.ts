@@ -4,7 +4,13 @@ export type VendorId = string & { readonly brand: "VendorId" };
 export type HospiceName = string & { readonly brand: "HospiceName" };
 
 export type Hcpcs = "E0250" | "E1390" | "E1130";
-export type SupplyCode = "SUP-WOUND" | "SUP-BRIEFS" | "SUP-GLOVES";
+export type SupplyCode =
+  | "SUP-WOUND"
+  | "SUP-FOAM"
+  | "SUP-SALINE"
+  | "SUP-BRIEFS"
+  | "SUP-PADS"
+  | "SUP-GLOVES";
 export type LineCode = Hcpcs | SupplyCode;
 export type OrderKind = "dme" | "supply";
 export type OrderType = "admission" | "routine" | "stat";
@@ -12,7 +18,10 @@ export type PickupTrigger = "patient_status_deceased" | "nurse_request";
 
 export const SUPPLY_CODES = [
   "SUP-WOUND",
+  "SUP-FOAM",
+  "SUP-SALINE",
   "SUP-BRIEFS",
+  "SUP-PADS",
   "SUP-GLOVES",
 ] as const;
 

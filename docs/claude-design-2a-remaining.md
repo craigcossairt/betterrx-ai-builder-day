@@ -12,7 +12,7 @@ Brand: BetterRX product chrome. Blue 6px primary actions. Coral only on at-risk.
 
 These screens exist and judges can tap them. Improve a frame only if it is in the remaining list below.
 
-- Demo chrome outside the white app: persona (Admissions RN, Case Mgr, DON, Vendor) and surface (Phone, Side-by-side, Desktop). EMR death event and Reset live here, not inside the nurse app.
+- Demo chrome outside the white app: persona (Admissions RN, Case Mgr, DON, Vendor) and surface (Phone, Desktop). EMR death event and Reset live here, not inside the nurse app. Clinician phone is the Phone surface, not a fifth persona. The app itself has Census / New order / Oversight tabs and a bell inbox built from orders.
 - Census 2a: names first, sentence status, Helen Vargas for PT-87602.
 - Search-first new order: patient, then Medication / DME / Supplies, then EMR chips or catalog search. Preferred vs alternate vendor cards.
 - Patient picture tabs: Patient, Medication, DME, Supplies.
@@ -21,7 +21,7 @@ These screens exist and judges can tap them. Improve a frame only if it is in th
 - DME tab: six-step trail, discharge override, Request pickup on delivered (case manager / DON).
 - DON desktop with no patient: DME cost PPD report ($0.67 actual vs $1.85 fixture target, 4 idle pickup days on Ray). Compact strip in the census footer.
 - Vendor persona: inbox only. Simulated SMS. No vendor account.
-- `/integration` text sketch: ADT in, medication events in, DME status out, HCHB named.
+- `/integration` (How it connects): weekend judge note. ADT in, medication events in, DME status out. HCHB is the partner story. Not a live EMR.
 
 Locked names: Eleanor Bishop, Margaret Holt, Ray Delgado, Sam Whitaker, June Park, Helen Vargas. Do not add Donald Tester as a seventh census patient.
 

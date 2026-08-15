@@ -63,7 +63,10 @@ function clockShort(at: Instant): string {
 function gearWord(order: Order): string {
   const code = order.equipment[0].hcpcs;
   if (code === "SUP-WOUND") return "wound kit";
+  if (code === "SUP-FOAM") return "foam dressing";
+  if (code === "SUP-SALINE") return "wound wash";
   if (code === "SUP-BRIEFS") return "briefs";
+  if (code === "SUP-PADS") return "underpads";
   if (code === "SUP-GLOVES") return "gloves";
   if (isHcpcs(code)) return GEAR[code];
   return "item";
@@ -76,7 +79,10 @@ type Speaker<S extends OrderStatus> = (
 ) => string;
 
 const SPEAK: { [S in OrderStatus]: Speaker<S> } = {
-  ordered: (_order, gear) => `The ${gear} is waiting on a vendor.`,
+  ordered: (order, gear) =>
+    (order.notes ?? "").includes("DON hold")
+      ? `The ${gear} is held for the director of nursing.`
+      : `The ${gear} is waiting on a vendor.`,
   dispatched: (_order, gear) => `The ${gear} is on the way.`,
   delivered: (_order, gear) => `The ${gear} is delivered.`,
   pickup_triggered: (_order, gear) => `The ${gear} pickup is in motion.`,
@@ -202,7 +208,11 @@ export function projectCensus(orders: readonly Order[], now: Instant): Census {
     lines: [...attention, ...rest].map((order) => asLine(order, now)),
     atRisk,
     delayedPickup,
-    awaitingVendor: orders.filter((order) => order.status === "ordered").length,
+    awaitingVendor: orders.filter(
+      (order) =>
+        order.status === "ordered" &&
+        !(order.notes ?? "").includes("DON hold"),
+    ).length,
     lede: needsYouLine(atRisk + delayedPickup),
   };
 }

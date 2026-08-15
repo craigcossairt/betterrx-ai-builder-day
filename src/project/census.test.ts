@@ -53,6 +53,15 @@ describe("projectCensus", () => {
     );
   });
 
+  it("names Sam's held oxygen as a DON hold, not a vendor wait", () => {
+    const now = frozenClock("2026-08-14T17:00:00.000Z").now();
+    const sam = sampleOrders().find((order) => order.id === "DME-10322");
+    if (!sam) throw new Error("expected Sam's held oxygen");
+    expect(censusSentence(sam, now)).toBe(
+      "The oxygen is held for the director of nursing.",
+    );
+  });
+
   it("speaks Eleanor's missing vendor confirm in the 24-hour grace words", () => {
     const now = frozenClock("2026-08-14T17:00:00.000Z").now();
     const eleanor = sampleOrders().find((order) => order.id === "DME-10231");

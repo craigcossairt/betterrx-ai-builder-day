@@ -26,7 +26,7 @@ describe("parseSampleOrders", () => {
     ]);
   });
 
-  it("keeps the six sample statuses as stored state", () => {
+  it("keeps the sample statuses as stored state", () => {
     const orders = parseSampleOrders(
       loadSample(),
       frozenClock("2026-08-14T17:00:00.000Z"),
@@ -38,6 +38,7 @@ describe("parseSampleOrders", () => {
       ["DME-10087", "delivered"],
       ["DME-09911", "pickup_triggered"],
       ["DME-09803", "pickup_delayed"],
+      ["DME-10322", "ordered"],
     ]);
   });
 

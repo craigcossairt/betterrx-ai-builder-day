@@ -77,6 +77,18 @@
         "flagged": true,
         "why": "Pickup was triggered four days ago with no scheduled retrieval. Family has called the hospice twice asking for the bed to be removed."
       }
+    },
+    {
+      "id": "DME-10322",
+      "status": "ordered",
+      "patientId": "PT-88190",
+      "hospice": "Sample Hospice B",
+      "equipment": [{ "hcpcs": "E1390", "name": "Oxygen Concentrator" }],
+      "orderType": "routine",
+      "orderedAt": "2026-08-14T11:45:00",
+      "targetAt": "2026-08-15T16:00:00",
+      "vendorId": null,
+      "notes": "DON hold. Routine oxygen over $3 a day."
     }
   ]
 }

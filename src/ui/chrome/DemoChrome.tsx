@@ -7,7 +7,6 @@ import { parseRole, ROLES, type RoleId } from "@/ui/roles";
 
 const SURFACES: { id: SurfaceId; label: string }[] = [
   { id: "phone", label: "Phone" },
-  { id: "split", label: "Side-by-side" },
   { id: "desktop", label: "Desktop" },
 ];
 
@@ -76,7 +75,7 @@ export function DemoChrome() {
         <button type="submit">Reset</button>
       </form>
       <a className="demo-chrome-link" href="/integration">
-        Pitch packet
+        How it connects
       </a>
     </div>
   );

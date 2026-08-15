@@ -5,10 +5,12 @@ import { TrackMark } from "@/ui/census/TrackMark";
 export function LoudCard({
   line,
   href,
+  selected,
   children,
 }: {
   line: CensusLine;
   href?: string;
+  selected?: boolean;
   children?: ReactNode;
 }) {
   const body = (
@@ -23,9 +25,13 @@ export function LoudCard({
   );
   return (
     <article
-      className={
-        line.tone === "coral" ? "loud-card loud-card--coral" : "loud-card"
-      }
+      className={[
+        "loud-card",
+        line.tone === "coral" ? "loud-card--coral" : "",
+        selected ? "loud-card--on" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {href ? (
         <a className="loud-card-link" href={href}>

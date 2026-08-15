@@ -9,10 +9,12 @@ export function CensusBoard({
   lines,
   role,
   surface,
+  selectedPatientId,
 }: {
   lines: readonly CensusLine[];
   role: RoleId;
   surface: SurfaceId;
+  selectedPatientId?: string | null;
 }) {
   const loud = lines.filter((line) => line.kind === "loud");
   const quiet = lines.filter((line) => line.kind === "quiet");
@@ -23,6 +25,7 @@ export function CensusBoard({
           <LoudCard
             key={line.order.id}
             line={line}
+            selected={line.order.patientId === selectedPatientId}
             href={boardHref({
               role,
               surface,
@@ -39,6 +42,7 @@ export function CensusBoard({
           <QuietRow
             key={line.order.id}
             line={line}
+            selected={line.order.patientId === selectedPatientId}
             href={boardHref({
               role,
               surface,
