@@ -18,6 +18,7 @@ import {
   isHcpcs,
   isSupplyCode,
   orderKind,
+  type Hcpcs,
 } from "@/domain/order";
 import { lookupSupply } from "@/domain/shop";
 import { emrDeathTargets } from "@/domain/pickup";
