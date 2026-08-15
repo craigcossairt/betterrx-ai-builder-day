@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { CATALOG } from "@/domain/catalog";
 import { systemClock } from "@/domain/clock";
 import { dischargeReady } from "@/domain/discharge";
-import { chooseOffer, demoOfferWindow, offersFor } from "@/domain/offers";
+import {
+  COST_THRESHOLD_USD,
+  chooseOffer,
+  demoOfferWindow,
+  offersFor,
+} from "@/domain/offers";
 import {
   asHospiceName,
   asOrderId,
@@ -58,6 +63,7 @@ export async function placeOrderAction(
       vendorId,
       overrideReason,
       donReason,
+      orderType: "stat",
     });
     const sku = CATALOG.find((row) => row.hcpcs === hcpcs);
     const store = await getHospiceStore();
@@ -68,6 +74,9 @@ export async function placeOrderAction(
     const notes = [
       chosen !== ranked[0] ? `Override: ${overrideReason}` : null,
       donReason ? `DON: ${donReason}` : null,
+      !donReason && chosen.dailyRateUsd >= COST_THRESHOLD_USD
+        ? "STAT over $3. DON retro."
+        : null,
     ]
       .filter(Boolean)
       .join(" ");

@@ -1,6 +1,6 @@
 import type { CatalogSku } from "./catalog";
 import { asInstant, type Instant } from "./clock";
-import { asVendorId, type Hcpcs, type VendorId } from "./order";
+import { asVendorId, type Hcpcs, type OrderType, type VendorId } from "./order";
 import { rankOptions, type Stock, type VendorOption } from "./rank";
 
 export const COST_THRESHOLD_USD = 3;
@@ -84,6 +84,7 @@ export function chooseOffer(input: {
   vendorId: VendorId;
   overrideReason: string;
   donReason: string;
+  orderType?: OrderType;
   thresholdUsd?: number;
 }): VendorOption {
   const chosen = input.ranked.find((option) => option.vendorId === input.vendorId);
@@ -91,10 +92,10 @@ export function chooseOffer(input: {
   if (chosen !== input.ranked[0] && input.overrideReason.length === 0) {
     throw new Error("override needs a reason");
   }
-  if (
+  const held =
     chosen.dailyRateUsd >= (input.thresholdUsd ?? COST_THRESHOLD_USD) &&
-    input.donReason.length === 0
-  ) {
+    input.orderType !== "stat";
+  if (held && input.donReason.length === 0) {
     throw new Error("director of nursing approval needed");
   }
   return chosen;

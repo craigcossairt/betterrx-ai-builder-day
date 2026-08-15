@@ -84,6 +84,22 @@ describe("chooseOffer", () => {
     ).toThrow("override needs a reason");
   });
 
+  it("lets STAT oxygen through the $3 gate without a DON reason", () => {
+    const ranked = rankOptions(
+      offersFor("E1390", window.preferredEta, window.lateEta),
+      window.deadline,
+    );
+    const chosen = chooseOffer({
+      ranked,
+      vendorId: asVendorId("vendor-1"),
+      overrideReason: "",
+      donReason: "",
+      orderType: "stat",
+    });
+    expect(chosen.dailyRateUsd).toBe(3.34);
+    expect(chosen.vendorId).toBe("vendor-1");
+  });
+
   it("blocks E1390 until the director of nursing leaves a reason", () => {
     const ranked = rankOptions(
       offersFor("E1390", window.preferredEta, window.lateEta),
@@ -95,6 +111,7 @@ describe("chooseOffer", () => {
         vendorId: asVendorId("vendor-1"),
         overrideReason: "",
         donReason: "",
+        orderType: "routine",
       }),
     ).toThrow("director of nursing approval needed");
     const chosen = chooseOffer({
