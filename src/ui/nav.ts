@@ -58,7 +58,10 @@ export function chromeQuery(input: {
         : leaveVendor
           ? null
           : parsePanel(input.panel),
-    patient: input.nextRole === "vendor" ? null : input.patient,
+    patient:
+      input.nextRole === "vendor" || input.nextRole === "don"
+        ? null
+        : input.patient,
     tab:
       input.tab === "patient" ||
       input.tab === "medication" ||

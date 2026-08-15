@@ -50,6 +50,25 @@ describe("parseRole", () => {
 });
 
 describe("chromeQuery", () => {
+  it("drops the open patient when switching to DON so PPD is first", () => {
+    expect(
+      chromeQuery({
+        role: "admissions",
+        nextRole: "don",
+        surface: "desktop",
+        panel: null,
+        patient: "PT-88421",
+        tab: "patient",
+      }),
+    ).toEqual({
+      role: "don",
+      surface: "desktop",
+      panel: null,
+      patient: null,
+      tab: "patient",
+    });
+  });
+
   it("drops inbox when leaving the vendor persona", () => {
     expect(
       chromeQuery({

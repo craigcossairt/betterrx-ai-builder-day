@@ -814,6 +814,11 @@ body {
   font-size: 14px;
 }
 
+.chart-list dd .order-sub {
+  display: block;
+  margin-top: 2px;
+}
+
 .med-sig {
   margin: 8px 0 0;
   font-size: 13.5px;
