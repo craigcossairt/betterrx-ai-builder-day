@@ -20,13 +20,25 @@ Sibling repos this weekend: [ai-builder-day-part-2](https://github.com/craigcoss
 ## Status
 
 - Repo: private, `main`
-- Stage: Next.js hospice app (BetterRX design system + first board)
-- Stack: Next.js + TypeScript + Tailwind on Vercel. Supabase `orders` jsonb when env is set.
+- Stage: running hospice DME board. Phone-first. Orders persist in memory, or in Supabase when env is set.
+- Stack: Next.js + TypeScript + Tailwind on Vercel.
+- Pitch paper: `/integration` (AI skip, differentiation, HCHB sketch, three demo taps)
 - Issues: https://github.com/craigcossairt/betterrx-ai-builder-day/issues
 
 ```bash
 npm ci
 npm run dev
+```
+
+Open `http://localhost:3000`. No `.env.local` is required. The six sample orders load from `docs/briefs/sample-orders.json`.
+
+Judge taps (also linked from `/integration`):
+
+1. Discharge miss: `/?role=admissions&patient=PT-88502&tab=dme` (Margaret Holt)
+2. Delayed pickup: `/?role=case_manager&patient=PT-87411&tab=dme` (Ray Delgado)
+3. DME PPD: `/?role=don&surface=desktop&panel=oversight`
+
+```bash
 npm test
 ```
 

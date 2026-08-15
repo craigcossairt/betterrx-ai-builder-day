@@ -33,7 +33,7 @@ export function CensusBoard({
               tab: "dme",
             })}
           >
-            <LoudActions order={line.order} role={role} />
+            <LoudActions order={line.order} role={role} surface={surface} />
           </LoudCard>
         ))}
       </div>
@@ -50,7 +50,7 @@ export function CensusBoard({
               tab: "dme",
             })}
           >
-            <LoudActions order={line.order} role={role} />
+            <LoudActions order={line.order} role={role} surface={surface} />
           </QuietRow>
         ))}
       </div>

@@ -36,7 +36,7 @@ export function DemoChrome() {
 
   return (
     <div className="demo-chrome">
-      <span className="demo-chrome-mark">DME prototype</span>
+      <span className="demo-chrome-mark">Demo</span>
       <div className="seg" role="group" aria-label="Persona">
         {ROLES.map((item) => (
           <button
@@ -69,7 +69,7 @@ export function DemoChrome() {
       </div>
       <form action={emrDeathAction} className="demo-chrome-reset">
         {patient ? <input type="hidden" name="patientId" value={patient} /> : null}
-        <button type="submit">EMR death event</button>
+        <button type="submit">EMR death fallback</button>
       </form>
       <form action={resetDemoAction} className="demo-chrome-reset">
         <button type="submit">Reset</button>
