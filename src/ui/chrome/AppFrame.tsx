@@ -34,7 +34,7 @@ export function AppFrame({
     role === "vendor"
       ? []
       : [
-          { id: null as BoardPanel | null, label: "Census" },
+          { id: null as BoardPanel | null, label: "Patients" },
           { id: "order" as const, label: "New order" },
           { id: "oversight" as const, label: "Oversight" },
         ];

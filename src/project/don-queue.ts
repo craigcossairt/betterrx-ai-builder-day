@@ -109,7 +109,7 @@ export function projectDonQueue(
         idleDays: 0,
         dailyRateUsd: 0,
         stillBillingUsd: 0,
-        sentence: "No idle pickup days on this census.",
+        sentence: "No idle pickup days across these patients.",
       },
     };
   }

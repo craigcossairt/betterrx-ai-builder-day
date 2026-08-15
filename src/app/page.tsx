@@ -83,7 +83,7 @@ export default async function Home({
     ),
   };
   const shared = Boolean(supabaseConfig());
-  const sharedNote = role !== "don" && shared ? "Shared census." : undefined;
+  const sharedNote = role !== "don" && shared ? "Shared patient list." : undefined;
   const homeHref = boardHref({ role, surface });
   const view = resolveBoardView({
     role,
@@ -183,7 +183,7 @@ export default async function Home({
   ) : null;
 
   const emptyMain = (
-    <p className="order-sub desk-empty">Select a patient from the census.</p>
+    <p className="order-sub desk-empty">Select a patient.</p>
   );
 
   function deskMain(main: BoardMain) {

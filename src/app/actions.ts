@@ -75,7 +75,7 @@ export async function placeOrderAction(
       const patientId = asPatientId(
         String(formData.get("patientId") ?? "").trim(),
       );
-      if (!patientId) return { error: "Pick a patient from the census." };
+      if (!patientId) return { error: "Pick a patient." };
       const now = systemClock.now();
       const window = demoOfferWindow(now);
       const first = lookupSupply(supplyCodes[0]);
@@ -119,7 +119,7 @@ export async function placeOrderAction(
       return { error: "Add a DME item from search or EMR." };
     }
     const patientId = asPatientId(String(formData.get("patientId") ?? "").trim());
-    if (!patientId) return { error: "Pick a patient from the census." };
+    if (!patientId) return { error: "Pick a patient." };
     const defaultVendorId = asVendorId(String(formData.get("vendorId")));
     const lineVendors = new Map<Hcpcs, ReturnType<typeof asVendorId>>();
     for (const raw of formData.getAll("lineVendor")) {
