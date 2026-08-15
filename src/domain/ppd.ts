@@ -9,6 +9,8 @@ export type PpdReport = {
   targetUsd: number;
   patientDays: number;
   idlePickupDays: number;
+  bufferDays: number;
+  preferredOverrides: number;
 };
 
 function rateFor(hcpcs: Hcpcs, catalog: readonly CatalogSku[]): number {
@@ -60,10 +62,15 @@ export function censusPpd(
       billable += daily * windowDays;
     }
   }
+  const preferredOverrides = orders.filter((order) =>
+    (order.notes ?? "").includes("Override:"),
+  ).length;
   return {
     actualUsd: patientDays === 0 ? 0 : billable / patientDays,
     targetUsd: PPD_TARGET_USD,
     patientDays,
     idlePickupDays,
+    bufferDays: 0,
+    preferredOverrides,
   };
 }

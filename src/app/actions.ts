@@ -4,11 +4,17 @@ import { revalidatePath } from "next/cache";
 import { CATALOG } from "@/domain/catalog";
 import { systemClock } from "@/domain/clock";
 import { dischargeReady } from "@/domain/discharge";
-import { COST_THRESHOLD_USD, demoOfferWindow, offersFor } from "@/domain/offers";
+import { chooseOffer, demoOfferWindow, offersFor } from "@/domain/offers";
 import { asHospiceName, asOrderId, asPatientId, asVendorId, type Hcpcs } from "@/domain/order";
 import { rankOptions } from "@/domain/rank";
 import { assessDeliveryRisk } from "@/domain/risk";
-import { confirmVendor, placeOrder, triggerPickup } from "@/domain/transition";
+import {
+  confirmVendor,
+  declineVendor,
+  markDelivered,
+  placeOrder,
+  triggerPickup,
+} from "@/domain/transition";
 import { seedSmsIfEmpty } from "@/inbox/sms-inbox";
 import { setDischargeOverride } from "@/store/discharge-overrides";
 import { getHospiceStore } from "@/store/hospice-store";
@@ -24,15 +30,19 @@ export async function placeOrderAction(formData: FormData): Promise<void> {
     offersFor(hcpcs, window.preferredEta, window.lateEta),
     window.deadline,
   );
-  const chosen = ranked.find((option) => option.vendorId === vendorId);
-  if (!chosen) throw new Error("unknown vendor option");
-  if (chosen !== ranked[0] && overrideReason.length === 0) {
-    throw new Error("override needs a reason");
-  }
-  if (chosen.dailyRateUsd >= COST_THRESHOLD_USD && donReason.length === 0) {
-    throw new Error("director of nursing approval needed");
-  }
+  const chosen = chooseOffer({
+    ranked,
+    vendorId,
+    overrideReason,
+    donReason,
+  });
   const sku = CATALOG.find((row) => row.hcpcs === hcpcs);
+  const notes = [
+    chosen !== ranked[0] ? `Override: ${overrideReason}` : null,
+    donReason ? `DON: ${donReason}` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const order = placeOrder({
     patientId: asPatientId("PT-NEW"),
     hospice: asHospiceName("Sample Hospice A"),
@@ -41,6 +51,7 @@ export async function placeOrderAction(formData: FormData): Promise<void> {
     targetAt: window.deadline,
     now,
   });
+  if (notes) order.notes = notes;
   getHospiceStore().replace(order);
   seedSmsIfEmpty(now, order.id);
   revalidatePath("/");
@@ -62,11 +73,8 @@ export async function declineOrderAction(formData: FormData): Promise<void> {
   const id = asOrderId(String(formData.get("orderId")));
   const store = getHospiceStore();
   const current = store.get(id);
-  if (!current) return;
-  store.replace({
-    ...current,
-    notes: `${current.notes ?? ""} Vendor declined.`.trim(),
-  });
+  if (!current || current.status !== "ordered") return;
+  store.replace(declineVendor(current));
   revalidatePath("/");
 }
 
@@ -77,17 +85,7 @@ export async function markDeliveredAction(formData: FormData): Promise<void> {
   if (!current || (current.status !== "dispatched" && current.status !== "in_transit_at_risk")) {
     return;
   }
-  store.replace({
-    id: current.id,
-    patientId: current.patientId,
-    hospice: current.hospice,
-    equipment: current.equipment,
-    notes: current.notes,
-    status: "delivered",
-    vendorId: current.vendorId,
-    deliveredAt: systemClock.now(),
-    proofOfDelivery: { signature: true, timestamp: true },
-  });
+  store.replace(markDelivered(current, systemClock.now()));
   revalidatePath("/");
 }
 

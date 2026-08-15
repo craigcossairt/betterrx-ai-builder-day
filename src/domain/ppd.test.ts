@@ -37,5 +37,7 @@ describe("censusPpd", () => {
     expect(running.idlePickupDays).toBe(4);
     expect(stopped.idlePickupDays).toBe(0);
     expect(running.actualUsd).toBeGreaterThan(stopped.actualUsd);
+    expect(running.bufferDays).toBe(0);
+    expect(running.preferredOverrides).toBe(0);
   });
 });

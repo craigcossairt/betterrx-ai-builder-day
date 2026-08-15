@@ -4,6 +4,7 @@ import type {
   DispatchedOrder,
   EquipmentLine,
   HospiceName,
+  InTransitAtRiskOrder,
   OrderedOrder,
   OrderType,
   PatientId,
@@ -51,6 +52,30 @@ export function confirmVendor(
     orderType: order.orderType,
     vendorId,
     eta,
+  };
+}
+
+export function declineVendor(order: OrderedOrder): OrderedOrder {
+  return {
+    ...order,
+    notes: `${order.notes ?? ""} Vendor declined.`.trim(),
+  };
+}
+
+export function markDelivered(
+  order: DispatchedOrder | InTransitAtRiskOrder,
+  now: Instant,
+): DeliveredOrder {
+  return {
+    id: order.id,
+    patientId: order.patientId,
+    hospice: order.hospice,
+    equipment: order.equipment,
+    notes: order.notes,
+    status: "delivered",
+    vendorId: order.vendorId,
+    deliveredAt: now,
+    proofOfDelivery: { signature: true, timestamp: true },
   };
 }
 

@@ -11,3 +11,4 @@ Include a commit SHA and issue reference when known.
 |---|---|---|---|---|
 | Next.js 500: `parseRole() from the server but parseRole is on the client` | `parseRole` lived in a `"use client"` file and the server page imported it | Move role helpers to `src/ui/roles.ts` with no client directive | 2026-08-15 | #9 |
 | `next build` typechecks vendored pstack Bun scripts | Root `tsconfig` included `**/*.ts` | Exclude `vendor` | 2026-08-15 | #9 |
+| `next dev` appends a Next.js block to `AGENTS.md` | Next 16 writes agent rules unless disabled | Set `agentRules: false` in `next.config.ts` | 2026-08-15 | #9 |
