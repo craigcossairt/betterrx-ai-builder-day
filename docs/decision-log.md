@@ -41,6 +41,11 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Do not change locked census stories to match Claude's hold/death fixtures. Helen stays deceased. June stays admitted. Hold and retro rows bind to `costGate`. A routine over $3 is `ordered` plus a `DON hold` note until approve. `picked_up` is a new status because that tap stops the rental clock.
 - **2026-08-15** - Equipment oversight is a named panel (`panel=oversight`). The DON census footer and the logo/lede are the in-product ways back.
 - **2026-08-15** - Clinician phone is the Phone surface for Admissions RN, Case Mgr, and DON. It is not a fifth persona. Side-by-side is removed. Old `surface=split` links open Desktop.
-- **2026-08-15** - `/integration` is a judge note titled How it connects. It is not a product screen and it does not call a live EMR.
+- **2026-08-15** - `/integration` is a judge note titled How it connects. The typed `pitchPacket` (AI skip at $0, today vs us, mermaid) lives on that same page. It is not a product screen and it does not call a live EMR. See #19.
 - **2026-08-15** - Tracker V6 binds to notes, seed, and inbox maps. Ask why stays on the held line. Propose a time is day and hour chips. Delivery photo is stored on the order. Per-line Try Wasatch/Uintah can split send by vendor. Unknown ICD codes get a fallback sentence. Sam Whitaker `DME-10322` is the non-Helen hold. Ray keeps the wound-care kit. Ray trail timestamps stay the 3e honesty rule.
 - **2026-08-15** - Product tabs Census / New order / Oversight live in the app chrome. The clinician inbox is projected from orders. Add supplies keeps the open patient. Switching to DON keeps the open chart. Side-by-side stays removed. Helen stay deceased. June stays admitted.
+- **2026-08-15** - Pickup ends in `picked_up` with `pickedUpAt`. `triggerPickup` leaves a delayed row delayed. PPD stops billing that order. See #20.
+- **2026-08-15** - Unconfirmed orders stay `ordered`. A 24-hour grace projection flags DME-10231 at-risk. No new status. See #21.
+- **2026-08-15** - DON PPD does not print a buffer-day count. The fixture never computed that driver. See #24.
+- **2026-08-15** - One STAT send can carry bed and oxygen as two lines on one order. Each line shows its preferred ETA versus the discharge window. See #23.
+- **2026-08-15** - Vendor persona opens one order at `?order=`. Confirm, yes-but ETA, decline, delivered, pickup window, and picked up share the Order union. No vendor account. See #22.

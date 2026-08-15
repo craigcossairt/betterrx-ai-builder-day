@@ -22,6 +22,13 @@ export function orderTitle(who: string): string {
   return `Equipment for ${who}`;
 }
 
+export function bufferDaysCopy(bufferDays: number | null): string {
+  if (bufferDays == null) {
+    return "Not in this fixture. No stored discharge-to-delivery gap.";
+  }
+  return String(bufferDays);
+}
+
 export function costNote(input: {
   orderType: OrderType;
   dailyRateUsd: number;
@@ -69,3 +76,14 @@ export function offerStory(card: OfferCard, deadline: Instant): OfferStory {
     detail: `${stockLabel(card.stock)} · $${card.dailyRateUsd.toFixed(2)} a day`,
   };
 }
+
+export function preferredLineStory(
+  hcpcs: Hcpcs,
+  cards: readonly OfferCard[],
+  deadline: Instant,
+): string {
+  const preferred = cards.find((card) => card.preferred) ?? cards[0];
+  if (!preferred) return skuLabel(hcpcs);
+  return `${skuLabel(hcpcs)}: ${offerStory(preferred, deadline).headline}`;
+}
+

@@ -76,6 +76,27 @@ export function confirmVendor(
   };
 }
 
+export function reviseQuotedEta(
+  order: OrderedOrder,
+  eta: Instant,
+): OrderedOrder {
+  return {
+    ...order,
+    quotedEta: eta,
+    notes: `${order.notes ?? ""} New ETA offered.`.trim(),
+  };
+}
+
+export function notePickupWindow(
+  order: PickupTriggeredOrder | PickupDelayedOrder,
+  windowLabel: string,
+): PickupTriggeredOrder | PickupDelayedOrder {
+  return {
+    ...order,
+    notes: `${order.notes ?? ""} Pickup window: ${windowLabel}.`.trim(),
+  };
+}
+
 export function declineVendor(order: OrderedOrder): OrderedOrder {
   return {
     ...order,
@@ -104,19 +125,12 @@ export function triggerPickup(
   order: DeliveredOrder | PickupTriggeredOrder | PickupDelayedOrder,
   trigger: PickupTrigger,
   now: Instant,
-): PickupTriggeredOrder {
-  if (order.status === "pickup_triggered" || order.status === "pickup_delayed") {
-    return {
-      id: order.id,
-      patientId: order.patientId,
-      hospice: order.hospice,
-      equipment: order.equipment,
-      notes: order.notes,
-      status: "pickup_triggered",
-      vendorId: order.vendorId,
-      trigger: order.trigger,
-      triggeredAt: order.triggeredAt,
-    };
+): PickupTriggeredOrder | PickupDelayedOrder {
+  if (order.status === "pickup_delayed") {
+    return order;
+  }
+  if (order.status === "pickup_triggered") {
+    return order;
   }
   return {
     id: order.id,

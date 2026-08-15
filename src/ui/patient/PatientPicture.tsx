@@ -6,7 +6,11 @@ import { projectCensus } from "@/project/census";
 import { projectChartView } from "@/project/chart-view";
 import { projectMedFills } from "@/project/med-fill";
 import { projectTrail } from "@/project/trail";
-import { answerDonAskAction, requestPickupAction } from "@/app/actions";
+import {
+  answerDonAskAction,
+  markPickedUpAction,
+  requestPickupAction,
+} from "@/app/actions";
 import { getDonAsk } from "@/inbox/don-ask";
 import { getDeliveryPhoto } from "@/inbox/delivery-photos";
 import { suppliesFor } from "@/domain/supplies";
@@ -233,6 +237,9 @@ export function PatientPicture({
                 line.order.status === "pickup_delayed";
               const asked = getDonAsk(line.order.id);
               const photo = getDeliveryPhoto(line.order.id);
+              const canMarkPicked =
+                line.order.status === "pickup_triggered" ||
+                line.order.status === "pickup_delayed";
               return (
                 <details key={line.order.id} className="dme-row">
                   <summary>
@@ -306,6 +313,14 @@ export function PatientPicture({
                       <input type="hidden" name="trigger" value="nurse_request" />
                       <Button variant="app" size="sm" type="submit">
                         Request pickup
+                      </Button>
+                    </form>
+                  ) : null}
+                  {canPickup && canMarkPicked ? (
+                    <form action={markPickedUpAction} className="loud-card-action">
+                      <input type="hidden" name="orderId" value={line.order.id} />
+                      <Button variant="app" size="sm" type="submit">
+                        Mark picked up
                       </Button>
                     </form>
                   ) : null}

@@ -3,6 +3,7 @@ import type { Instant } from "@/domain/clock";
 import type { Order } from "@/domain/order";
 import type { PpdReport } from "@/domain/ppd";
 import { projectDonQueue } from "@/project/don-queue";
+import { bufferDaysCopy } from "@/project/order-copy";
 import {
   acknowledgeRetroAction,
   approveHoldAction,
@@ -142,6 +143,7 @@ export function DonReport({
           </div>
           <b>${ppd.actualUsd.toFixed(2)}</b>
         </div>
+        <p className="order-sub">{bufferDaysCopy(null)}</p>
         <div className="ppd-bar">
           <span>Target</span>
           <div className="ppd-track">

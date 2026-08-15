@@ -5,11 +5,17 @@ import {
 } from "@/app/actions";
 import type { SmsMessage } from "@/inbox/sms-inbox";
 import { Button } from "@/ui/Button";
+import { boardHref } from "@/ui/nav";
 
 export function InboxMessage({ message }: { message: SmsMessage }) {
   return (
     <div className="inbox-item">
-      <div className="census-line">{message.body}</div>
+      <a
+        className="census-line"
+        href={boardHref({ role: "vendor", order: message.orderId })}
+      >
+        {message.body}
+      </a>
       <div className="inbox-actions">
         <form action={confirmOrderAction}>
           <input type="hidden" name="orderId" value={message.orderId} />
