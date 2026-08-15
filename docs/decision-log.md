@@ -26,3 +26,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Weekend app is Next.js 16 at the repo root with an in-memory hospice store. Sample JSON is parsed at the boundary. Wire E0601 oxygen maps to E1390. No Supabase for the first board. See #9.
 - **2026-08-15** - Order mutations stay on the same `Order` union (`placeOrder`, `confirmVendor`, `triggerPickup`, `assessDeliveryRisk`, `dischargeReady`, `censusPpd`). Vendor confirm is an in-app SMS panel. See #10-#15.
 - **2026-08-15** - Place-order shows ranked three-factor cards (stock, ETA, price). Guardrail and $3 DON gates live in `chooseOffer`. At-risk and delayed pickup escalate to named people. See #10 #12.
+- **2026-08-15** - Keep the in-memory Order union. Measure idle pickup days from trigger to now. Do not rewrite onto a normalized census before the pitch. See #15.
