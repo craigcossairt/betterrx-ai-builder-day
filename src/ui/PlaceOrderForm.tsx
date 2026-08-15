@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { placeOrderAction } from "@/app/actions";
-import { COST_THRESHOLD_USD, type OfferCard } from "@/domain/offers";
+import { costGate, type OfferCard } from "@/domain/offers";
 import { Badge } from "@/ui/Badge";
 import { Button } from "@/ui/Button";
 import { Input } from "@/ui/Input";
@@ -41,7 +41,8 @@ export function PlaceOrderForm({
   const needsOverride = !selected.preferred;
   const orderType = "stat" as const;
   const needsDon =
-    selected.dailyRateUsd >= COST_THRESHOLD_USD && orderType !== "stat";
+    costGate({ orderType, dailyRateUsd: selected.dailyRateUsd }).verdict ===
+    "hold";
   const [state, formAction, pending] = useActionState(placeOrderAction, {});
 
   function pickSku(next: "E0250" | "E1390") {

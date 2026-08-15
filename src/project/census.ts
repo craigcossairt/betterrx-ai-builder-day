@@ -1,81 +1,97 @@
 import type { Instant } from "@/domain/clock";
-import type { Order } from "@/domain/order";
+import type { Hcpcs, Order, OrderStatus } from "@/domain/order";
 import { formatElapsed } from "@/domain/pickup";
 import { lookupPatient } from "@/domain/patients";
 import { formatWhen } from "@/ui/format";
 
-export type CensusRow = {
+export type CensusLine = {
   order: Order;
-  attention: boolean;
+  sentence: string;
+  kind: "loud" | "quiet";
+  tone: "coral" | "plain" | null;
 };
 
 export type Census = {
-  rows: readonly CensusRow[];
+  lines: readonly CensusLine[];
   atRisk: number;
   delayedPickup: number;
   awaitingVendor: number;
 };
 
-const ATTENTION = new Set(["in_transit_at_risk", "pickup_delayed"]);
+const ATTENTION = new Set<OrderStatus>([
+  "in_transit_at_risk",
+  "pickup_delayed",
+]);
 
-const REST_ORDER = [
+const REST_ORDER: readonly OrderStatus[] = [
   "ordered",
   "dispatched",
   "delivered",
   "pickup_triggered",
-] as const;
+];
 
-function gearWord(order: Order): string {
-  const name = order.equipment[0].name.toLowerCase();
-  if (name.includes("oxygen")) return "oxygen";
-  if (name.includes("bed")) return "bed";
-  if (name.includes("wheelchair")) return "wheelchair";
-  return name;
-}
+const GEAR: Record<Hcpcs, string> = {
+  E0250: "bed",
+  E1390: "oxygen",
+  E1130: "wheelchair",
+};
 
 function clockShort(at: Instant): string {
   return formatWhen(at).replace(/ [AP]M$/, "");
 }
 
-export function censusSentence(order: Order, now: Instant): string {
-  const who = lookupPatient(order.patientId).displayName;
-  const gear = gearWord(order);
-  if (order.status === "in_transit_at_risk") {
+function gearWord(order: Order): string {
+  return GEAR[order.equipment[0].hcpcs];
+}
+
+const SPEAK: Record<
+  OrderStatus,
+  (order: Order, who: string, gear: string, now: Instant) => string
+> = {
+  ordered: (_order, who, gear) => `${who}'s ${gear} is waiting on a vendor.`,
+  dispatched: (_order, who, gear) => `${who}'s ${gear} is on the way.`,
+  delivered: (_order, who, gear) => `${who}'s ${gear} is delivered.`,
+  pickup_triggered: (_order, who, gear) =>
+    `${who}'s ${gear} pickup is in motion.`,
+  in_transit_at_risk: (order, who, gear) => {
     const miss = Math.round(
       (new Date(order.eta).getTime() - new Date(order.dischargeAt).getTime()) /
         60_000,
     );
     return `${who}'s ${gear} misses the ${clockShort(order.dischargeAt)} discharge by about ${miss} minutes.`;
-  }
-  if (order.status === "pickup_delayed") {
+  },
+  pickup_delayed: (order, who, gear, now) => {
     const wait = formatElapsed(order.triggeredAt, now);
-    const family = /family/i.test(order.riskWhy) || /family/i.test(order.notes ?? "");
+    const family =
+      /family/i.test(order.riskWhy) || /family/i.test(order.notes ?? "");
     return family
       ? `${who}'s ${gear} has been waiting ${wait} for pickup. The family has called.`
       : `${who}'s ${gear} has been waiting ${wait} for pickup.`;
-  }
-  if (order.status === "ordered") {
-    return `${who}'s ${gear} is waiting on a vendor.`;
-  }
-  if (order.status === "dispatched") {
-    return `${who}'s ${gear} is on the way.`;
-  }
-  if (order.status === "delivered") {
-    return `${who}'s ${gear} is delivered.`;
-  }
-  return `${who}'s ${gear} pickup is in motion.`;
+  },
+};
+
+export function censusSentence(order: Order, now: Instant): string {
+  const who = lookupPatient(order.patientId).displayName;
+  return SPEAK[order.status](order, who, gearWord(order), now);
 }
 
-export function projectCensus(orders: readonly Order[]): Census {
+function asLine(order: Order, now: Instant): CensusLine {
+  const loud = ATTENTION.has(order.status);
+  return {
+    order,
+    sentence: censusSentence(order, now),
+    kind: loud ? "loud" : "quiet",
+    tone: order.status === "in_transit_at_risk" ? "coral" : loud ? "plain" : null,
+  };
+}
+
+export function projectCensus(orders: readonly Order[], now: Instant): Census {
   const attention = orders.filter((order) => ATTENTION.has(order.status));
   const rest = REST_ORDER.flatMap((status) =>
     orders.filter((order) => order.status === status),
   );
   return {
-    rows: [
-      ...attention.map((order) => ({ order, attention: true })),
-      ...rest.map((order) => ({ order, attention: false })),
-    ],
+    lines: [...attention, ...rest].map((order) => asLine(order, now)),
     atRisk: orders.filter((order) => order.status === "in_transit_at_risk")
       .length,
     delayedPickup: orders.filter((order) => order.status === "pickup_delayed")

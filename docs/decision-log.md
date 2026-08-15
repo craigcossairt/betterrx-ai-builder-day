@@ -33,3 +33,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Census UI is one product shell (header, attention chips, expandable rows, order/inbox dialogs). Not a stack of independent cards.
 - **2026-08-15** - Judge-placed orders keep the chosen vendor quote on `OrderedOrder`. Confirm uses that quote and the stored target. Demo reset reseeds the six fixtures. See the Fable review.
 - **2026-08-15** - Census direction is 2a sentences. Locked names are primary (Helen Vargas for PT-87602). STAT never waits on the $3 gate. Elapsed uses hours under 48 hours.
+- **2026-08-15** - DON hold is strictly over $3. A rate of exactly $3 stays open. Census lines are quiet or loud; coral is only at-risk.

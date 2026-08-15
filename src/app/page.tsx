@@ -12,7 +12,7 @@ import { supabaseConfig } from "@/lib/supabase";
 import { getHospiceStore } from "@/store/hospice-store";
 import { getDischargeOverride } from "@/store/discharge-overrides";
 import { lookupPatient } from "@/domain/patients";
-import { censusSentence, projectCensus } from "@/project/census";
+import { projectCensus } from "@/project/census";
 import { Badge, Button } from "@/ui";
 import { formatLaneLabel, formatStamp } from "@/ui/format";
 import { OrderActions } from "@/ui/OrderActions";
@@ -87,16 +87,6 @@ function needsYouLine(count: number): string {
   return `${count} patients need you.`;
 }
 
-function toneFor(status: Order["status"]) {
-  if (status === "in_transit_at_risk" || status === "pickup_delayed") {
-    return "red" as const;
-  }
-  if (status === "delivered") return "green" as const;
-  if (status === "pickup_triggered") return "gold" as const;
-  if (status === "ordered") return "peach" as const;
-  return "blue" as const;
-}
-
 export default async function Home({
   searchParams,
 }: {
@@ -106,9 +96,9 @@ export default async function Home({
   const role = parseRole(params.role);
   const panel = parsePanel(params.panel);
   const snapshot = await (await getHospiceStore()).snapshot();
-  const census = projectCensus(snapshot);
-  const roleLabel = ROLES.find((item) => item.id === role)?.label;
   const now = systemClock.now();
+  const census = projectCensus(snapshot, now);
+  const roleLabel = ROLES.find((item) => item.id === role)?.label;
   const ppd = censusPpd(snapshot, CATALOG, 7, now);
   const inbox = listSms();
   const window = demoOfferWindow(now);
@@ -215,30 +205,31 @@ export default async function Home({
           <p className="census-lede">
             {needsYouLine(census.atRisk + census.delayedPickup)}
           </p>
-          {census.rows.map((row) => {
-            const order = row.order;
+          {census.lines.map((line) => {
+            const order = line.order;
             const why =
               "riskWhy" in order && order.riskWhy ? order.riskWhy : null;
             const handoff = escalationLine(order);
-            const sentence = censusSentence(order, now);
             return (
               <details
                 key={order.id}
                 className={
-                  row.attention ? "census-row census-row--attention" : "census-row"
+                  line.kind === "loud"
+                    ? "census-row census-row--attention"
+                    : "census-row"
                 }
-                open={row.attention}
+                open={line.kind === "loud"}
               >
                 <summary className="census-summary">
                   <div className="census-who">
-                    <div className="census-patient">{sentence}</div>
+                    <div className="census-patient">{line.sentence}</div>
                     <div className="census-sub">
                       {lookupPatient(order.patientId).displayName} ·{" "}
                       {order.patientId} · {order.id}
                     </div>
                   </div>
-                  {row.attention ? (
-                    <Badge tone={toneFor(order.status)}>
+                  {line.kind === "loud" ? (
+                    <Badge tone={line.tone === "coral" ? "red" : "gold"}>
                       {formatLaneLabel(order.status)}
                     </Badge>
                   ) : null}

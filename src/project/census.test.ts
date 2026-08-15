@@ -20,13 +20,16 @@ function sampleOrders() {
 
 describe("projectCensus", () => {
   it("lists at-risk and delayed pickup before the rest of the census", () => {
-    const census = projectCensus(sampleOrders());
-    expect(census.rows.slice(0, 2).map((row) => row.order.id)).toEqual([
+    const now = frozenClock("2026-08-14T17:00:00.000Z").now();
+    const census = projectCensus(sampleOrders(), now);
+    expect(census.lines.slice(0, 2).map((line) => line.order.id)).toEqual([
       "DME-10305",
       "DME-09803",
     ]);
-    expect(census.rows[0]?.attention).toBe(true);
-    expect(census.rows[1]?.attention).toBe(true);
+    expect(census.lines[0]?.kind).toBe("loud");
+    expect(census.lines[0]?.tone).toBe("coral");
+    expect(census.lines[1]?.kind).toBe("loud");
+    expect(census.lines[1]?.tone).toBe("plain");
     expect(census.atRisk).toBe(1);
     expect(census.delayedPickup).toBe(1);
     expect(census.awaitingVendor).toBe(1);

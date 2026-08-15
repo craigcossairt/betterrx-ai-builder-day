@@ -5,8 +5,8 @@ import { CATALOG } from "@/domain/catalog";
 import { systemClock } from "@/domain/clock";
 import { dischargeReady } from "@/domain/discharge";
 import {
-  COST_THRESHOLD_USD,
   chooseOffer,
+  costGate,
   demoOfferWindow,
   offersFor,
 } from "@/domain/offers";
@@ -71,12 +71,14 @@ export async function placeOrderAction(
       (row) => row.patientId === patientId,
     );
     const hospice = existing?.hospice ?? asHospiceName("Sample Hospice A");
+    const gate = costGate({
+      orderType: "stat",
+      dailyRateUsd: chosen.dailyRateUsd,
+    });
     const notes = [
       chosen !== ranked[0] ? `Override: ${overrideReason}` : null,
-      donReason ? `DON: ${donReason}` : null,
-      !donReason && chosen.dailyRateUsd >= COST_THRESHOLD_USD
-        ? "STAT over $3. DON retro."
-        : null,
+      gate.verdict === "hold" && donReason ? `DON: ${donReason}` : null,
+      gate.verdict === "retro" ? gate.note : null,
     ]
       .filter(Boolean)
       .join(" ");
