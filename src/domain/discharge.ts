@@ -19,6 +19,19 @@ export function dischargeReady(patientOrders: readonly Order[]): DischargeDecisi
   return { ready: true };
 }
 
+export function dischargeCopy(
+  decision: DischargeDecision,
+  override?: string,
+): string {
+  if (decision.ready) {
+    return "Discharge-ready. Required equipment is delivered.";
+  }
+  if (override) {
+    return `Discharge-ready with override. ${override}`;
+  }
+  return `Not discharge-ready yet. Waiting on: ${decision.blocking.join(", ")}.`;
+}
+
 export function showDischargeGate(status: OrderStatus): boolean {
   return (
     status !== "pickup_triggered" &&
