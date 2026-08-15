@@ -76,6 +76,27 @@ export function confirmVendor(
   };
 }
 
+export function reviseQuotedEta(
+  order: OrderedOrder,
+  eta: Instant,
+): OrderedOrder {
+  return {
+    ...order,
+    quotedEta: eta,
+    notes: `${order.notes ?? ""} New ETA offered.`.trim(),
+  };
+}
+
+export function notePickupWindow(
+  order: PickupTriggeredOrder | PickupDelayedOrder,
+  windowLabel: string,
+): PickupTriggeredOrder | PickupDelayedOrder {
+  return {
+    ...order,
+    notes: `${order.notes ?? ""} Pickup window: ${windowLabel}.`.trim(),
+  };
+}
+
 export function declineVendor(order: OrderedOrder): OrderedOrder {
   return {
     ...order,

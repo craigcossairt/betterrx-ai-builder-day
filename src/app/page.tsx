@@ -1,6 +1,6 @@
 import { CATALOG } from "@/domain/catalog";
 import { systemClock } from "@/domain/clock";
-import { asPatientId } from "@/domain/order";
+import { asOrderId, asPatientId } from "@/domain/order";
 import { demoOfferWindow, offersFor, presentOffers } from "@/domain/offers";
 import { censusPpd } from "@/domain/ppd";
 import { listSms } from "@/inbox/sms-inbox";
@@ -14,7 +14,7 @@ import {
 } from "@/ui/census";
 import { AppFrame } from "@/ui/chrome/AppFrame";
 import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
-import { InboxScreen } from "@/ui/order";
+import { InboxScreen, VendorOrder } from "@/ui/order";
 import { DonReport } from "@/ui/don/DonReport";
 import { PatientPicture } from "@/ui/patient/PatientPicture";
 import { parseRole } from "@/ui/roles";
@@ -29,6 +29,7 @@ export default async function Home({
     surface?: string;
     patient?: string;
     tab?: string;
+    order?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -37,6 +38,7 @@ export default async function Home({
   const panel = parsePanel(params.panel);
   const tab = parseTab(params.tab);
   const patient = params.patient ? asPatientId(params.patient) : null;
+  const focusedId = params.order ? asOrderId(params.order) : null;
   const snapshot = await (await getHospiceStore()).snapshot();
   const now = systemClock.now();
   const census = projectCensus(snapshot, now);
@@ -99,8 +101,11 @@ export default async function Home({
   ) : null;
 
   let body;
+  const focused = focusedId
+    ? snapshot.find((row) => row.id === focusedId)
+    : null;
   if (role === "vendor") {
-    body = inboxScreen;
+    body = focused ? <VendorOrder order={focused} /> : inboxScreen;
   } else if (surface === "phone") {
     if (panel === "order") body = orderScreen;
     else if (panel === "inbox") body = inboxScreen;

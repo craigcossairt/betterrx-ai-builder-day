@@ -10,6 +10,7 @@ export type BoardQuery = {
   panel?: BoardPanel | null;
   patient?: string | null;
   tab?: PatientTab | null;
+  order?: string | null;
 };
 
 export function parseSurface(raw: string | null | undefined): SurfaceId {
@@ -32,6 +33,7 @@ export function boardHref(query: BoardQuery): string {
   if (query.panel) params.set("panel", query.panel);
   if (query.patient) params.set("patient", query.patient);
   if (query.tab) params.set("tab", query.tab);
+  if (query.order) params.set("order", query.order);
   return `/?${params.toString()}`;
 }
 

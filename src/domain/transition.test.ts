@@ -19,7 +19,9 @@ import {
   declineVendor,
   markDelivered,
   markPickedUp,
+  notePickupWindow,
   placeOrder,
+  reviseQuotedEta,
   triggerPickup,
 } from "@/domain/transition";
 
@@ -80,6 +82,38 @@ describe("transitions", () => {
     expect(emr.status).toBe("pickup_triggered");
     expect(nurse.triggeredAt).toBe(now);
     expect(emr.triggeredAt).toBe(now);
+  });
+
+  it("keeps an order ordered when the vendor offers a new ETA", () => {
+    const ordered = placeOrder({
+      patientId: asPatientId("PT-1"),
+      hospice: asHospiceName("Sample Hospice A"),
+      equipment: [{ hcpcs: "E0250", name: "Hospital Bed" }],
+      orderType: "stat",
+      targetAt: asInstant("2026-08-14T21:00:00.000Z"),
+      now: asInstant("2026-08-14T15:00:00.000Z"),
+    });
+    const later = asInstant("2026-08-14T23:00:00.000Z");
+    const revised = reviseQuotedEta(ordered, later);
+    expect(revised.status).toBe("ordered");
+    expect(revised.quotedEta).toBe(later);
+    expect(revised.notes).toBe("New ETA offered.");
+  });
+
+  it("records a pickup window on a delayed row without clearing riskWhy", () => {
+    const clock = frozenClock("2026-08-14T17:00:00.000Z");
+    const orders = parseSampleOrders(
+      JSON.parse(readFileSync(samplePath, "utf8")),
+      clock,
+    );
+    const delayed = orders.find((order) => order.id === "DME-09803");
+    if (!delayed || delayed.status !== "pickup_delayed") {
+      throw new Error("expected DME-09803");
+    }
+    const noted = notePickupWindow(delayed, "tomorrow 10:00 AM");
+    expect(noted.status).toBe("pickup_delayed");
+    expect(noted.riskWhy).toBe(delayed.riskWhy);
+    expect(noted.notes).toBe("Pickup window: tomorrow 10:00 AM.");
   });
 
   it("keeps a declined order ordered and records the vendor reply", () => {
