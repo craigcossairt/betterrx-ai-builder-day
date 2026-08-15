@@ -28,3 +28,5 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Place-order shows ranked three-factor cards (stock, ETA, price). Guardrail and $3 DON gates live in `chooseOffer`. At-risk and delayed pickup escalate to named people. See #10 #12.
 - **2026-08-15** - Keep the in-memory Order union. Measure idle pickup days from trigger to now. Do not rewrite onto a normalized census before the pitch. See #15.
 - **2026-08-15** - Persist the same Order union as jsonb rows in Supabase project nvkjnzagfwvltzpsxfcd. Fall back to memory when keys are missing. PWA is installable standalone and does not cache the census.
+- **2026-08-15** - Apply `0001_hospice.sql` from the Vercel build (`scripts/apply-schema.mjs`) using the Supabase-injected `POSTGRES_URL`. Do not hand the owner a SQL paste. Preview env targets include the same keys as production.
+- **2026-08-15** - Census UI is one product shell (header, attention chips, expandable rows, order/inbox dialogs). Not a stack of independent cards.

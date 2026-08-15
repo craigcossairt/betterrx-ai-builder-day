@@ -54,11 +54,11 @@ Next.js App Router + TypeScript + Tailwind on Vercel. Orders persist in Supabase
 
 ```bash
 npm ci
-# optional: copy .env.example to .env.local and add Supabase keys
-# paste supabase/migrations/0001_hospice.sql in the SQL editor
+# optional: copy .env.example to .env.local
+# `npm run build` applies supabase/migrations/0001_hospice.sql when POSTGRES_URL is set
 npm run dev
 npm test
-npx next build
+npm run build
 ```
 
 ## Folder Structure
@@ -302,8 +302,10 @@ Refresh the model names when the model family turns over; the tier structure is 
 
 Durable notes for cloud agents. Update as the project grows a real stack.
 
-- **App is Next.js at the repo root.** `npm ci`, `npm run dev`, `npm test`, `npx next build`.
+- **App is Next.js at the repo root.** `npm ci`, `npm run dev`, `npm test`, `npm run build`.
   Domain tests are Vitest. Guardrail lint is still the `hooks-ci` checks.
+  `npm run build` applies `supabase/migrations/0001_hospice.sql` when `POSTGRES_URL` is set.
+  This cloud pod redacts Vercel sensitive env to `[SENSITIVE]`, so schema apply happens on Vercel.
 - **Lint/test = `npm test` plus the `hooks-ci` checks.** The canonical guardrail suite lives in
   `.github/workflows/hooks-ci.yml`: CRLF scan, `bash -n`, `shellcheck -S warning -x`, exec-bit
   check on `.githooks/*` and `bin/*`, skill/command/router frontmatter validation, and JSON parse
