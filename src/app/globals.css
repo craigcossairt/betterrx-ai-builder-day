@@ -636,6 +636,18 @@ body {
   margin-top: 10px;
 }
 
+.loud-card-jump {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: var(--blue-500);
+  color: #fff;
+  font: 600 13px var(--font-ui);
+  text-decoration: none;
+}
+
 .track-mark {
   flex: none;
   font-size: 12px;
@@ -979,14 +991,57 @@ body {
   gap: 12px;
 }
 
-.pitch-diagram {
+.pitch-scenarios,
+.pitch-flow,
+.pitch-assumptions {
+  list-style: none;
   margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pitch-scenarios a,
+.pitch-flow li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   padding: 12px 14px;
   border: 1px solid var(--line-200);
   border-radius: 10px;
   background: #fff;
-  font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
-  white-space: pre-wrap;
+  text-decoration: none;
+  color: inherit;
+}
+
+.pitch-scenarios a:hover,
+.pitch-scenarios a:focus-visible {
+  border-color: var(--blue-500);
+}
+
+.pitch-flow {
+  counter-reset: pitch-flow;
+}
+
+.pitch-flow li {
+  counter-increment: pitch-flow;
+}
+
+.pitch-flow li b::before {
+  content: counter(pitch-flow) ". ";
+  color: var(--blue-500);
+}
+
+.pitch-assumptions li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-200);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.pitch-assumptions li:last-child {
+  border-bottom: none;
 }
 
 .don-report--compact {

@@ -28,4 +28,26 @@ describe("pitchPacket", () => {
     expect(pitchPacket.integration.diagram).toContain("newOrUpdatePatient");
     expect(pitchPacket.integration.diagram).toContain("newMedications");
   });
+
+  it("gives a judge three tap links for the brief scenarios", () => {
+    const ids = pitchPacket.scenarios.map((row) => row.id);
+    expect(ids).toEqual(["discharge", "pickup", "ppd"]);
+    expect(pitchPacket.scenarios[0].href).toContain("PT-88502");
+    expect(pitchPacket.scenarios[1].href).toContain("PT-87411");
+    expect(pitchPacket.scenarios[2].href).toContain("role=don");
+  });
+
+  it("labels fixture assumptions and names HCPCS on the paper", () => {
+    expect(pitchPacket.assumptions.join(" ")).toMatch(/fixture/i);
+    expect(pitchPacket.assumptions.join(" ")).toMatch(/no live/i);
+    expect(pitchPacket.flow.some((step) => /HCPCS/i.test(step.detail))).toBe(
+      true,
+    );
+    expect(pitchPacket.flow.map((step) => step.title)).toEqual([
+      "Hospice ADT",
+      "BetterRX eRx",
+      "This board",
+      "HCHB partner layer",
+    ]);
+  });
 });
