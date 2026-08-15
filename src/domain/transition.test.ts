@@ -115,6 +115,9 @@ describe("transitions", () => {
     );
     expect(assessed.vendorId).toBe("vendor-2");
     expect(assessed.status).toBe("in_transit_at_risk");
+    if (assessed.status !== "in_transit_at_risk") {
+      throw new Error("expected in_transit_at_risk");
+    }
     expect(assessed.riskWhy).toMatch(/misses that window/);
   });
 
