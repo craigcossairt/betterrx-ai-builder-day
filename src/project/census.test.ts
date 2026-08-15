@@ -36,7 +36,7 @@ describe("projectCensus", () => {
     expect(census.atRisk).toBe(2);
     expect(census.delayedPickup).toBe(1);
     expect(census.awaitingVendor).toBe(1);
-    expect(census.lede).toBe("Three patients need you.");
+    expect(census.lede).toBe("3 patients need you.");
   });
 
   it("speaks Margaret's miss and Ray's four-day pickup as sentences", () => {
