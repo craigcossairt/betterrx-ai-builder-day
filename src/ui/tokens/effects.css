@@ -1,0 +1,9 @@
+:root{
+--shadow-card:0 6px 24px rgba(36,51,63,.08);
+--shadow-card-hover:0 10px 32px rgba(36,51,63,.14);
+--shadow-pop:0 16px 48px rgba(36,51,63,.18);
+--ease-brand:cubic-bezier(.4,0,.2,1); /* @kind other */
+--dur-fast:150ms; /* @kind other */
+--dur-med:250ms; /* @kind other */
+--focus-ring:0 0 0 3px rgba(56,104,168,.35);
+}

@@ -22,3 +22,5 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-14** - Pitch must answer Todd's buyer question: how do you decrease DME cost PPD. DON view shows actual vs target plus drivers. Tech PPD (BetterRX fee) is not that answer. No invented savings dollars. See `docs/prd.md`.
 - **2026-08-14** - Weekend planning notes live at `.scratch/betterrx-weekend-demo/`. GitHub Issues is the tracker. See `docs/agents/issue-tracker.md`.
 - **2026-08-14** - This environment's GitHub token can create, comment, label, and close issues (probe #5). If a later token 403s, fall back to asking Craig. See `docs/agents/issue-tracker.md`.
+- **2026-08-15** - Landed the BetterRX design system as CSS tokens plus typed TSX in `src/ui`. Product screens use the eRX app look (system UI, blue actions, bordered cards). See #9.
+- **2026-08-15** - Weekend app is Next.js 16 at the repo root with an in-memory hospice store. Sample JSON is parsed at the boundary. Wire E0601 oxygen maps to E1390. No Supabase for the first board. See #9.

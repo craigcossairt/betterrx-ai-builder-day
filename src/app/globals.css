@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@import "../ui/tokens/colors.css";
+@import "../ui/tokens/typography.css";
+@import "../ui/tokens/spacing.css";
+@import "../ui/tokens/effects.css";
+
+@theme inline {
+  --color-ink: var(--ink-900);
+  --color-surface-app: var(--surface-100);
+  --color-surface-card: var(--surface-card);
+  --color-coral: var(--coral-500);
+  --color-blue: var(--blue-500);
+  --font-display: var(--font-display);
+  --font-ui: var(--font-ui);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-app);
+  color: var(--ink-900);
+  font-family: var(--font-ui);
+}

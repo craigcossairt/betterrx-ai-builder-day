@@ -30,3 +30,11 @@ brain/hooks/debug.log
 # OS noise
 .DS_Store
 Thumbs.db
+
+# Next.js
+/.next/
+/out/
+/coverage
+*.tsbuildinfo
+next-env.d.ts
+.vercel
