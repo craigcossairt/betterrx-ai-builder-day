@@ -313,6 +313,10 @@ body {
   font-weight: 700;
 }
 
+.patient-pic-head .order-sub {
+  margin-top: 6px;
+}
+
 .patient-total {
   text-align: right;
 }
@@ -385,6 +389,18 @@ body {
   min-height: 44px;
   cursor: pointer;
   list-style: none;
+}
+
+.dme-row-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dme-row-main .order-sub {
+  margin: 0;
 }
 
 .dme-row summary::-webkit-details-marker {
@@ -619,7 +635,7 @@ body {
 }
 
 .loud-card-sentence {
-  margin: 4px 0 0;
+  margin: 8px 0 0;
   font-size: 14px;
   line-height: 1.5;
   color: var(--ink-900);
@@ -627,7 +643,7 @@ body {
 
 .loud-card-aside,
 .quiet-row-sentence {
-  margin: 3px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
   color: var(--ink-500);
 }
@@ -794,6 +810,7 @@ body {
 }
 
 .order-sub {
+  display: block;
   margin: 4px 0 0;
   font-size: 14px;
   color: var(--ink-500);

@@ -30,3 +30,4 @@ Include a commit SHA and issue reference when known.
 | `next build` fails TS2345 `LineCode` not assignable to `Hcpcs` in DON queue | `equipment[0].hcpcs` widened to `Hcpcs | SupplyCode` in #29; `projectDonQueue` still typed the narrower code | Skip `kind: supply` and narrow with `isHcpcs` before pushing a hold/retro row | 2026-08-15 | #28 |
 | Discharge override saves but the banner still says not ready | `setDischargeOverride` wrote a map that no screen read | `dischargeCopy` reads `getDischargeOverride` on the patient DME banner | 2026-08-15 | demo |
 | README showed merge conflict markers after PR #32 land | Rebase conflict resolution was overwritten or not staged cleanly before continue | Rewrite README clean and push to main immediately | 2026-08-15 | persist |
+| DME status text jammed against equipment name | equipment `<b>` and `order-sub` sat in an inline span | stack them in `.dme-row-main` column flex | 2026-08-15 | UI |

@@ -246,12 +246,12 @@ export function PatientPicture({
               return (
                 <details key={line.order.id} className="dme-row">
                   <summary>
-                    <span>
+                    <div className="dme-row-main">
                       <b>
                         {line.order.equipment.map((item) => item.name).join(", ")}
                       </b>
                       <span className="order-sub">{line.sentence}</span>
-                    </span>
+                    </div>
                     <span className="dme-price">
                       {rate ? `$${rate.toFixed(2)}/day` : ""}
                     </span>
