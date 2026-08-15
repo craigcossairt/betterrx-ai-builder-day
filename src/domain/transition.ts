@@ -6,6 +6,7 @@ import type {
   HospiceName,
   InTransitAtRiskOrder,
   OrderedOrder,
+  OrderKind,
   OrderType,
   PatientId,
   PickedUpOrder,
@@ -14,7 +15,7 @@ import type {
   PickupTrigger,
   VendorId,
 } from "./order";
-import { asOrderId } from "./order";
+import { asOrderId, orderKind } from "./order";
 import { assessDeliveryRisk } from "./risk";
 
 export function placeOrder(input: {
@@ -25,13 +26,17 @@ export function placeOrder(input: {
   targetAt: Instant;
   now: Instant;
   id?: string;
+  kind?: OrderKind;
   quotedVendorId?: VendorId;
   quotedEta?: Instant;
 }): OrderedOrder {
+  const kind = input.kind ?? "dme";
+  const prefix = kind === "supply" ? "SUP" : "DME";
   return {
-    id: asOrderId(input.id ?? `DME-${input.now.slice(0, 19).replace(/[-:T]/g, "")}`),
+    id: asOrderId(input.id ?? `${prefix}-${input.now.slice(0, 19).replace(/[-:T]/g, "")}`),
     patientId: input.patientId,
     hospice: input.hospice,
+    kind,
     equipment: input.equipment,
     status: "ordered",
     orderType: input.orderType,
@@ -67,6 +72,7 @@ export function confirmVendor(
     id: order.id,
     patientId: order.patientId,
     hospice: order.hospice,
+    kind: order.kind,
     equipment: order.equipment,
     notes: order.notes,
     status: "dispatched",
@@ -107,17 +113,23 @@ export function declineVendor(order: OrderedOrder): OrderedOrder {
 export function markDelivered(
   order: DispatchedOrder | InTransitAtRiskOrder,
   now: Instant,
+  photoUrl?: string,
 ): DeliveredOrder {
   return {
     id: order.id,
     patientId: order.patientId,
     hospice: order.hospice,
+    kind: order.kind,
     equipment: order.equipment,
     notes: order.notes,
     status: "delivered",
     vendorId: order.vendorId,
     deliveredAt: now,
-    proofOfDelivery: { signature: true, timestamp: true },
+    proofOfDelivery: {
+      signature: true,
+      timestamp: true,
+      ...(photoUrl ? { photoUrl } : {}),
+    },
   };
 }
 
@@ -126,6 +138,9 @@ export function triggerPickup(
   trigger: PickupTrigger,
   now: Instant,
 ): PickupTriggeredOrder | PickupDelayedOrder {
+  if (orderKind(order) === "supply") {
+    throw new Error("Supply orders cannot enter pickup");
+  }
   if (order.status === "pickup_delayed") {
     return order;
   }
@@ -136,6 +151,7 @@ export function triggerPickup(
     id: order.id,
     patientId: order.patientId,
     hospice: order.hospice,
+    kind: order.kind,
     equipment: order.equipment,
     notes: order.notes,
     status: "pickup_triggered",
@@ -153,6 +169,7 @@ export function markPickedUp(
     id: order.id,
     patientId: order.patientId,
     hospice: order.hospice,
+    kind: order.kind,
     equipment: order.equipment,
     notes: order.notes,
     status: "picked_up",

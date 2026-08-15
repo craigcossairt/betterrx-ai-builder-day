@@ -11,7 +11,7 @@ export type ShopItem = {
   dailyRateUsd: number | null;
 };
 
-const SUPPLIES: readonly ShopItem[] = [
+export const SUPPLIES: readonly ShopItem[] = [
   {
     kind: "supplies",
     code: "SUP-WOUND",
@@ -70,6 +70,10 @@ export function searchShop(input: {
       item.name.toLowerCase().includes(needle) ||
       item.code.toLowerCase().includes(needle),
   );
+}
+
+export function lookupSupply(code: string): ShopItem | undefined {
+  return SUPPLIES.find((item) => item.code === code);
 }
 
 export function vendorRecord(vendorId: string): string {

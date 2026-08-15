@@ -1,4 +1,4 @@
-import type { Order, OrderStatus } from "./order";
+import { orderKind, type Order, type OrderStatus } from "./order";
 
 export type DischargeDecision =
   | { ready: true }
@@ -12,6 +12,7 @@ const REQUIRED: ReadonlySet<Order["status"]> = new Set([
 
 export function dischargeReady(patientOrders: readonly Order[]): DischargeDecision {
   const blocking = patientOrders
+    .filter((order) => orderKind(order) !== "supply")
     .filter((order) => REQUIRED.has(order.status))
     .map((order) => order.equipment.map((line) => line.name).join(", "));
   if (blocking.length > 0) return { ready: false, blocking };

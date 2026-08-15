@@ -1,6 +1,6 @@
 import type { CatalogSku } from "./catalog";
 import type { Instant } from "./clock";
-import type { Hcpcs, Order } from "./order";
+import { isHcpcs, orderKind, type LineCode, type Order } from "./order";
 
 export const PPD_TARGET_USD = 1.85;
 
@@ -13,7 +13,8 @@ export type PpdReport = {
   preferredOverrides: number;
 };
 
-function rateFor(hcpcs: Hcpcs, catalog: readonly CatalogSku[]): number {
+function rateFor(hcpcs: LineCode, catalog: readonly CatalogSku[]): number {
+  if (!isHcpcs(hcpcs)) return 0;
   return catalog.find((sku) => sku.hcpcs === hcpcs)?.dailyRateUsd ?? 0;
 }
 
@@ -45,6 +46,7 @@ export function censusPpd(
   let billable = 0;
   let idlePickupDays = 0;
   for (const order of orders) {
+    if (orderKind(order) === "supply") continue;
     const daily = order.equipment.reduce(
       (sum, line) => sum + rateFor(line.hcpcs, catalog),
       0,

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200" role="img" aria-label="Fixture delivery photo">
+  <rect width="320" height="200" fill="#e8eef6"/>
+  <rect x="24" y="28" width="272" height="144" fill="#fff" stroke="#1b4d8f" stroke-width="2"/>
+  <text x="160" y="88" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#1b4d8f">Fixture delivery photo</text>
+  <text x="160" y="118" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#4a5568">Not a patient image</text>
+</svg>

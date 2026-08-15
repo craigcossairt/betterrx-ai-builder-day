@@ -4,7 +4,7 @@ import {
   markPickedUpAction,
   requestPickupAction,
 } from "@/app/actions";
-import type { Order } from "@/domain/order";
+import { orderKind, type Order } from "@/domain/order";
 import { Button } from "@/ui/Button";
 import type { RoleId } from "@/ui/roles";
 
@@ -15,6 +15,9 @@ export function LoudActions({
   order: Order;
   role: RoleId;
 }) {
+  if (orderKind(order) === "supply" && order.status !== "ordered") {
+    return null;
+  }
   if (order.status === "ordered") {
     return (
       <form action={confirmOrderAction} className="loud-card-action">
@@ -29,6 +32,10 @@ export function LoudActions({
     return (
       <form action={markDeliveredAction} className="loud-card-action">
         <input type="hidden" name="orderId" value={order.id} />
+        <label className="order-sub">
+          <input type="checkbox" name="attachPhoto" value="1" /> Attach fixture
+          delivery photo
+        </label>
         <Button variant="app" size="sm" type="submit">
           Proof of delivery
         </Button>

@@ -3,7 +3,7 @@
 import { useActionState, useMemo, useState } from "react";
 import { placeOrderAction } from "@/app/actions";
 import type { Instant } from "@/domain/clock";
-import { costGate, type OfferCard } from "@/domain/offers";
+import { costGate, supplyOffers, type OfferCard } from "@/domain/offers";
 import type { Hcpcs } from "@/domain/order";
 import {
   searchPatients,
@@ -34,11 +34,15 @@ const KINDS: { id: ShopKind; label: string }[] = [
 export function PlaceOrderForm({
   offerSets,
   deadline,
+  preferredEta,
+  lateEta,
   role,
   surface,
 }: {
   offerSets: Record<Hcpcs, OfferCard[]>;
   deadline: Instant;
+  preferredEta: Instant;
+  lateEta: Instant;
   role: RoleId;
   surface: SurfaceId;
 }) {
@@ -54,21 +58,32 @@ export function PlaceOrderForm({
   const emr = patient ? shopItems({ kind, emrFor: patient.id }) : [];
   const hits = searchShop({ kind, query: itemQuery });
   const dmeLines = lines.filter((line) => line.kind === "dme");
+  const supplyLines = lines.filter((line) => line.kind === "supplies");
   const primary = (dmeLines.find((line) => line.code === "E1390")?.code ??
     dmeLines[0]?.code ??
     "E0250") as Hcpcs;
-  const cards = offerSets[primary] ?? offerSets.E0250;
+  const cards =
+    kind === "supplies"
+      ? supplyOffers(
+          supplyLines[0]?.dailyRateUsd ?? 1.1,
+          preferredEta,
+          lateEta,
+          deadline,
+        )
+      : (offerSets[primary] ?? offerSets.E0250);
   const selected = cards.find((card) => card.vendorId === vendorId) ?? cards[0];
   const total = lines.reduce((sum, line) => sum + (line.dailyRateUsd ?? 0), 0);
   const needsOverride = selected && !selected.preferred;
-  const note = selected
-    ? costNote({
-        orderType: "stat",
-        dailyRateUsd: selected.dailyRateUsd,
-        hcpcs: primary,
-      })
-    : null;
-  const canSend = dmeLines.length > 0;
+  const note =
+    kind === "dme" && selected
+      ? costNote({
+          orderType: "stat",
+          dailyRateUsd: selected.dailyRateUsd,
+          hcpcs: primary,
+        })
+      : null;
+  const canSend =
+    kind === "supplies" ? supplyLines.length > 0 : dmeLines.length > 0;
 
   const results = useMemo(
     () => hits.filter((item) => !lines.some((line) => line.code === item.code)),
@@ -85,8 +100,21 @@ export function PlaceOrderForm({
 
   return (
     <form action={formAction} className="order-screen">
+      <input
+        type="hidden"
+        name="kind"
+        value={kind === "supplies" ? "supply" : "dme"}
+      />
       {dmeLines.map((line) => (
         <input key={line.code} type="hidden" name="hcpcs" value={line.code} />
+      ))}
+      {supplyLines.map((line) => (
+        <input
+          key={line.code}
+          type="hidden"
+          name="supplyCode"
+          value={line.code}
+        />
       ))}
       <input type="hidden" name="vendorId" value={selected?.vendorId ?? ""} />
       <input type="hidden" name="patientId" value={patient?.id ?? ""} />
@@ -323,8 +351,12 @@ export function PlaceOrderForm({
             {pending
               ? "Sending…"
               : canSend
-                ? "Send STAT order"
-                : "Add a DME item to send"}
+                ? kind === "supplies"
+                  ? "Send supply order"
+                  : "Send STAT order"
+                : kind === "supplies"
+                  ? "Add a supply to send"
+                  : "Add a DME item to send"}
           </Button>
         </footer>
       ) : null}

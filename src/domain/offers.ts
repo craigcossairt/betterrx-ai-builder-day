@@ -45,6 +45,34 @@ export function offersFor(
   ];
 }
 
+export function supplyOffers(
+  dailyRateUsd: number,
+  preferredEta: Instant,
+  lateEta: Instant,
+  deadline: Instant,
+): OfferCard[] {
+  return [
+    {
+      vendorId: asVendorId("vendor-1"),
+      preferred: true,
+      stock: "in",
+      eta: preferredEta,
+      beatsWindow: preferredEta <= deadline,
+      dailyRateUsd,
+      rateLabel: "synthetic",
+    },
+    {
+      vendorId: asVendorId("vendor-2"),
+      preferred: false,
+      stock: "unknown",
+      eta: lateEta,
+      beatsWindow: lateEta <= deadline,
+      dailyRateUsd: Number((dailyRateUsd + 0.3).toFixed(2)),
+      rateLabel: "synthetic",
+    },
+  ];
+}
+
 export function demoOfferWindow(now: Instant): {
   preferredEta: Instant;
   lateEta: Instant;

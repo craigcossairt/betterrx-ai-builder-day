@@ -1,7 +1,12 @@
 import type { Instant } from "@/domain/clock";
 import { vendorConfirmWhy } from "@/domain/confirm-grace";
 import { escalate } from "@/domain/escalation";
-import type { Hcpcs, Order, OrderStatus } from "@/domain/order";
+import {
+  isHcpcs,
+  type Hcpcs,
+  type Order,
+  type OrderStatus,
+} from "@/domain/order";
 import { formatElapsed } from "@/domain/pickup";
 import { lookupPatient } from "@/domain/patients";
 import { formatWhen } from "@/ui/format";
@@ -56,7 +61,12 @@ function clockShort(at: Instant): string {
 }
 
 function gearWord(order: Order): string {
-  return GEAR[order.equipment[0].hcpcs];
+  const code = order.equipment[0].hcpcs;
+  if (code === "SUP-WOUND") return "wound kit";
+  if (code === "SUP-BRIEFS") return "briefs";
+  if (code === "SUP-GLOVES") return "gloves";
+  if (isHcpcs(code)) return GEAR[code];
+  return "item";
 }
 
 type Speaker<S extends OrderStatus> = (

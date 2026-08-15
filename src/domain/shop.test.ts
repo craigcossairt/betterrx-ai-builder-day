@@ -12,4 +12,10 @@ describe("searchShop", () => {
     });
     expect(emr.map((item) => item.code)).toEqual(["E0250", "E1390"]);
   });
+
+  it("lists wound care, briefs, and gloves without invented A-codes", () => {
+    expect(searchShop({ kind: "supplies", query: "wound" }).map((item) => item.code)).toEqual([
+      "SUP-WOUND",
+    ]);
+  });
 });

@@ -58,6 +58,10 @@ export function VendorOrder({ order }: { order: Order }) {
           {actions.includes("delivered") ? (
             <form action={markDeliveredAction}>
               <input type="hidden" name="orderId" value={order.id} />
+              <label className="order-sub">
+                <input type="checkbox" name="attachPhoto" value="1" /> Attach
+                fixture delivery photo
+              </label>
               <Button variant="app" size="sm" type="submit">
                 Delivered
               </Button>

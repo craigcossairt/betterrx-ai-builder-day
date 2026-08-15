@@ -15,8 +15,11 @@ import {
   asOrderId,
   asPatientId,
   asVendorId,
-  type Hcpcs,
+  isHcpcs,
+  isSupplyCode,
+  orderKind,
 } from "@/domain/order";
+import { lookupSupply } from "@/domain/shop";
 import { emrDeathTargets } from "@/domain/pickup";
 import { rankOptions } from "@/domain/rank";
 import {
@@ -50,12 +53,60 @@ export async function placeOrderAction(
   formData: FormData,
 ): Promise<ActionResult> {
   try {
+    const kind =
+      String(formData.get("kind") ?? "") === "supply" ? "supply" : "dme";
+    const supplyCodes = formData
+      .getAll("supplyCode")
+      .map((value) => String(value))
+      .filter(isSupplyCode);
+    if (kind === "supply") {
+      if (supplyCodes.length === 0) {
+        return { error: "Add a supply from search." };
+      }
+      const vendorId = asVendorId(String(formData.get("vendorId")));
+      const patientId = asPatientId(
+        String(formData.get("patientId") ?? "").trim(),
+      );
+      if (!patientId) return { error: "Pick a patient from the census." };
+      const now = systemClock.now();
+      const window = demoOfferWindow(now);
+      const first = lookupSupply(supplyCodes[0]);
+      const store = await getHospiceStore();
+      const existing = (await store.snapshot()).find(
+        (row) => row.patientId === patientId,
+      );
+      const hospice = existing?.hospice ?? asHospiceName("Sample Hospice A");
+      const order = placeOrder({
+        patientId,
+        hospice,
+        kind: "supply",
+        equipment: supplyCodes.map((code) => {
+          const row = lookupSupply(code);
+          return { hcpcs: code, name: row?.name ?? code };
+        }) as [
+          { hcpcs: typeof supplyCodes[0]; name: string },
+          ...{ hcpcs: typeof supplyCodes[0]; name: string }[],
+        ],
+        orderType: "routine",
+        targetAt: window.deadline,
+        now,
+        quotedVendorId: vendorId,
+        quotedEta:
+          vendorId === "vendor-2" ? window.lateEta : window.preferredEta,
+      });
+      await store.replace(order);
+      queueConfirmSms({
+        now,
+        orderId: order.id,
+        equipmentName: first?.name ?? supplyCodes[0],
+      });
+      revalidatePath("/");
+      return { ok: true };
+    }
     const codes = formData
       .getAll("hcpcs")
       .map((value) => String(value))
-      .filter((code): code is Hcpcs =>
-        CATALOG.some((sku) => sku.hcpcs === code),
-      );
+      .filter(isHcpcs);
     if (codes.length === 0) return { error: "Add a DME item from search or EMR." };
     const hcpcs = codes.includes("E1390") ? "E1390" : codes[0];
     const vendorId = asVendorId(String(formData.get("vendorId")));
@@ -178,7 +229,10 @@ export async function markDeliveredAction(formData: FormData): Promise<void> {
   if (!current || (current.status !== "dispatched" && current.status !== "in_transit_at_risk")) {
     return;
   }
-  await store.replace(markDelivered(current, systemClock.now()));
+  const photoUrl = formData.get("attachPhoto")
+    ? "/brand/pod-sample.svg"
+    : undefined;
+  await store.replace(markDelivered(current, systemClock.now(), photoUrl));
   revalidatePath("/");
 }
 
@@ -207,6 +261,7 @@ export async function requestPickupAction(formData: FormData): Promise<void> {
   const current = await store.get(id);
   if (
     !current ||
+    orderKind(current) === "supply" ||
     (current.status !== "delivered" &&
       current.status !== "pickup_triggered" &&
       current.status !== "pickup_delayed")

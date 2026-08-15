@@ -1,6 +1,6 @@
 import type { Instant } from "@/domain/clock";
 import { dischargeReady } from "@/domain/discharge";
-import { asPatientId, type Order } from "@/domain/order";
+import { asPatientId, orderKind, type Order } from "@/domain/order";
 import { lookupChart } from "@/parse/erx-payloads";
 import { projectCensus } from "@/project/census";
 import { projectTrail } from "@/project/trail";
@@ -49,8 +49,10 @@ export function PatientPicture({
   const id = asPatientId(patientId);
   const chart = lookupChart(id);
   const mine = orders.filter((order) => order.patientId === id);
-  const census = projectCensus(mine, now);
-  const dmeTotal = mine.reduce(
+  const dme = mine.filter((order) => orderKind(order) !== "supply");
+  const supplies = mine.filter((order) => orderKind(order) === "supply");
+  const census = projectCensus(dme, now);
+  const dmeTotal = dme.reduce(
     (sum, order) => sum + (RATES[order.equipment[0].hcpcs] ?? 0),
     0,
   );
@@ -104,8 +106,8 @@ export function PatientPicture({
               : item === "medication"
                 ? "Medication"
                 : item === "dme"
-                  ? `DME (${mine.length})`
-                  : "Supplies (0)"}
+                  ? `DME (${dme.length})`
+                  : `Supplies (${supplies.length})`}
           </a>
         ))}
       </div>
@@ -188,7 +190,7 @@ export function PatientPicture({
         )
       ) : null}
       {tab === "dme" ? (
-        mine.length === 0 ? (
+        dme.length === 0 ? (
           <div className="pic-card muted">No equipment yet.</div>
         ) : (
           <div className="dme-rows">
@@ -224,7 +226,17 @@ export function PatientPicture({
                       {delivered.proofOfDelivery.signature
                         ? " Signature captured."
                         : ""}
+                      {delivered.proofOfDelivery.photoUrl
+                        ? " Photo on file."
+                        : ""}
                     </p>
+                  ) : null}
+                  {delivered?.proofOfDelivery.photoUrl ? (
+                    <img
+                      className="pod-photo"
+                      src={delivered.proofOfDelivery.photoUrl}
+                      alt="Fixture delivery photo. Not a patient image."
+                    />
                   ) : null}
                   <ol className="trail">
                     {trail.map((step) => (
@@ -268,7 +280,7 @@ export function PatientPicture({
           </div>
         )
       ) : null}
-      {tab === "dme" && mine.length > 0 ? (
+      {tab === "dme" && dme.length > 0 ? (
         <div className="discharge-banner">
           {decision.ready
             ? "Discharge-ready. Required equipment is delivered."
@@ -277,10 +289,36 @@ export function PatientPicture({
         </div>
       ) : null}
       {tab === "supplies" ? (
-        <div className="pic-card muted">
-          No supplies yet. Wound care, incontinence, and gloves order like
-          equipment. No pickup after a death.
-        </div>
+        supplies.length === 0 ? (
+          <div className="pic-card muted">
+            No supplies yet. Wound care, incontinence, and gloves order like
+            equipment. No pickup after a death.
+          </div>
+        ) : (
+          <div className="dme-rows">
+            {supplies.map((order) => (
+              <details key={order.id} className="dme-row" open>
+                <summary>
+                  <span>
+                    <b>
+                      {order.equipment.map((item) => item.name).join(", ")}
+                    </b>
+                    <span className="order-sub">
+                      Consumable. Stays after death. No pickup.
+                    </span>
+                  </span>
+                </summary>
+                <p className="order-sub">
+                  {order.status === "ordered"
+                    ? "Waiting on the supply vendor."
+                    : order.status === "delivered"
+                      ? "Delivered. This stays in the home."
+                      : "On the way."}
+                </p>
+              </details>
+            ))}
+          </div>
+        )
       ) : null}
     </section>
   );
