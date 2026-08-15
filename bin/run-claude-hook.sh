@@ -5,7 +5,7 @@
 # copies of this logic WILL drift apart silently.
 #
 # Usage: run-claude-hook.sh <grok|cursor> <hook-id>
-#   hook-id: session-start | block-sensitive-files | format-on-edit | brain-enrich
+#   hook-id: session-start | block-sensitive-files | format-on-edit
 #
 # What it adapts:
 # 1. Payload shape - Grok nests camelCase (toolInput.filePath), Cursor sends
@@ -38,7 +38,6 @@ case "$HOOK_ID" in
   session-start)         TARGET="$ROOT/.claude/hooks/session-start.sh" ;;
   block-sensitive-files) TARGET="$ROOT/.claude/hooks/block-sensitive-files.sh" ;;
   format-on-edit)        TARGET="$ROOT/.claude/hooks/format-on-edit.sh" ;;
-  brain-enrich)          TARGET="$ROOT/brain/hooks/context-enrichment.sh" ;;
   *)
     echo "run-claude-hook.sh: unknown hook-id '$HOOK_ID'" >&2
     exit 0
@@ -99,17 +98,6 @@ case "$HOOK_ID" in
     fi
     allow_json
     [ -n "$ERR" ] && printf '%s\n' "$ERR" >&2
-    exit 0
-    ;;
-  brain-enrich)
-    # Grok injects UserPromptSubmit stdout directly - emit the block once.
-    # Cursor's beforeSubmitPrompt schema is {"continue": bool} and cannot
-    # inject context - always let the prompt through.
-    if [ "$HARNESS" = "cursor" ]; then
-      printf '{"continue":true}'
-    else
-      [ -n "$OUT" ] && printf '%s\n' "$OUT"
-    fi
     exit 0
     ;;
   session-start)

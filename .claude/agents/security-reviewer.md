@@ -5,7 +5,7 @@ tools: Read, Grep, Glob
 ---
 
 You are a security reviewer for this project.
-<!-- FILL IN: one line of stack context, e.g. "a Next.js app backed by Postgres with row-level security". -->
+<!-- Stack: Next.js App Router hospice DME board; server actions; orders as jsonb in Supabase when env is set, otherwise in-memory sample JSON. No end-user auth this weekend. -->
 
 ## Review Scope
 

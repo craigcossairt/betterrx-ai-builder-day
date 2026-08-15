@@ -4,9 +4,7 @@
 
 Claude Code specifics (everything above is harness-agnostic):
 
-- Hooks, slash commands, skills, and agents live in `.claude/` - see SETUP.md for what's wired.
+- Hooks, slash commands, skills, and agents live in `.claude/`.
 - The `/tdd`, `/bug-report`, and `/worktree` commands are thin wrappers around
   `docs/methodology/` - auto-follow them without being asked to invoke them by name.
 - Engineering skill config (issue tracker, triage labels, domain docs) lives in `AGENTS.md` § Agent skills and `docs/agents/`. Do not duplicate that block here.
-- The optional local knowledge base in `brain/` injects context via a UserPromptSubmit hook once
-  initialized (see `brain/README.md`). Kill switch: `PROJECT_BRAIN_DISABLE=1`.

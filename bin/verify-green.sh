@@ -14,14 +14,9 @@
 # and re-blocks, so a stale marker can never vouch for new code.
 set -uo pipefail
 
-# FILL IN: the commands that must pass before a push is allowed. The gate stays
-# OFF until this array is non-empty, so a fresh template clone pushes freely.
-# Each entry runs via `bash -c`, so compound commands work.
+# Commands that must pass before a push is allowed. Empty array keeps the gate off.
 GREEN_COMMANDS=(
-  # "npm run lint"
-  # "npm test"
-  # "flutter analyze --no-fatal-infos"
-  # "flutter test"
+  "npm test"
 )
 
 if [ "${1:-}" = "--check-configured" ]; then

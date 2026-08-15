@@ -1,9 +1,9 @@
 # About Me
 
 Who the founder/owner is, so agents calibrate their advice and explanations. An agent should
-advise a first-time technical founder very differently than a 20-year engineer - it can only do
-that if you tell it which one you are. Referenced from AGENTS.md; update as your situation
-changes. If the project grows into a workspace, this file graduates to `Files/Context Files/`.
+advise a first-time technical founder very differently than a 20-year engineer. It can only do
+that if you tell it which one you are. Referenced from AGENTS.md. Update as your situation
+changes.
 
 ## Background
 
@@ -14,8 +14,7 @@ changes. If the project grows into a workspace, this file graduates to `Files/Co
 - Won the Data Governance bounty at HITLAB x UVU World Cup Hackathon 2026, sponsored by the Utah
   Office of Data Privacy. Public repo: github.com/craigcossairt/HITLAB-UVU-World-Cup-Hackathon-2026.
   That is a different event from AI Builder Day. Do not call it an AI Builder Day win.
-- Building Bloom daily with AI coding agents (Claude Code, Cursor, Grok Build). This Trellis
-  template is extracted from that setup.
+- Builds Bloom daily with AI coding agents (Claude Code, Cursor, Grok Build).
 - Utah-based. This repo is the BetterRX bounty submission for JustBuild AI Builder Day Part 2
   (Aug 14-15 2026).
 
@@ -44,9 +43,9 @@ he will hand-write production code.
 
 ## Current constraints
 
-- Full-time on Bloom. This is a two-day hackathon, not a new company.
+- Full-time on Bloom. This is a two-day hackathon submission, not a new company.
 - Solo. BetterRX recommends 1-3 and caps their room at 8 teams.
-- Competitive build clock: Friday 1:30 PM to Saturday 2:00 PM (about 24 hours). Judging 2:00 PM Saturday.
+- Build clock was Friday 1:30 PM to Saturday 2:00 PM. Judging starts 2:00 PM Saturday.
 - Scope for a working demo, not a finished marketplace.
 - Budget: use free tiers and whatever credits the event provides.
 - Synthetic data only. No real patient, hospice, or vendor records.
