@@ -31,6 +31,8 @@ export type OrderedOrder = OrderBase & {
   orderedAt: import("./clock").Instant;
   targetAt: import("./clock").Instant;
   vendorId: null;
+  quotedVendorId?: VendorId;
+  quotedEta?: import("./clock").Instant;
 };
 
 export type DispatchedOrder = OrderBase & {
