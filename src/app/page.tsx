@@ -70,8 +70,12 @@ export default async function Home({
     <PlaceOrderForm
       offerSets={offerSets}
       deadline={window.deadline}
+      preferredEta={window.preferredEta}
+      lateEta={window.lateEta}
       role={role}
       surface={surface}
+      initialPatientId={patient ?? undefined}
+      initialKind={tab === "supplies" ? "supplies" : "dme"}
     />
   );
   const inboxScreen = (

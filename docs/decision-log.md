@@ -43,3 +43,5 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - DON PPD does not print a buffer-day count. The fixture never computed that driver. See #24.
 - **2026-08-15** - One STAT send can carry bed and oxygen as two lines on one order. Each line shows its preferred ETA versus the discharge window. See #23.
 - **2026-08-15** - Vendor persona opens one order at `?order=`. Confirm, yes-but ETA, decline, delivered, pickup window, and picked up share the Order union. No vendor account. See #22.
+- **2026-08-15** - Supplies are real orders with `kind: supply` on the same Order union. Pickup throws. Discharge and PPD ignore them. See #25.
+- **2026-08-15** - Proof of delivery may carry an optional fixture `photoUrl`. Missing photo does not block delivered. See #26.
