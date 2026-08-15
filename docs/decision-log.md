@@ -55,3 +55,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Discharge override is visible on the patient DME banner. The write-only map was a silent no-op for judges.
 - **2026-08-15** - The six-item supply catalog (wound kit, foam, saline, briefs, underpads, gloves) places `kind: supply` orders. Ray's fixture kit still shows until a seed supply order exists. See #25 #29.
 - **2026-08-15** - Pruned Day-1 Trellis leftovers (`SETUP.md`, unused `brain/`, `.scratch` weekend notes, template graduation/skills docs). README is judge-first. GitHub Issues remains the only tracker.
+- **2026-08-15** - Made the GitHub repo public for bounty submission. Homepage is the Vercel production app.
