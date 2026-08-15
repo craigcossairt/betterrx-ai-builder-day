@@ -1,0 +1,265 @@
+@import "tailwindcss";
+@import "../ui/tokens/colors.css";
+@import "../ui/tokens/typography.css";
+@import "../ui/tokens/spacing.css";
+@import "../ui/tokens/effects.css";
+
+@theme inline {
+  --color-ink: var(--ink-900);
+  --color-surface-app: var(--surface-100);
+  --color-surface-card: var(--surface-card);
+  --color-coral: var(--coral-500);
+  --color-blue: var(--blue-500);
+  --font-display: var(--font-display);
+  --font-ui: var(--font-ui);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-app);
+  color: var(--ink-900);
+  font-family: var(--font-ui);
+}
+
+.app-frame {
+  min-height: 100vh;
+  background: var(--surface-100);
+}
+
+.app-topbar {
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  border-bottom: 1px solid var(--line-200);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.app-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--coral-600);
+}
+
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1.1;
+}
+
+.app-topbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-store-flag {
+  display: none;
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+.app-main {
+  width: min(72rem, 100%);
+  margin: 0 auto;
+  padding: 16px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 12px;
+}
+
+.app-toolbar {
+  display: grid;
+  gap: 12px;
+}
+
+.app-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.app-chip {
+  background: #fff;
+  border: 1px solid var(--line-200);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-width: 6.5rem;
+  display: grid;
+  gap: 2px;
+}
+
+.app-chip strong {
+  font-size: 20px;
+  color: var(--ink-900);
+}
+
+.app-chip span {
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+.app-chip--alert {
+  border-color: color-mix(in srgb, var(--red-500) 35%, var(--line-200));
+  background: var(--red-50);
+}
+
+.app-chip--ppd {
+  border-color: color-mix(in srgb, var(--blue-500) 35%, var(--line-200));
+  background: var(--blue-50);
+}
+
+.app-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+
+.app-btn--primary {
+  background: var(--blue-500);
+  color: #fff;
+}
+
+.app-btn--outline {
+  background: #fff;
+  color: var(--ink-900);
+  border: 2px solid var(--ink-900);
+}
+
+.app-ppd-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-500);
+  line-height: 1.45;
+}
+
+.census {
+  background: #fff;
+  border: 1px solid var(--line-200);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.census-row {
+  border-top: 1px solid var(--line-200);
+}
+
+.census-row:first-child {
+  border-top: none;
+}
+
+.census-row--attention {
+  background: color-mix(in srgb, var(--red-50) 70%, #fff);
+}
+
+.census-summary {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.census-summary::-webkit-details-marker {
+  display: none;
+}
+
+.census-patient {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.census-sub,
+.census-equip,
+.census-line {
+  font-size: 13px;
+  color: var(--ink-500);
+}
+
+.census-equip {
+  color: var(--ink-700);
+}
+
+.census-body {
+  padding: 0 16px 16px;
+}
+
+.census-why {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--red-500);
+}
+
+.inbox-item {
+  border: 1px solid var(--line-200);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.inbox-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+@media (min-width: 720px) {
+  .app-store-flag {
+    display: block;
+  }
+
+  .app-main {
+    padding: 24px;
+    gap: 16px;
+  }
+
+  .app-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .census-summary {
+    grid-template-columns: minmax(10rem, 1.1fr) minmax(0, 1.4fr) auto;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1100px) {
+  .app-main {
+    padding: 28px 24px 40px;
+  }
+}

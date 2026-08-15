@@ -20,9 +20,15 @@ Sibling repos this weekend: [ai-builder-day-part-2](https://github.com/craigcoss
 ## Status
 
 - Repo: private, `main`
-- Stage: PRD ready, no app yet
-- Stack: TBD (default Next.js + Tailwind on Vercel; Supabase only if a real table is needed)
+- Stage: Next.js hospice app (BetterRX design system + first board)
+- Stack: Next.js + TypeScript + Tailwind on Vercel. Supabase `orders` jsonb when env is set.
 - Issues: https://github.com/craigcossairt/betterrx-ai-builder-day/issues
+
+```bash
+npm ci
+npm run dev
+npm test
+```
 
 ## Day-1 setup
 

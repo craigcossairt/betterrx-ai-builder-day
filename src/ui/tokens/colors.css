@@ -1,0 +1,21 @@
+:root{
+/* Brand — coral (sampled from betterrx.com logo + imagery) */
+--coral-600:#EC7268;--coral-500:#EF806A;--coral-400:#F28C6B;--coral-300:#F6AE90;--coral-200:#F9C4A5;--coral-100:#FED5B9;--coral-50:#FDEEE4;
+--grad-brand:linear-gradient(100deg,#EC7268 0%,#F28C6B 55%,#FAAA6E 100%); /* @kind color */
+/* Ink & neutrals */
+--ink-900:#24333F;--ink-700:#3A4A57;--ink-500:#5C6B77;--ink-400:#7A8794;--ink-300:#AEB8C0;
+--line-200:#DDE2E6;--surface-100:#F0F1F2;--surface-50:#F7F8F9;--white:#FFFFFF;
+/* Product accents (sampled from eRX app UI) */
+--blue-600:#2F5A93;--blue-500:#3868A8;--blue-300:#5888C0;--blue-50:#EAF1F8;
+--green-500:#58C060;--green-50:#EAF7EB;
+--gold-400:#F6D77A;--gold-600:#C9A227;
+--red-500:#D9534F;--red-50:#FBEDEC;
+/* Semantic aliases */
+--brand:var(--coral-500);--brand-hover:var(--coral-600);
+--text-heading:var(--ink-900);--text-body:var(--ink-700);--text-muted:var(--ink-400);--text-on-brand:var(--white);--text-on-dark:var(--white);
+--surface-page:var(--white);--surface-alt:var(--surface-50);--surface-app:var(--surface-100);--surface-card:var(--white);--surface-dark:var(--ink-900);
+--border-default:var(--line-200);--border-focus:var(--blue-500);
+--action-primary:var(--coral-500);--action-secondary:var(--blue-500);
+--success:var(--green-500);--warning:var(--gold-600);--danger:var(--red-500);
+--link:var(--coral-600);--link-hover:var(--coral-500);
+}
