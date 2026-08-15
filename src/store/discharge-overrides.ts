@@ -9,3 +9,7 @@ export function setDischargeOverride(patientId: PatientId, reason: string): void
 export function getDischargeOverride(patientId: PatientId): string | undefined {
   return overrides.get(patientId);
 }
+
+export function resetDischargeOverrides(): void {
+  overrides.clear();
+}

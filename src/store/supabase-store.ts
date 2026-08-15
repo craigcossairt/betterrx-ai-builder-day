@@ -5,6 +5,7 @@ import type { HospiceStore } from "@/store/create-store";
 export type OrderTableClient = {
   list(): Promise<OrderRow[]>;
   upsert(row: OrderRow): Promise<void>;
+  removeAll(): Promise<void>;
 };
 
 export function createMemoryClient(seed: OrderRow[] = []): OrderTableClient {
@@ -15,6 +16,9 @@ export function createMemoryClient(seed: OrderRow[] = []): OrderTableClient {
     },
     async upsert(row) {
       rows.set(row.id, row);
+    },
+    async removeAll() {
+      rows.clear();
     },
   };
 }
@@ -32,22 +36,43 @@ export async function createSupabaseStore(
   }
   const map = new Map<OrderId, Order>();
   const orderIds: OrderId[] = [];
-  for (const row of listed) {
-    const order = rowToOrder(row);
-    map.set(order.id, order);
-    orderIds.push(order.id);
+
+  function load(rows: OrderRow[]) {
+    map.clear();
+    orderIds.length = 0;
+    for (const row of rows) {
+      const order = rowToOrder(row);
+      map.set(order.id, order);
+      orderIds.push(order.id);
+    }
   }
+
+  load(listed);
+
+  async function hydrate() {
+    load(await client.list());
+  }
+
   return {
     async snapshot() {
+      await hydrate();
       return orderIds.map((id) => map.get(id)!);
     },
     async get(id) {
+      await hydrate();
       return map.get(id);
     },
     async replace(order) {
       if (!map.has(order.id)) orderIds.push(order.id);
       map.set(order.id, order);
       await client.upsert(orderToRow(order));
+    },
+    async reset(seed) {
+      await client.removeAll();
+      for (const order of seed) {
+        await client.upsert(orderToRow(order));
+      }
+      await hydrate();
     },
   };
 }

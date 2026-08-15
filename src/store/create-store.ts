@@ -4,6 +4,7 @@ export type HospiceStore = {
   snapshot(): Promise<readonly Order[]>;
   get(id: OrderId): Promise<Order | undefined>;
   replace(order: Order): Promise<void>;
+  reset(seed: readonly Order[]): Promise<void>;
 };
 
 export function createHospiceStore(seed: readonly Order[]): HospiceStore {
@@ -25,6 +26,14 @@ export function createHospiceStore(seed: readonly Order[]): HospiceStore {
     async replace(order) {
       if (!map.has(order.id)) orderIds.push(order.id);
       map.set(order.id, order);
+    },
+    async reset(seed) {
+      map.clear();
+      orderIds.length = 0;
+      for (const order of seed) {
+        map.set(order.id, order);
+        orderIds.push(order.id);
+      }
     },
   };
 }
