@@ -33,6 +33,7 @@ describe("projectCensus", () => {
     expect(census.atRisk).toBe(1);
     expect(census.delayedPickup).toBe(1);
     expect(census.awaitingVendor).toBe(1);
+    expect(census.lede).toBe("Two patients need you.");
   });
 
   it("speaks Margaret's miss and Ray's four-day pickup as sentences", () => {
@@ -42,10 +43,10 @@ describe("projectCensus", () => {
     const ray = orders.find((order) => order.id === "DME-09803");
     if (!margaret || !ray) throw new Error("expected fixture orders");
     expect(censusSentence(margaret, now)).toBe(
-      "Margaret Holt's oxygen misses the 4:30 discharge by about 40 minutes.",
+      "The oxygen misses the 4:30 discharge by about 40 minutes.",
     );
     expect(censusSentence(ray, now)).toBe(
-      "Ray Delgado's bed has been waiting 4 days for pickup. The family has called.",
+      "The bed has been waiting 4 days for pickup.",
     );
   });
 
@@ -54,7 +55,41 @@ describe("projectCensus", () => {
     const eleanor = sampleOrders().find((order) => order.id === "DME-10231");
     if (!eleanor) throw new Error("expected Eleanor's bed order");
     expect(censusSentence(eleanor, now)).toBe(
-      "Eleanor Bishop's bed is waiting on a vendor.",
+      "The bed is waiting on a vendor.",
     );
+  });
+
+  it("names the patient on the line so the page can lead with who", () => {
+    const now = frozenClock("2026-08-14T17:00:00.000Z").now();
+    const eleanor = sampleOrders().find((order) => order.id === "DME-10231");
+    if (!eleanor) throw new Error("expected Eleanor's bed order");
+    const [line] = projectCensus([eleanor], now).lines;
+    expect(line?.who).toBe("Eleanor Bishop");
+  });
+
+  it("stamps AT RISK, PICKUP LATE, and WAITING as track labels", () => {
+    const now = frozenClock("2026-08-14T17:00:00.000Z").now();
+    const byId = Object.fromEntries(
+      projectCensus(sampleOrders(), now).lines.map((line) => [
+        line.order.id,
+        line,
+      ]),
+    );
+    expect(byId["DME-10305"]?.trackLabel).toBe("AT RISK");
+    expect(byId["DME-09803"]?.trackLabel).toBe("PICKUP LATE");
+    expect(byId["DME-10231"]?.trackLabel).toBe("WAITING");
+  });
+
+  it("keeps a quiet third line on loud cards only", () => {
+    const now = frozenClock("2026-08-14T17:00:00.000Z").now();
+    const byId = Object.fromEntries(
+      projectCensus(sampleOrders(), now).lines.map((line) => [
+        line.order.id,
+        line,
+      ]),
+    );
+    expect(byId["DME-10305"]?.aside).toBe("Jordan Hale, case manager.");
+    expect(byId["DME-09803"]?.aside).toBe("The family has called.");
+    expect(byId["DME-10231"]?.aside).toBeNull();
   });
 });
