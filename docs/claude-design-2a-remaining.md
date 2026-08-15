@@ -12,7 +12,7 @@ Brand: BetterRX product chrome. Blue 6px primary actions. Coral only on at-risk.
 
 These screens exist and judges can tap them. Improve a frame only if it is in the remaining list below.
 
-- Demo chrome outside the white app: persona (Admissions RN, Case Mgr, DON, Vendor) and surface (Phone, Desktop). EMR death event and Reset live here, not inside the nurse app. Clinician phone is the Phone surface, not a fifth persona.
+- Demo chrome outside the white app: persona (Admissions RN, Case Mgr, DON, Vendor) and surface (Phone, Desktop). EMR death event and Reset live here, not inside the nurse app. Clinician phone is the Phone surface, not a fifth persona. The app itself has Census / New order / Oversight tabs and a bell inbox built from orders.
 - Census 2a: names first, sentence status, Helen Vargas for PT-87602.
 - Search-first new order: patient, then Medication / DME / Supplies, then EMR chips or catalog search. Preferred vs alternate vendor cards.
 - Patient picture tabs: Patient, Medication, DME, Supplies.

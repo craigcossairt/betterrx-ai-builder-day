@@ -3,7 +3,9 @@ import { systemClock } from "@/domain/clock";
 import { asOrderId, asPatientId } from "@/domain/order";
 import { demoOfferWindow, offersFor, presentOffers } from "@/domain/offers";
 import { censusPpd } from "@/domain/ppd";
+import { listDonAsks } from "@/inbox/don-ask";
 import { listSms } from "@/inbox/sms-inbox";
+import { projectClinicianInbox } from "@/project/clinician-inbox";
 import { supabaseConfig } from "@/lib/supabase";
 import { getHospiceStore } from "@/store/hospice-store";
 import { projectCensus } from "@/project/census";
@@ -14,7 +16,7 @@ import {
 } from "@/ui/census";
 import { AppFrame } from "@/ui/chrome/AppFrame";
 import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
-import { InboxScreen } from "@/ui/order";
+import { ClinicianInbox } from "@/ui/order/ClinicianInbox";
 import { PhoneBack } from "@/ui/order/PhoneBack";
 import { VendorTaskScreen } from "@/ui/order/VendorTaskScreen";
 import { AskWhyScreen } from "@/ui/don/AskWhyScreen";
@@ -23,6 +25,7 @@ import { PatientPicture } from "@/ui/patient/PatientPicture";
 import { parseRole } from "@/ui/roles";
 import {
   boardHref,
+  parseKind,
   parsePanel,
   parseSurface,
   parseTab,
@@ -40,6 +43,7 @@ export default async function Home({
     patient?: string;
     tab?: string;
     order?: string;
+    kind?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -47,6 +51,7 @@ export default async function Home({
   const surface = parseSurface(params.surface);
   const panel = parsePanel(params.panel);
   const tab = parseTab(params.tab);
+  const kind = parseKind(params.kind);
   const patient = params.patient ? asPatientId(params.patient) : null;
   const askOrderId = params.order ? asOrderId(params.order) : null;
   const snapshot = await (await getHospiceStore()).snapshot();
@@ -54,6 +59,11 @@ export default async function Home({
   const census = projectCensus(snapshot, now);
   const ppd = censusPpd(snapshot, CATALOG, 7, now);
   const inbox = listSms();
+  const alerts = projectClinicianInbox({
+    role,
+    orders: snapshot,
+    asks: listDonAsks(),
+  });
   const window = demoOfferWindow(now);
   const offerSets = {
     E0250: presentOffers(
@@ -114,6 +124,8 @@ export default async function Home({
       deadline={window.deadline}
       role={role}
       surface={surface}
+      initialPatientId={patient}
+      initialKind={kind === "supplies" ? "supplies" : "dme"}
     />
   );
   const inboxScreen =
@@ -126,7 +138,7 @@ export default async function Home({
         orderId={askOrderId}
       />
     ) : (
-      <InboxScreen role={role} surface={surface} messages={inbox} />
+      <ClinicianInbox role={role} surface={surface} rows={alerts} />
     );
   const censusScreen = (
     <>
@@ -202,7 +214,14 @@ export default async function Home({
     );
 
   return (
-    <AppFrame role={role} surface={surface} homeHref={homeHref}>
+    <AppFrame
+      role={role}
+      surface={surface}
+      homeHref={homeHref}
+      panel={panel}
+      patient={patient}
+      inboxCount={alerts.length}
+    >
       {body}
     </AppFrame>
   );

@@ -92,6 +92,17 @@ describe("resolveBoardView", () => {
     ).toEqual({ kind: "desk", main: "oversight" });
   });
 
+  it("opens oversight for any clinician when the tab asks", () => {
+    expect(
+      resolveBoardView({
+        role: "admissions",
+        surface: "phone",
+        panel: "oversight",
+        hasPatient: false,
+      }),
+    ).toEqual({ kind: "oversight" });
+  });
+
   it("opens full oversight on the DON phone only when asked", () => {
     expect(
       resolveBoardView({
@@ -143,7 +154,7 @@ describe("resolveBoardView", () => {
 });
 
 describe("chromeQuery", () => {
-  it("drops the open patient when switching to DON so PPD is first", () => {
+  it("keeps the open chart when switching to DON", () => {
     expect(
       chromeQuery({
         role: "admissions",
@@ -157,7 +168,7 @@ describe("chromeQuery", () => {
       role: "don",
       surface: "desktop",
       panel: null,
-      patient: null,
+      patient: "PT-88421",
       tab: "patient",
     });
   });

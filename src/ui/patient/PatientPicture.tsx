@@ -14,7 +14,7 @@ import { DischargeReadyForm } from "@/ui/DischargeReadyForm";
 import { Button } from "@/ui/Button";
 import { formatStamp } from "@/ui/format";
 import { boardHref, type PatientTab, type SurfaceId } from "@/ui/nav";
-import type { RoleId } from "@/ui/roles";
+import { canOrder, type RoleId } from "@/ui/roles";
 
 const RATES: Record<string, number> = {
   E0250: 2.57,
@@ -335,6 +335,20 @@ export function PatientPicture({
                 </p>
               </div>
             ))}
+            {canOrder(role) ? (
+              <a
+                className="supply-order"
+                href={boardHref({
+                  role,
+                  surface,
+                  panel: "order",
+                  patient: chart.patientId,
+                  kind: "supplies",
+                })}
+              >
+                Add supplies
+              </a>
+            ) : null}
           </div>
         ) : (
           <div className="supply-empty">
@@ -348,12 +362,20 @@ export function PatientPicture({
               Supplies are consumables. They are delivered and confirmed like
               equipment, but they are never picked up, including after a death.
             </p>
-            <a
-              className="supply-order"
-              href={boardHref({ role, surface, panel: "order" })}
-            >
-              Order supplies
-            </a>
+            {canOrder(role) ? (
+              <a
+                className="supply-order"
+                href={boardHref({
+                  role,
+                  surface,
+                  panel: "order",
+                  patient: chart.patientId,
+                  kind: "supplies",
+                })}
+              >
+                Add supplies
+              </a>
+            ) : null}
             <p className="ssn-note">
               Ordered by description. No HCPCS code is assigned in this build.
             </p>

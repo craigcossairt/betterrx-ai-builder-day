@@ -3,6 +3,7 @@ import type { RoleId } from "@/ui/roles";
 export type BoardPanel = "order" | "inbox" | "oversight" | "ask";
 export type SurfaceId = "phone" | "desktop";
 export type PatientTab = "patient" | "medication" | "dme" | "supplies";
+export type ShopKindParam = "dme" | "supplies";
 
 export type BoardQuery = {
   role: RoleId;
@@ -11,6 +12,7 @@ export type BoardQuery = {
   patient?: string | null;
   tab?: PatientTab | null;
   order?: string | null;
+  kind?: ShopKindParam | null;
 };
 
 export function parseSurface(raw: string | null | undefined): SurfaceId {
@@ -34,7 +36,12 @@ export function boardHref(query: BoardQuery): string {
   if (query.patient) params.set("patient", query.patient);
   if (query.tab) params.set("tab", query.tab);
   if (query.order) params.set("order", query.order);
+  if (query.kind) params.set("kind", query.kind);
   return `/?${params.toString()}`;
+}
+
+export function parseKind(raw: string | null | undefined): ShopKindParam {
+  return raw === "supplies" ? "supplies" : "dme";
 }
 
 export function parsePanel(raw: string | null | undefined): BoardPanel | null {
@@ -72,7 +79,7 @@ export function resolveBoardView(input: {
   if (input.surface === "phone") {
     if (input.panel === "order") return { kind: "order" };
     if (input.panel === "inbox") return { kind: "inbox" };
-    if (input.panel === "oversight" && input.role === "don") {
+    if (input.panel === "oversight") {
       return { kind: "oversight" };
     }
     if (input.panel === "ask" && input.role === "don") {
@@ -88,7 +95,7 @@ export function resolveBoardView(input: {
         ? "inbox"
         : input.panel === "ask" && input.role === "don"
           ? "ask"
-          : input.panel === "oversight" && input.role === "don"
+          : input.panel === "oversight"
           ? "oversight"
           : input.hasPatient
             ? "patient"
@@ -119,10 +126,7 @@ export function chromeQuery(input: {
             (leaveDon && (panel === "oversight" || panel === "ask"))
           ? null
           : panel,
-    patient:
-      input.nextRole === "vendor" || input.nextRole === "don"
-        ? null
-        : input.patient,
+    patient: input.nextRole === "vendor" ? null : input.patient,
     tab:
       input.tab === "patient" ||
       input.tab === "medication" ||

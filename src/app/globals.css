@@ -126,6 +126,124 @@ body {
   align-items: center;
 }
 
+.app-shell-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.inbox-bell {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-500);
+  text-decoration: none;
+}
+
+.inbox-bell--on {
+  color: var(--blue-600);
+  background: var(--surface-100);
+}
+
+.inbox-badge {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--coral-500);
+  color: #fff;
+  font: 700 10.5px/17px var(--font-ui);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.phone-tabs {
+  height: 60px;
+  background: #fff;
+  border-top: 1px solid var(--line-200);
+  display: flex;
+  flex: none;
+}
+
+.phone-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 600 13px var(--font-ui);
+  color: var(--ink-400);
+  text-decoration: none;
+  border-top: 2.5px solid transparent;
+  margin-top: -1px;
+}
+
+.phone-tab--on {
+  color: var(--blue-600);
+  border-top-color: var(--blue-500);
+}
+
+.alert-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 14px;
+  padding: 13px 15px;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface-50);
+  border: 1px solid var(--line-200);
+}
+
+.alert-card--hot {
+  background: var(--coral-50);
+  border-color: var(--coral-200);
+}
+
+.alert-card--pickup {
+  background: var(--red-50, #fdecee);
+  border-color: var(--red-200, #f5c2c7);
+}
+
+.alert-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.supply-qty-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--surface-100);
+}
+
+.supply-qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.supply-qty button {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--line-200);
+  background: #fff;
+  font: 600 16px var(--font-ui);
+  cursor: pointer;
+}
+
 .role-badge {
   background: var(--surface-100);
   font-size: 12px;

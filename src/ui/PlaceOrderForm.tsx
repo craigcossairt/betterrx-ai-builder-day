@@ -4,14 +4,16 @@ import { useActionState, useMemo, useState } from "react";
 import { placeOrderAction } from "@/app/actions";
 import type { Instant } from "@/domain/clock";
 import { costGate, type OfferCard } from "@/domain/offers";
-import { asVendorId, type Hcpcs } from "@/domain/order";
+import { asPatientId, asVendorId, type Hcpcs, type OrderType } from "@/domain/order";
 import {
+  lookupPatient,
   searchPatients,
   type CensusPatient,
 } from "@/domain/patients";
 import {
   searchShop,
   shopItems,
+  supplyCatalog,
   vendorRecord,
   type ShopItem,
   type ShopKind,
@@ -26,7 +28,6 @@ import { formatVendor, formatWhen } from "@/ui/format";
 import { PhoneBack } from "@/ui/order/PhoneBack";
 import type { SurfaceId } from "@/ui/nav";
 import type { RoleId } from "@/ui/roles";
-import type { OrderType } from "@/domain/order";
 
 const KINDS: { id: ShopKind; label: string }[] = [
   { id: "medication", label: "Medication" },
@@ -39,17 +40,24 @@ export function PlaceOrderForm({
   deadline,
   role,
   surface,
+  initialPatientId = null,
+  initialKind = "dme",
 }: {
   offerSets: Record<Hcpcs, OfferCard[]>;
   deadline: Instant;
   role: RoleId;
   surface: SurfaceId;
+  initialPatientId?: string | null;
+  initialKind?: ShopKind;
 }) {
   const [query, setQuery] = useState("");
-  const [patient, setPatient] = useState<CensusPatient | null>(null);
-  const [kind, setKind] = useState<ShopKind>("dme");
+  const [patient, setPatient] = useState<CensusPatient | null>(() =>
+    initialPatientId ? lookupPatient(asPatientId(initialPatientId)) : null,
+  );
+  const [kind, setKind] = useState<ShopKind>(initialKind);
   const [itemQuery, setItemQuery] = useState("");
   const [lines, setLines] = useState<ShopItem[]>([]);
+  const [qty, setQty] = useState<Record<string, number>>({});
   const [vendorId, setVendorId] = useState("vendor-1");
   const [lineVendors, setLineVendors] = useState<Record<string, string>>({});
   const [orderType, setOrderType] = useState<OrderType>("stat");
@@ -87,7 +95,15 @@ export function PlaceOrderForm({
   const gate = selected
     ? costGate({ orderType, dailyRateUsd: selected.dailyRateUsd })
     : { verdict: "open" as const };
-  const canSend = dmeLines.length > 0;
+  const supplyLines = Object.entries(qty).flatMap(([code, count]) => {
+    const item = supplyCatalog()
+      .flatMap((row) => row.items)
+      .find((row) => row.code === code);
+    return item && count > 0
+      ? Array.from({ length: count }, () => item)
+      : [];
+  });
+  const canSend = dmeLines.length > 0 || supplyLines.length > 0;
 
   const results = useMemo(
     () => hits.filter((item) => !lines.some((line) => line.code === item.code)),
@@ -113,6 +129,14 @@ export function PlaceOrderForm({
           type="hidden"
           name="lineVendor"
           value={`${line.code}:${lineVendors[line.code] ?? vendorId}`}
+        />
+      ))}
+      {supplyLines.map((line, index) => (
+        <input
+          key={`${line.code}-${index}`}
+          type="hidden"
+          name="supply"
+          value={line.name}
         />
       ))}
       <input type="hidden" name="vendorId" value={selected?.vendorId ?? ""} />
@@ -218,35 +242,81 @@ export function PlaceOrderForm({
                     </div>
                   </>
                 ) : null}
-                <input
-                  className="search-box"
-                  value={itemQuery}
-                  onChange={(event) => setItemQuery(event.target.value)}
-                  placeholder={
-                    kind === "dme" ? "Search equipment" : "Search supplies"
-                  }
-                  aria-label="Search items"
-                />
-                <div className="search-list">
-                  {results.map((item) => (
-                    <button
-                      key={item.code}
-                      type="button"
-                      className="search-hit"
-                      onClick={() => add(item)}
-                    >
-                      <span>
-                        <b>{item.name}</b>
-                        <span className="order-sub">{item.code}</span>
-                      </span>
-                      <span className="search-pick">
-                        {item.dailyRateUsd != null
-                          ? `$${item.dailyRateUsd.toFixed(2)}/day`
-                          : "Add"}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                {kind === "supplies" ? (
+                  <div className="supply-pick">
+                    {supplyCatalog().map((group) => (
+                      <div key={group.category}>
+                        <div className="eyebrow">{group.category}</div>
+                        {group.items.map((item) => {
+                          const count = qty[item.code] ?? 0;
+                          return (
+                            <div key={item.code} className="supply-qty-row">
+                              <span>
+                                <b>{item.name}</b>
+                                <span className="order-sub">{item.pack}</span>
+                              </span>
+                              <div className="supply-qty">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setQty((current) => ({
+                                      ...current,
+                                      [item.code]: Math.max(0, count - 1),
+                                    }))
+                                  }
+                                >
+                                  −
+                                </button>
+                                <span>{count}</span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setQty((current) => ({
+                                      ...current,
+                                      [item.code]: count + 1,
+                                    }))
+                                  }
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      className="search-box"
+                      value={itemQuery}
+                      onChange={(event) => setItemQuery(event.target.value)}
+                      placeholder="Search equipment"
+                      aria-label="Search items"
+                    />
+                    <div className="search-list">
+                      {results.map((item) => (
+                        <button
+                          key={item.code}
+                          type="button"
+                          className="search-hit"
+                          onClick={() => add(item)}
+                        >
+                          <span>
+                            <b>{item.name}</b>
+                            <span className="order-sub">{item.code}</span>
+                          </span>
+                          <span className="search-pick">
+                            {item.dailyRateUsd != null
+                              ? `$${item.dailyRateUsd.toFixed(2)}/day`
+                              : "Add"}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
                 {lines.length > 0 ? (
                   <>
                     <div className="eyebrow">This order</div>
@@ -354,11 +424,22 @@ export function PlaceOrderForm({
       {patient && kind !== "medication" && reviewing ? (
         <div className="review-sheet" role="dialog" aria-label="Send lines">
           <p className="patient-title">
-            Send {dmeLines.length} {dmeLines.length === 1 ? "line" : "lines"}?
+            Send {dmeLines.length + supplyLines.length}{" "}
+            {dmeLines.length + supplyLines.length === 1 ? "line" : "lines"}?
           </p>
           <p className="order-sub">
             Discharge window {formatWhen(deadline)}
           </p>
+          {supplyLines.map((line, index) => (
+            <div key={`${line.code}-${index}`} className="review-line">
+              <div>
+                <b>{line.name}</b>
+                <span className="order-sub">
+                  {line.pack ?? "by contract"} · stays in the home
+                </span>
+              </div>
+            </div>
+          ))}
           {reviews.map((line) => {
             const other =
               line.vendorId === "vendor-1" ? "vendor-2" : "vendor-1";
@@ -419,7 +500,9 @@ export function PlaceOrderForm({
               ? "Sending…"
               : gate.verdict === "hold"
                 ? "Hold for DON"
-                : `Send ${dmeLines.length} ${dmeLines.length === 1 ? "line" : "lines"}`}
+                : `Send ${dmeLines.length + supplyLines.length} ${
+                    dmeLines.length + supplyLines.length === 1 ? "line" : "lines"
+                  }`}
           </Button>
           <Button
             variant="outline"
@@ -441,8 +524,10 @@ export function PlaceOrderForm({
             style={{ width: "100%", minHeight: 48, justifyContent: "center" }}
           >
             {canSend
-              ? `Review ${dmeLines.length} ${dmeLines.length === 1 ? "line" : "lines"}`
-              : "Add a DME item to send"}
+              ? `Review ${dmeLines.length + supplyLines.length} ${
+                  dmeLines.length + supplyLines.length === 1 ? "line" : "lines"
+                }`
+              : "Add an item to send"}
           </Button>
         </footer>
       ) : null}

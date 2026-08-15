@@ -38,6 +38,7 @@ import {
   resetDischargeOverrides,
   setDischargeOverride,
 } from "@/store/discharge-overrides";
+import { addSupply, resetSupplies } from "@/domain/supplies";
 import { getHospiceStore, loadSeedOrders } from "@/store/hospice-store";
 
 export type ActionResult = { error?: string; ok?: boolean };
@@ -60,8 +61,20 @@ export async function placeOrderAction(
       .filter((code): code is Hcpcs =>
         CATALOG.some((sku) => sku.hcpcs === code),
       );
-    if (codes.length === 0) return { error: "Add a DME item from search or EMR." };
-    const hcpcs = codes.includes("E1390") ? "E1390" : codes[0];
+    const supplyNames = formData
+      .getAll("supply")
+      .map((value) => String(value).trim())
+      .filter(Boolean);
+    if (codes.length === 0 && supplyNames.length === 0) {
+      return { error: "Add a DME item or a supply." };
+    }
+    const patientId = asPatientId(String(formData.get("patientId") ?? "").trim());
+    if (!patientId) return { error: "Pick a patient from the census." };
+    for (const name of supplyNames) addSupply(patientId, name);
+    if (codes.length === 0) {
+      revalidatePath("/");
+      return { ok: true };
+    }
     const defaultVendorId = asVendorId(String(formData.get("vendorId")));
     const lineVendors = new Map<Hcpcs, ReturnType<typeof asVendorId>>();
     for (const raw of formData.getAll("lineVendor")) {
@@ -77,8 +90,6 @@ export async function placeOrderAction(
       bucket.push(code);
       groups.set(vendor, bucket);
     }
-    const patientId = asPatientId(String(formData.get("patientId") ?? "").trim());
-    if (!patientId) return { error: "Pick a patient from the census." };
     const overrideReason = String(formData.get("overrideReason") ?? "").trim();
     const donReason = String(formData.get("donReason") ?? "").trim();
     const orderTypeRaw = String(formData.get("orderType") ?? "stat");
@@ -344,6 +355,7 @@ export async function resetDemoAction(): Promise<void> {
   resetSms();
   resetDonAsks();
   resetDeliveryPhotos();
+  resetSupplies();
   resetDischargeOverrides();
   await seedSmsIfEmpty(systemClock.now(), asOrderId("DME-10231"));
   revalidatePath("/");

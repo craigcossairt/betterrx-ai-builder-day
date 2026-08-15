@@ -52,6 +52,12 @@ export function DonReport({
         Hospice spend per patient per day. Not the BetterRX tech fee. Pickup
         the same day as death stops extra rental days.
       </p>
+      {role !== "don" ? (
+        <p className="ssn-note">
+          Approvals belong to the director of nursing. You see the same
+          numbers she does.
+        </p>
+      ) : null}
       {queue && queue.waiting.length > 0 ? (
         <div className="don-wait">
           <div className="chart-label">
@@ -78,7 +84,7 @@ export function DonReport({
                     : " · STAT never waits on the gate"}
                 </span>
               </div>
-              {item.kind === "hold" ? (
+              {role !== "don" ? null : item.kind === "hold" ? (
                 <div className="don-item-actions">
                   <form action={approveHoldAction}>
                     <input type="hidden" name="orderId" value={item.orderId} />

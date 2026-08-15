@@ -16,6 +16,23 @@ const FIXTURES: readonly SupplyRow[] = [
   },
 ];
 
+const extras: SupplyRow[] = [];
+
 export function suppliesFor(patientId: PatientId): readonly SupplyRow[] {
-  return FIXTURES.filter((row) => row.patientId === patientId);
+  return [...FIXTURES, ...extras].filter((row) => row.patientId === patientId);
+}
+
+export function addSupply(patientId: PatientId, name: string): SupplyRow {
+  const row: SupplyRow = {
+    patientId,
+    name,
+    status: "delivered",
+    staysAfterDeath: true,
+  };
+  extras.push(row);
+  return row;
+}
+
+export function resetSupplies(): void {
+  extras.length = 0;
 }
