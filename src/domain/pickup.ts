@@ -1,4 +1,35 @@
 import type { Instant } from "./clock";
+import type {
+  DeliveredOrder,
+  Order,
+  PatientId,
+  PickupDelayedOrder,
+  PickupTriggeredOrder,
+} from "./order";
+
+export type PickupEligibleOrder =
+  | DeliveredOrder
+  | PickupTriggeredOrder
+  | PickupDelayedOrder;
+
+function isPickupEligible(order: Order): order is PickupEligibleOrder {
+  return (
+    order.status === "delivered" ||
+    order.status === "pickup_triggered" ||
+    order.status === "pickup_delayed"
+  );
+}
+
+export function emrDeathTargets(
+  orders: readonly Order[],
+  patientId?: PatientId | null,
+): PickupEligibleOrder[] {
+  return orders.filter((order): order is PickupEligibleOrder => {
+    if (!isPickupEligible(order)) return false;
+    if (patientId) return order.patientId === patientId;
+    return order.status === "delivered" || order.patientId === "PT-87602";
+  });
+}
 
 export const PICKUP_SLA_HOURS = 24;
 

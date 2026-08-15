@@ -17,6 +17,7 @@ import {
   asVendorId,
   type Hcpcs,
 } from "@/domain/order";
+import { emrDeathTargets } from "@/domain/pickup";
 import { rankOptions } from "@/domain/rank";
 import {
   confirmQuotedOrder,
@@ -190,27 +191,23 @@ export async function markDischargeReadyAction(
   return { ok: true };
 }
 
-export async function resetDemoAction(): Promise<void> {
-  const store = await getHospiceStore();
-  await store.reset(loadSeedOrders());
-  resetSms();
-  resetDischargeOverrides();
-  await seedSmsIfEmpty(systemClock.now(), asOrderId("DME-10231"));
-  revalidatePath("/");
-}
-
 export async function emrDeathAction(formData: FormData): Promise<void> {
   const raw = String(formData.get("patientId") ?? "").trim();
   const patientId = raw ? asPatientId(raw) : null;
   const store = await getHospiceStore();
   const now = systemClock.now();
   const snapshot = await store.snapshot();
-  for (const current of snapshot) {
-    if (patientId && current.patientId !== patientId) continue;
-    if (current.status !== "delivered") continue;
-    await store.replace(
-      triggerPickup(current, "patient_status_deceased", now),
-    );
+  for (const order of emrDeathTargets(snapshot, patientId)) {
+    await store.replace(triggerPickup(order, "patient_status_deceased", now));
   }
+  revalidatePath("/");
+}
+
+export async function resetDemoAction(): Promise<void> {
+  const store = await getHospiceStore();
+  await store.reset(loadSeedOrders());
+  resetSms();
+  resetDischargeOverrides();
+  await seedSmsIfEmpty(systemClock.now(), asOrderId("DME-10231"));
   revalidatePath("/");
 }
