@@ -44,10 +44,14 @@ function gearWord(order: Order): string {
   return GEAR[order.equipment[0].hcpcs];
 }
 
-const SPEAK: Record<
-  OrderStatus,
-  (order: Order, who: string, gear: string, now: Instant) => string
-> = {
+type Speaker<S extends OrderStatus> = (
+  order: Extract<Order, { status: S }>,
+  who: string,
+  gear: string,
+  now: Instant,
+) => string;
+
+const SPEAK: { [S in OrderStatus]: Speaker<S> } = {
   ordered: (_order, who, gear) => `${who}'s ${gear} is waiting on a vendor.`,
   dispatched: (_order, who, gear) => `${who}'s ${gear} is on the way.`,
   delivered: (_order, who, gear) => `${who}'s ${gear} is delivered.`,
@@ -72,7 +76,21 @@ const SPEAK: Record<
 
 export function censusSentence(order: Order, now: Instant): string {
   const who = lookupPatient(order.patientId).displayName;
-  return SPEAK[order.status](order, who, gearWord(order), now);
+  const gear = gearWord(order);
+  switch (order.status) {
+    case "ordered":
+      return SPEAK.ordered(order, who, gear, now);
+    case "dispatched":
+      return SPEAK.dispatched(order, who, gear, now);
+    case "delivered":
+      return SPEAK.delivered(order, who, gear, now);
+    case "pickup_triggered":
+      return SPEAK.pickup_triggered(order, who, gear, now);
+    case "in_transit_at_risk":
+      return SPEAK.in_transit_at_risk(order, who, gear, now);
+    case "pickup_delayed":
+      return SPEAK.pickup_delayed(order, who, gear, now);
+  }
 }
 
 function asLine(order: Order, now: Instant): CensusLine {
