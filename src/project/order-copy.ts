@@ -22,6 +22,13 @@ export function orderTitle(who: string): string {
   return `Equipment for ${who}`;
 }
 
+export function bufferDaysCopy(bufferDays: number | null): string {
+  if (bufferDays == null) {
+    return "Not in this fixture. No stored discharge-to-delivery gap.";
+  }
+  return String(bufferDays);
+}
+
 export function costNote(input: {
   orderType: OrderType;
   dailyRateUsd: number;

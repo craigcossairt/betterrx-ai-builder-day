@@ -1,5 +1,6 @@
 import { MEDS } from "@/domain/catalog";
 import type { PpdReport } from "@/domain/ppd";
+import { bufferDaysCopy } from "@/project/order-copy";
 
 export function DonReport({
   ppd,
@@ -42,7 +43,7 @@ export function DonReport({
         </div>
         <div>
           <dt>Buffer days</dt>
-          <dd>{ppd.bufferDays}. Not in this fixture.</dd>
+          <dd>{bufferDaysCopy(null)}</dd>
         </div>
         <div>
           <dt>Preferred overrides</dt>

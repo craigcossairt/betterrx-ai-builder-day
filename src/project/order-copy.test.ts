@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { CATALOG } from "@/domain/catalog";
 import { asInstant } from "@/domain/clock";
 import { demoOfferWindow, offersFor, presentOffers } from "@/domain/offers";
-import { costNote, offerStory, sendLabel } from "@/project/order-copy";
+import {
+  bufferDaysCopy,
+  costNote,
+  offerStory,
+  sendLabel,
+} from "@/project/order-copy";
 
 const now = asInstant("2026-08-14T15:00:00.000Z");
 const window = demoOfferWindow(now);
@@ -38,6 +43,14 @@ describe("offerStory", () => {
 describe("sendLabel", () => {
   it("names the gear on the send button", () => {
     expect(sendLabel("E0250")).toBe("Send order - bed");
+  });
+});
+
+describe("bufferDaysCopy", () => {
+  it("does not print a count when the fixture never computed buffer days", () => {
+    expect(bufferDaysCopy(null)).toBe(
+      "Not in this fixture. No stored discharge-to-delivery gap.",
+    );
   });
 });
 
