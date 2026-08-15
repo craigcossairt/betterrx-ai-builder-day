@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/apply-schema.mjs && next build",
     "db:schema": "node scripts/apply-schema.mjs",
+    "db:seed": "npx tsx --tsconfig tsconfig.json scripts/seed-if-empty.mts",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
