@@ -37,3 +37,9 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Demo chrome (persona + Phone / Side-by-side / Desktop) sits outside the app. The app badge only names the role. Vendor sees inbox only. Patient picture has Medication / DME / Supplies. New order is patient search, then kind, then EMR or catalog search. No three-SKU chips. See #18.
 - **2026-08-15** - Patient tab shows eRx-shaped chart (DOB, gender, address, phone, diagnoses, allergies). SSN is omitted. Household contact is a hospice fixture, not an eRx field. Medication tab uses newMedications events. See #18.
 - **2026-08-15** - Claude Design resume is 2a remaining frames only (chart, med events, supplies, vendor phone, DON approve + clock stop, two-line order). Do not redraw census or 1a/1b/2b/2c. See `docs/claude-design-2a-remaining.md`.
+- **2026-08-15** - Judge pitch lives on `/integration` as a typed `pitchPacket` (AI skip at $0, today vs us, mermaid). See #19.
+- **2026-08-15** - Pickup ends in `picked_up` with `pickedUpAt`. `triggerPickup` leaves a delayed row delayed. PPD stops billing that order. See #20.
+- **2026-08-15** - Unconfirmed orders stay `ordered`. A 24-hour grace projection flags DME-10231 at-risk. No new status. See #21.
+- **2026-08-15** - DON PPD does not print a buffer-day count. The fixture never computed that driver. See #24.
+- **2026-08-15** - One STAT send can carry bed and oxygen as two lines on one order. Each line shows its preferred ETA versus the discharge window. See #23.
+- **2026-08-15** - Vendor persona opens one order at `?order=`. Confirm, yes-but ETA, decline, delivered, pickup window, and picked up share the Order union. No vendor account. See #22.

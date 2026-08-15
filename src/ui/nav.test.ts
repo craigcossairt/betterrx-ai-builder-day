@@ -30,6 +30,12 @@ describe("boardHref", () => {
     expect(parseSurface("wide")).toBe("phone");
   });
 
+  it("opens one vendor order from the query", () => {
+    expect(boardHref({ role: "vendor", order: "DME-09803" })).toBe(
+      "/?role=vendor&order=DME-09803",
+    );
+  });
+
   it("keeps the Patient chart tab on the query", () => {
     expect(
       boardHref({

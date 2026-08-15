@@ -1,4 +1,5 @@
 import type { Instant } from "@/domain/clock";
+import { vendorConfirmWhy } from "@/domain/confirm-grace";
 import { escalate } from "@/domain/escalation";
 import type { Hcpcs, Order, OrderStatus } from "@/domain/order";
 import { formatElapsed } from "@/domain/pickup";
@@ -41,6 +42,7 @@ const REST_ORDER: readonly OrderStatus[] = [
   "dispatched",
   "delivered",
   "pickup_triggered",
+  "picked_up",
 ];
 
 const GEAR: Record<Hcpcs, string> = {
@@ -77,13 +79,21 @@ const SPEAK: { [S in OrderStatus]: Speaker<S> } = {
   },
   pickup_delayed: (order, gear, now) =>
     `The ${gear} has been waiting ${formatElapsed(order.triggeredAt, now)} for pickup.`,
+  picked_up: (_order, gear) => `The ${gear} is picked up.`,
 };
+
+function confirmOverdue(order: Order, now: Instant): boolean {
+  return order.status === "ordered" && vendorConfirmWhy(order, now) !== null;
+}
 
 export function censusSentence(order: Order, now: Instant): string {
   const gear = gearWord(order);
   switch (order.status) {
-    case "ordered":
-      return SPEAK.ordered(order, gear, now);
+    case "ordered": {
+      const base = SPEAK.ordered(order, gear, now);
+      const why = vendorConfirmWhy(order, now);
+      return why ? `${base} ${why}` : base;
+    }
     case "dispatched":
       return SPEAK.dispatched(order, gear, now);
     case "delivered":
@@ -94,11 +104,14 @@ export function censusSentence(order: Order, now: Instant): string {
       return SPEAK.in_transit_at_risk(order, gear, now);
     case "pickup_delayed":
       return SPEAK.pickup_delayed(order, gear, now);
+    case "picked_up":
+      return SPEAK.picked_up(order, gear, now);
   }
 }
 
-function trackLabelFor(status: OrderStatus): TrackLabel {
-  switch (status) {
+function trackLabelFor(order: Order, now: Instant): TrackLabel {
+  if (confirmOverdue(order, now)) return "AT RISK";
+  switch (order.status) {
     case "in_transit_at_risk":
       return "AT RISK";
     case "pickup_delayed":
@@ -111,6 +124,8 @@ function trackLabelFor(status: OrderStatus): TrackLabel {
       return "DONE";
     case "pickup_triggered":
       return "PICKUP";
+    case "picked_up":
+      return "DONE";
   }
 }
 
@@ -132,15 +147,21 @@ function asideFor(order: Order): string | null {
 }
 
 function asLine(order: Order, now: Instant): CensusLine {
-  const loud = ATTENTION.has(order.status);
+  const overdue = confirmOverdue(order, now);
+  const loud = ATTENTION.has(order.status) || overdue;
   return {
     order,
     who: lookupPatient(order.patientId).displayName,
     sentence: censusSentence(order, now),
     aside: loud ? asideFor(order) : null,
     kind: loud ? "loud" : "quiet",
-    tone: order.status === "in_transit_at_risk" ? "coral" : loud ? "plain" : null,
-    trackLabel: trackLabelFor(order.status),
+    tone:
+      order.status === "in_transit_at_risk" || overdue
+        ? "coral"
+        : loud
+          ? "plain"
+          : null,
+    trackLabel: trackLabelFor(order, now),
   };
 }
 
@@ -152,12 +173,17 @@ export function needsYouLine(count: number): string {
 }
 
 export function projectCensus(orders: readonly Order[], now: Instant): Census {
-  const attention = orders.filter((order) => ATTENTION.has(order.status));
+  const attention = orders.filter(
+    (order) => ATTENTION.has(order.status) || confirmOverdue(order, now),
+  );
   const rest = REST_ORDER.flatMap((status) =>
-    orders.filter((order) => order.status === status),
+    orders.filter(
+      (order) => order.status === status && !confirmOverdue(order, now),
+    ),
   );
   const atRisk = orders.filter(
-    (order) => order.status === "in_transit_at_risk",
+    (order) =>
+      order.status === "in_transit_at_risk" || confirmOverdue(order, now),
   ).length;
   const delayedPickup = orders.filter(
     (order) => order.status === "pickup_delayed",

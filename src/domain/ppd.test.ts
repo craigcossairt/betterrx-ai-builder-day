@@ -6,7 +6,7 @@ import { CATALOG } from "@/domain/catalog";
 import { asInstant, frozenClock } from "@/domain/clock";
 import { censusPpd } from "@/domain/ppd";
 import { parseSampleOrders } from "@/parse/sample-orders";
-import { triggerPickup } from "@/domain/transition";
+import { markPickedUp } from "@/domain/transition";
 
 const samplePath = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -29,7 +29,7 @@ describe("censusPpd", () => {
     const stopped = censusPpd(
       orders.map((order) =>
         order.id === "DME-09803"
-          ? triggerPickup(delayed, delayed.trigger, delayed.triggeredAt)
+          ? markPickedUp(delayed, delayed.triggeredAt)
           : order,
       ),
       CATALOG,

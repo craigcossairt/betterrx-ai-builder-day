@@ -23,3 +23,4 @@ Include a commit SHA and issue reference when known.
 | `tsc` fails TS2339 on `order.eta` inside a status speaker table | `Record<OrderStatus, (order: Order) => …>` widens every arm to the full union | Map `{ [S in OrderStatus]: Speaker<S> }` and switch on `order.status` before the call | 2026-08-15 | #18 |
 | Order tiles do nothing on `127.0.0.1:3000` | Next 16 blocks `/_next/static` for that host; the form still posts without JS | Set `allowedDevOrigins: ["127.0.0.1", "localhost"]` in `next.config.ts` | 2026-08-15 | #18 |
 | Vendor → Admissions RN still shows the vendor inbox | Demo chrome kept `panel=inbox` when leaving vendor | `chromeQuery` clears panel when the role leaves vendor | 2026-08-15 | #18 |
+| Request pickup on DME-09803 drops the delayed demo | `triggerPickup` rewrote `pickup_delayed` to `pickup_triggered` and stripped `riskWhy` | Return the delayed order unchanged; use `markPickedUp` to stop the PPD clock | 2026-08-15 | #20 |

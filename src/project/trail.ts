@@ -35,6 +35,7 @@ const RANK: Record<OrderStatus, number> = {
   delivered: 3,
   pickup_triggered: 4,
   pickup_delayed: 4,
+  picked_up: 5,
 };
 
 const STEP_RANK: Record<TrailStepId, number> = {
@@ -53,9 +54,14 @@ function stamp(order: Order, step: TrailStepId): Instant | null {
   }
   if (
     step === "pickup_requested" &&
-    (order.status === "pickup_triggered" || order.status === "pickup_delayed")
+    (order.status === "pickup_triggered" ||
+      order.status === "pickup_delayed" ||
+      order.status === "picked_up")
   ) {
     return order.triggeredAt;
+  }
+  if (step === "picked_up" && order.status === "picked_up") {
+    return order.pickedUpAt;
   }
   return null;
 }

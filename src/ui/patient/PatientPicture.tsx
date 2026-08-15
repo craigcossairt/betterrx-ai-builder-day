@@ -4,7 +4,7 @@ import { asPatientId, type Order } from "@/domain/order";
 import { lookupChart } from "@/parse/erx-payloads";
 import { projectCensus } from "@/project/census";
 import { projectTrail } from "@/project/trail";
-import { requestPickupAction } from "@/app/actions";
+import { markPickedUpAction, requestPickupAction } from "@/app/actions";
 import { DischargeReadyForm } from "@/ui/DischargeReadyForm";
 import { Button } from "@/ui/Button";
 import { formatStamp } from "@/ui/format";
@@ -201,6 +201,9 @@ export function PatientPicture({
                 line.order.status === "delivered" ||
                 line.order.status === "pickup_triggered" ||
                 line.order.status === "pickup_delayed";
+              const canMarkPicked =
+                line.order.status === "pickup_triggered" ||
+                line.order.status === "pickup_delayed";
               return (
                 <details key={line.order.id} className="dme-row">
                   <summary>
@@ -248,6 +251,14 @@ export function PatientPicture({
                       <input type="hidden" name="trigger" value="nurse_request" />
                       <Button variant="app" size="sm" type="submit">
                         Request pickup
+                      </Button>
+                    </form>
+                  ) : null}
+                  {canPickup && canMarkPicked ? (
+                    <form action={markPickedUpAction} className="loud-card-action">
+                      <input type="hidden" name="orderId" value={line.order.id} />
+                      <Button variant="app" size="sm" type="submit">
+                        Mark picked up
                       </Button>
                     </form>
                   ) : null}

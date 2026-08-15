@@ -9,6 +9,7 @@ const LABELS: Record<OrderStatus, string> = {
   delivered: "Delivered",
   pickup_triggered: "Pickup triggered",
   pickup_delayed: "Pickup delayed",
+  picked_up: "Picked up",
 };
 
 export function formatLaneLabel(status: OrderStatus): string {
@@ -18,6 +19,7 @@ export function formatLaneLabel(status: OrderStatus): string {
 export function formatVendor(vendorId: string): string {
   if (vendorId === "vendor-1") return "Wasatch Home Medical";
   if (vendorId === "vendor-2") return "Uintah Valley DME";
+  if (vendorId === "vendor-3") return "Cache Valley DME";
   return vendorId;
 }
 

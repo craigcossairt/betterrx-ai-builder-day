@@ -49,6 +49,9 @@ export function censusPpd(
       (sum, line) => sum + rateFor(line.hcpcs, catalog),
       0,
     );
+    if (order.status === "picked_up") {
+      continue;
+    }
     if (order.status === "pickup_delayed") {
       const idle = daysBetween(order.triggeredAt, now);
       idlePickupDays += idle;

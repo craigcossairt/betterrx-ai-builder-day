@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { asInstant } from "@/domain/clock";
+import { asInstant, frozenClock } from "@/domain/clock";
 import {
   asHospiceName,
   asOrderId,
@@ -9,16 +12,44 @@ import {
 } from "@/domain/order";
 import { demoOfferWindow, offersFor } from "@/domain/offers";
 import { rankOptions } from "@/domain/rank";
+import { parseSampleOrders } from "@/parse/sample-orders";
 import {
   confirmQuotedOrder,
   confirmVendor,
   declineVendor,
   markDelivered,
+  markPickedUp,
+  notePickupWindow,
   placeOrder,
+  reviseQuotedEta,
   triggerPickup,
 } from "@/domain/transition";
 
+const samplePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../docs/briefs/sample-orders.json",
+);
+
 describe("transitions", () => {
+  it("places bed and oxygen on one STAT order", () => {
+    const order = placeOrder({
+      patientId: asPatientId("PT-1"),
+      hospice: asHospiceName("Sample Hospice A"),
+      equipment: [
+        { hcpcs: "E0250", name: "Hospital Bed" },
+        { hcpcs: "E1390", name: "Oxygen Concentrator" },
+      ],
+      orderType: "stat",
+      targetAt: asInstant("2026-08-14T21:00:00.000Z"),
+      now: asInstant("2026-08-14T15:00:00.000Z"),
+    });
+    expect(order.status).toBe("ordered");
+    expect(order.equipment).toEqual([
+      { hcpcs: "E0250", name: "Hospital Bed" },
+      { hcpcs: "E1390", name: "Oxygen Concentrator" },
+    ]);
+  });
+
   it("places an ordered bed that is not blocked on paperwork", () => {
     const order = placeOrder({
       patientId: asPatientId("PT-1"),
@@ -51,6 +82,41 @@ describe("transitions", () => {
     expect(emr.status).toBe("pickup_triggered");
     expect(nurse.triggeredAt).toBe(now);
     expect(emr.triggeredAt).toBe(now);
+  });
+
+  it("keeps an order ordered when the vendor offers a new ETA", () => {
+    const ordered = placeOrder({
+      patientId: asPatientId("PT-1"),
+      hospice: asHospiceName("Sample Hospice A"),
+      equipment: [{ hcpcs: "E0250", name: "Hospital Bed" }],
+      orderType: "stat",
+      targetAt: asInstant("2026-08-14T21:00:00.000Z"),
+      now: asInstant("2026-08-14T15:00:00.000Z"),
+    });
+    const later = asInstant("2026-08-14T23:00:00.000Z");
+    const revised = reviseQuotedEta(ordered, later);
+    expect(revised.status).toBe("ordered");
+    expect(revised.quotedEta).toBe(later);
+    expect(revised.notes).toBe("New ETA offered.");
+  });
+
+  it("records a pickup window on a delayed row without clearing riskWhy", () => {
+    const clock = frozenClock("2026-08-14T17:00:00.000Z");
+    const orders = parseSampleOrders(
+      JSON.parse(readFileSync(samplePath, "utf8")),
+      clock,
+    );
+    const delayed = orders.find((order) => order.id === "DME-09803");
+    if (!delayed || delayed.status !== "pickup_delayed") {
+      throw new Error("expected DME-09803");
+    }
+    const noted = notePickupWindow(delayed, "tomorrow 10:00 AM");
+    expect(noted.status).toBe("pickup_delayed");
+    if (noted.status !== "pickup_delayed") {
+      throw new Error("expected pickup_delayed");
+    }
+    expect(noted.riskWhy).toBe(delayed.riskWhy);
+    expect(noted.notes).toBe("Pickup window: tomorrow 10:00 AM.");
   });
 
   it("keeps a declined order ordered and records the vendor reply", () => {
@@ -119,6 +185,44 @@ describe("transitions", () => {
       throw new Error("expected in_transit_at_risk");
     }
     expect(assessed.riskWhy).toMatch(/misses that window/);
+  });
+
+  it("keeps a delayed pickup delayed and keeps the fixture riskWhy", () => {
+    const clock = frozenClock("2026-08-14T17:00:00.000Z");
+    const orders = parseSampleOrders(
+      JSON.parse(readFileSync(samplePath, "utf8")),
+      clock,
+    );
+    const delayed = orders.find((order) => order.id === "DME-09803");
+    if (!delayed || delayed.status !== "pickup_delayed") {
+      throw new Error("expected DME-09803");
+    }
+    const again = triggerPickup(delayed, delayed.trigger, delayed.triggeredAt);
+    expect(again.status).toBe("pickup_delayed");
+    expect(again).toMatchObject({
+      status: "pickup_delayed",
+      riskWhy:
+        "Pickup was triggered four days ago with no scheduled retrieval. Family has called the hospice twice asking for the bed to be removed.",
+    });
+  });
+
+  it("marks a delayed pickup as picked up and keeps trigger fields", () => {
+    const clock = frozenClock("2026-08-14T17:00:00.000Z");
+    const orders = parseSampleOrders(
+      JSON.parse(readFileSync(samplePath, "utf8")),
+      clock,
+    );
+    const delayed = orders.find((order) => order.id === "DME-09803");
+    if (!delayed || delayed.status !== "pickup_delayed") {
+      throw new Error("expected DME-09803");
+    }
+    const now = asInstant("2026-08-14T17:00:00.000Z");
+    const picked = markPickedUp(delayed, now);
+    expect(picked.status).toBe("picked_up");
+    expect(picked.pickedUpAt).toBe(now);
+    expect(picked.vendorId).toBe(delayed.vendorId);
+    expect(picked.trigger).toBe(delayed.trigger);
+    expect(picked.triggeredAt).toBe(delayed.triggeredAt);
   });
 
   it("confirms a vendor onto a dispatched order", () => {

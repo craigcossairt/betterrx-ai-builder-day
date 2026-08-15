@@ -76,7 +76,7 @@ export function DemoChrome() {
         <button type="submit">Reset</button>
       </form>
       <a className="demo-chrome-link" href="/integration">
-        Integration
+        Pitch packet
       </a>
     </div>
   );

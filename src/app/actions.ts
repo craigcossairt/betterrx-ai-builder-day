@@ -23,7 +23,10 @@ import {
   confirmQuotedOrder,
   declineVendor,
   markDelivered,
+  markPickedUp,
+  notePickupWindow,
   placeOrder,
+  reviseQuotedEta,
   triggerPickup,
 } from "@/domain/transition";
 import { queueConfirmSms, resetSms, seedSmsIfEmpty } from "@/inbox/sms-inbox";
@@ -130,6 +133,35 @@ export async function confirmOrderAction(formData: FormData): Promise<void> {
   revalidatePath("/");
 }
 
+export async function reviseEtaAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const store = await getHospiceStore();
+  const current = await store.get(id);
+  if (!current || current.status !== "ordered") return;
+  const window = demoOfferWindow(systemClock.now());
+  await store.replace(reviseQuotedEta(current, window.lateEta));
+  revalidatePath("/");
+}
+
+export async function proposePickupWindowAction(
+  formData: FormData,
+): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const windowLabel =
+    String(formData.get("pickupWindow") ?? "").trim() || "tomorrow morning";
+  const store = await getHospiceStore();
+  const current = await store.get(id);
+  if (
+    !current ||
+    (current.status !== "pickup_triggered" &&
+      current.status !== "pickup_delayed")
+  ) {
+    return;
+  }
+  await store.replace(notePickupWindow(current, windowLabel));
+  revalidatePath("/");
+}
+
 export async function declineOrderAction(formData: FormData): Promise<void> {
   const id = asOrderId(String(formData.get("orderId")));
   const store = await getHospiceStore();
@@ -147,6 +179,21 @@ export async function markDeliveredAction(formData: FormData): Promise<void> {
     return;
   }
   await store.replace(markDelivered(current, systemClock.now()));
+  revalidatePath("/");
+}
+
+export async function markPickedUpAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const store = await getHospiceStore();
+  const current = await store.get(id);
+  if (
+    !current ||
+    (current.status !== "pickup_triggered" &&
+      current.status !== "pickup_delayed")
+  ) {
+    return;
+  }
+  await store.replace(markPickedUp(current, systemClock.now()));
   revalidatePath("/");
 }
 

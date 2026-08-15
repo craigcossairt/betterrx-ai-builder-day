@@ -2,8 +2,9 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { frozenClock } from "@/domain/clock";
+import { asInstant, frozenClock } from "@/domain/clock";
 import { parseSampleOrders } from "@/parse/sample-orders";
+import { markPickedUp } from "@/domain/transition";
 import { projectTrail } from "@/project/trail";
 
 const samplePath = join(
@@ -45,5 +46,19 @@ describe("projectTrail", () => {
       ray.status === "pickup_delayed" ? ray.triggeredAt : null,
     );
     expect(late.find((step) => step.step === "picked_up")?.done).toBe(false);
+  });
+
+  it("stamps picked up on DME-09803 after markPickedUp", () => {
+    const ray = sampleOrders().find((order) => order.id === "DME-09803");
+    if (!ray || ray.status !== "pickup_delayed") {
+      throw new Error("expected DME-09803");
+    }
+    const now = asInstant("2026-08-14T17:00:00.000Z");
+    const trail = projectTrail(markPickedUp(ray, now));
+    expect(trail.find((step) => step.step === "picked_up")?.done).toBe(true);
+    expect(trail.find((step) => step.step === "picked_up")?.at).toBe(now);
+    expect(trail.find((step) => step.step === "pickup_requested")?.at).toBe(
+      ray.triggeredAt,
+    );
   });
 });
