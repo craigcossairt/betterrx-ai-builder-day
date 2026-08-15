@@ -112,6 +112,9 @@ describe("transitions", () => {
     }
     const noted = notePickupWindow(delayed, "tomorrow 10:00 AM");
     expect(noted.status).toBe("pickup_delayed");
+    if (noted.status !== "pickup_delayed") {
+      throw new Error("expected pickup_delayed");
+    }
     expect(noted.riskWhy).toBe(delayed.riskWhy);
     expect(noted.notes).toBe("Pickup window: tomorrow 10:00 AM.");
   });
