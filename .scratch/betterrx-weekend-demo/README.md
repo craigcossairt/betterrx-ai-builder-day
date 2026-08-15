@@ -6,4 +6,4 @@ Decision tickets for the Saturday demo. Not a build backlog. The locked spec is 
 - Tracker: GitHub Issues (`docs/agents/issue-tracker.md`)
 - Resume: `/wayfinder`
 
-All charting tickets on this map are resolved against the FAQ and PRD. Next step is tracer-bullet implementation tickets, not more grilling.
+All charting tickets on this map are resolved. The spec is locked. Next step is tracer-bullet implementation tickets against `docs/prd.md`, not more grilling.

@@ -60,8 +60,12 @@ The durable item on an order, identified by an HCPCS E-code plus a short name. O
 _Avoid_: SKU, asset (serialized inventory is out of scope), product
 
 **HCPCS E-code**:
-A CMS HCPCS Level II code that identifies a piece of DME (for example E0250 hospital bed, E1390 oxygen concentrator, E1130 wheelchair). Sample JSON still labels oxygen as E0601; the app seed maps those lines to E1390. CMS E0601 is CPAP. Do not add CPAP as a fourth SKU.
-_Avoid_: NDC (that's drugs), CPT, SKU
+A CMS HCPCS Level II code that identifies a piece of DME. Weekend demo set: E0250 hospital bed, E1390 oxygen concentrator, E1130 wheelchair. Sample JSON still labels oxygen as E0601; the app seed maps those lines to E1390. CMS E0601 is CPAP. Do not add CPAP as a fourth SKU.
+_Avoid_: NDC (that's drugs), CPT, SKU, treating E0601 (CPAP) as oxygen
+
+**Oxygen concentrator**:
+The discharge-critical oxygen machine in this demo, identified as E1390.
+_Avoid_: CPAP, using E0601 (CPAP) as oxygen
 
 **Order type**:
 How urgent the order is, as used in the sample records: Admission, Routine, or STAT.
