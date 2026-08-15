@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { CATALOG } from "@/domain/catalog";
 import { systemClock } from "@/domain/clock";
 import { dischargeReady } from "@/domain/discharge";
-import { chooseOffer, demoOfferWindow, offersFor } from "@/domain/offers";
+import {
+  chooseOffer,
+  costGate,
+  demoOfferWindow,
+  offersFor,
+} from "@/domain/offers";
 import {
   asHospiceName,
   asOrderId,
@@ -12,6 +17,7 @@ import {
   asVendorId,
   type Hcpcs,
 } from "@/domain/order";
+import { emrDeathTargets } from "@/domain/pickup";
 import { rankOptions } from "@/domain/rank";
 import {
   confirmQuotedOrder,
@@ -41,7 +47,14 @@ export async function placeOrderAction(
   formData: FormData,
 ): Promise<ActionResult> {
   try {
-    const hcpcs = formData.get("hcpcs") as Hcpcs;
+    const codes = formData
+      .getAll("hcpcs")
+      .map((value) => String(value))
+      .filter((code): code is Hcpcs =>
+        CATALOG.some((sku) => sku.hcpcs === code),
+      );
+    if (codes.length === 0) return { error: "Add a DME item from search or EMR." };
+    const hcpcs = codes.includes("E1390") ? "E1390" : codes[0];
     const vendorId = asVendorId(String(formData.get("vendorId")));
     const patientId = asPatientId(String(formData.get("patientId") ?? "").trim());
     if (!patientId) return { error: "Pick a patient from the census." };
@@ -58,6 +71,7 @@ export async function placeOrderAction(
       vendorId,
       overrideReason,
       donReason,
+      orderType: "stat",
     });
     const sku = CATALOG.find((row) => row.hcpcs === hcpcs);
     const store = await getHospiceStore();
@@ -65,16 +79,24 @@ export async function placeOrderAction(
       (row) => row.patientId === patientId,
     );
     const hospice = existing?.hospice ?? asHospiceName("Sample Hospice A");
+    const gate = costGate({
+      orderType: "stat",
+      dailyRateUsd: chosen.dailyRateUsd,
+    });
     const notes = [
       chosen !== ranked[0] ? `Override: ${overrideReason}` : null,
-      donReason ? `DON: ${donReason}` : null,
+      gate.verdict === "hold" && donReason ? `DON: ${donReason}` : null,
+      gate.verdict === "retro" ? gate.note : null,
     ]
       .filter(Boolean)
       .join(" ");
     const order = placeOrder({
       patientId,
       hospice,
-      equipment: [{ hcpcs, name: sku?.name ?? hcpcs }],
+      equipment: codes.map((code) => {
+        const row = CATALOG.find((item) => item.hcpcs === code);
+        return { hcpcs: code, name: row?.name ?? code };
+      }) as [{ hcpcs: Hcpcs; name: string }, ...{ hcpcs: Hcpcs; name: string }[]],
       orderType: "stat",
       targetAt: window.deadline,
       now,
@@ -167,6 +189,18 @@ export async function markDischargeReadyAction(
   if (!decision.ready) setDischargeOverride(patientId, reason);
   revalidatePath("/");
   return { ok: true };
+}
+
+export async function emrDeathAction(formData: FormData): Promise<void> {
+  const raw = String(formData.get("patientId") ?? "").trim();
+  const patientId = raw ? asPatientId(raw) : null;
+  const store = await getHospiceStore();
+  const now = systemClock.now();
+  const snapshot = await store.snapshot();
+  for (const order of emrDeathTargets(snapshot, patientId)) {
+    await store.replace(triggerPickup(order, "patient_status_deceased", now));
+  }
+  revalidatePath("/");
 }
 
 export async function resetDemoAction(): Promise<void> {

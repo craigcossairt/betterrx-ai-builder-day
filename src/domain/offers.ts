@@ -1,6 +1,6 @@
 import type { CatalogSku } from "./catalog";
 import { asInstant, type Instant } from "./clock";
-import { asVendorId, type Hcpcs, type VendorId } from "./order";
+import { asVendorId, type Hcpcs, type OrderType, type VendorId } from "./order";
 import { rankOptions, type Stock, type VendorOption } from "./rank";
 
 export const COST_THRESHOLD_USD = 3;
@@ -79,11 +79,30 @@ export function presentOffers(
   });
 }
 
+export type CostDecision =
+  | { verdict: "open" }
+  | { verdict: "hold" }
+  | { verdict: "retro"; note: string };
+
+export function costGate(input: {
+  orderType: OrderType;
+  dailyRateUsd: number;
+  thresholdUsd?: number;
+}): CostDecision {
+  const over = input.dailyRateUsd > (input.thresholdUsd ?? COST_THRESHOLD_USD);
+  if (!over) return { verdict: "open" };
+  if (input.orderType === "stat") {
+    return { verdict: "retro", note: "STAT over $3. DON retro." };
+  }
+  return { verdict: "hold" };
+}
+
 export function chooseOffer(input: {
   ranked: readonly VendorOption[];
   vendorId: VendorId;
   overrideReason: string;
   donReason: string;
+  orderType: OrderType;
   thresholdUsd?: number;
 }): VendorOption {
   const chosen = input.ranked.find((option) => option.vendorId === input.vendorId);
@@ -91,10 +110,12 @@ export function chooseOffer(input: {
   if (chosen !== input.ranked[0] && input.overrideReason.length === 0) {
     throw new Error("override needs a reason");
   }
-  if (
-    chosen.dailyRateUsd >= (input.thresholdUsd ?? COST_THRESHOLD_USD) &&
-    input.donReason.length === 0
-  ) {
+  const gate = costGate({
+    orderType: input.orderType,
+    dailyRateUsd: chosen.dailyRateUsd,
+    thresholdUsd: input.thresholdUsd,
+  });
+  if (gate.verdict === "hold" && input.donReason.length === 0) {
     throw new Error("director of nursing approval needed");
   }
   return chosen;

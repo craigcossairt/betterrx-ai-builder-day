@@ -5,6 +5,7 @@ import { asVendorId } from "@/domain/order";
 import {
   COST_THRESHOLD_USD,
   chooseOffer,
+  costGate,
   demoOfferWindow,
   offersFor,
   presentOffers,
@@ -53,6 +54,17 @@ describe("presentOffers", () => {
   });
 });
 
+describe("costGate", () => {
+  it("leaves a rate of exactly $3 open", () => {
+    expect(costGate({ orderType: "routine", dailyRateUsd: 3 }).verdict).toBe(
+      "open",
+    );
+    expect(costGate({ orderType: "stat", dailyRateUsd: 3 }).verdict).toBe(
+      "open",
+    );
+  });
+});
+
 describe("chooseOffer", () => {
   it("lets a STAT bed through under the $3 threshold without a DON reason", () => {
     const ranked = rankOptions(
@@ -64,6 +76,7 @@ describe("chooseOffer", () => {
       vendorId: asVendorId("vendor-1"),
       overrideReason: "",
       donReason: "",
+      orderType: "stat",
     });
     expect(chosen.dailyRateUsd).toBeLessThan(COST_THRESHOLD_USD);
     expect(chosen.vendorId).toBe("vendor-1");
@@ -80,8 +93,25 @@ describe("chooseOffer", () => {
         vendorId: asVendorId("vendor-2"),
         overrideReason: "",
         donReason: "alternate vendor still beats the night shift",
+        orderType: "stat",
       }),
     ).toThrow("override needs a reason");
+  });
+
+  it("lets STAT oxygen through the $3 gate without a DON reason", () => {
+    const ranked = rankOptions(
+      offersFor("E1390", window.preferredEta, window.lateEta),
+      window.deadline,
+    );
+    const chosen = chooseOffer({
+      ranked,
+      vendorId: asVendorId("vendor-1"),
+      overrideReason: "",
+      donReason: "",
+      orderType: "stat",
+    });
+    expect(chosen.dailyRateUsd).toBe(3.34);
+    expect(chosen.vendorId).toBe("vendor-1");
   });
 
   it("blocks E1390 until the director of nursing leaves a reason", () => {
@@ -95,6 +125,7 @@ describe("chooseOffer", () => {
         vendorId: asVendorId("vendor-1"),
         overrideReason: "",
         donReason: "",
+        orderType: "routine",
       }),
     ).toThrow("director of nursing approval needed");
     const chosen = chooseOffer({
@@ -102,6 +133,7 @@ describe("chooseOffer", () => {
       vendorId: asVendorId("vendor-1"),
       overrideReason: "",
       donReason: "night admission, concentrator required",
+      orderType: "routine",
     });
     expect(chosen.dailyRateUsd).toBe(3.34);
   });
