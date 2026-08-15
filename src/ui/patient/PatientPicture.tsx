@@ -226,7 +226,24 @@ export function PatientPicture({
       ) : null}
       {tab === "dme" ? (
         dme.length === 0 ? (
-          <div className="pic-card muted">No equipment yet.</div>
+          <div className="supply-empty">
+            <p className="supply-lead">No equipment yet.</p>
+            {canOrder(role) ? (
+              <a
+                className="supply-order"
+                href={boardHref({
+                  role,
+                  surface,
+                  panel: "order",
+                  patient: chart.patientId,
+                  kind: "dme",
+                  tab: "dme",
+                })}
+              >
+                Add equipment
+              </a>
+            ) : null}
+          </div>
         ) : (
           <div className="dme-rows">
             {census.lines.map((line) => {
@@ -339,6 +356,21 @@ export function PatientPicture({
                 </details>
               );
             })}
+            {canOrder(role) ? (
+              <a
+                className="supply-order"
+                href={boardHref({
+                  role,
+                  surface,
+                  panel: "order",
+                  patient: chart.patientId,
+                  kind: "dme",
+                  tab: "dme",
+                })}
+              >
+                Add equipment
+              </a>
+            ) : null}
           </div>
         )
       ) : null}
