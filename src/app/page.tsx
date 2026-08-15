@@ -77,9 +77,9 @@ export default async function Home({
   const snapshot = getHospiceStore().snapshot();
   const board = projectBoard(snapshot);
   const roleLabel = ROLES.find((item) => item.id === role)?.label;
-  const ppd = censusPpd(snapshot, CATALOG, 7);
-  const inbox = listSms();
   const now = systemClock.now();
+  const ppd = censusPpd(snapshot, CATALOG, 7, now);
+  const inbox = listSms();
   const window = demoOfferWindow(now);
   const offerSets = {
     E0250: presentOffers(

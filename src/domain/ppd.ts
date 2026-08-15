@@ -38,6 +38,7 @@ export function censusPpd(
   orders: readonly Order[],
   catalog: readonly CatalogSku[],
   windowDays: number,
+  now: Instant,
 ): PpdReport {
   const patients = new Set(orders.map((order) => order.patientId));
   const patientDays = patients.size * windowDays;
@@ -49,13 +50,7 @@ export function censusPpd(
       0,
     );
     if (order.status === "pickup_delayed") {
-      const idle = daysBetween(
-        order.triggeredAt,
-        // four extra days is the sample literal vs same-day pickup
-        new Date(
-          new Date(order.triggeredAt).getTime() + 4 * 86_400_000,
-        ).toISOString() as Instant,
-      );
+      const idle = daysBetween(order.triggeredAt, now);
       idlePickupDays += idle;
       billable += daily * idle;
     } else if (stillOnRent(order) && order.status === "delivered") {
