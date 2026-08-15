@@ -18,6 +18,28 @@ function rateFor(hcpcs: LineCode, catalog: readonly CatalogSku[]): number {
   return catalog.find((sku) => sku.hcpcs === hcpcs)?.dailyRateUsd ?? 0;
 }
 
+export function orderDailyRateUsd(
+  order: Order,
+  catalog: readonly CatalogSku[],
+): number {
+  if (orderKind(order) === "supply") return 0;
+  if (order.status === "picked_up") return 0;
+  return order.equipment.reduce(
+    (sum, line) => sum + rateFor(line.hcpcs, catalog),
+    0,
+  );
+}
+
+export function patientEquipmentDailyUsd(
+  orders: readonly Order[],
+  catalog: readonly CatalogSku[],
+): number {
+  return orders.reduce(
+    (sum, order) => sum + orderDailyRateUsd(order, catalog),
+    0,
+  );
+}
+
 function daysBetween(start: Instant, end: Instant): number {
   return Math.max(
     0,

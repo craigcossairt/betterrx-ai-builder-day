@@ -2,6 +2,8 @@ import type { Instant } from "@/domain/clock";
 import { dischargeCopy, dischargeReady } from "@/domain/discharge";
 import { getDischargeOverride } from "@/store/discharge-overrides";
 import { asPatientId, orderKind, type Order } from "@/domain/order";
+import { CATALOG } from "@/domain/catalog";
+import { orderDailyRateUsd, patientEquipmentDailyUsd } from "@/domain/ppd";
 import { lookupChart } from "@/parse/erx-payloads";
 import { projectCensus } from "@/project/census";
 import { projectChartView } from "@/project/chart-view";
@@ -20,12 +22,6 @@ import { Button } from "@/ui/Button";
 import { formatStamp } from "@/ui/format";
 import { boardHref, type PatientTab, type SurfaceId } from "@/ui/nav";
 import { canOrder, type RoleId } from "@/ui/roles";
-
-const RATES: Record<string, number> = {
-  E0250: 2.57,
-  E1390: 3.34,
-  E1130: 2.0,
-};
 
 export function PatientPicture({
   patientId,
@@ -50,10 +46,7 @@ export function PatientPicture({
   const dme = mine.filter((order) => orderKind(order) !== "supply");
   const supplies = mine.filter((order) => orderKind(order) === "supply");
   const census = projectCensus(dme, now);
-  const dmeTotal = dme.reduce(
-    (sum, order) => sum + (RATES[order.equipment[0].hcpcs] ?? 0),
-    0,
-  );
+  const dmeTotal = patientEquipmentDailyUsd(dme, CATALOG);
   const decision = dischargeReady(mine);
   const tabs: PatientTab[] = ["patient", "medication", "dme", "supplies"];
   const canPickup = role === "case_manager" || role === "don";
@@ -248,7 +241,7 @@ export function PatientPicture({
           <div className="dme-rows">
             {census.lines.map((line) => {
               const trail = projectTrail(line.order);
-              const rate = RATES[line.order.equipment[0].hcpcs];
+              const rate = orderDailyRateUsd(line.order, CATALOG);
               const delivered =
                 line.order.status === "delivered" ? line.order : null;
               const pickupable =

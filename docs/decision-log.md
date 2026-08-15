@@ -58,3 +58,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Made the GitHub repo public for bounty submission. Homepage is the Vercel production app.
 - **2026-08-15** - Product tab label and user-facing copy say Patients, not Census. Bounty briefs never required Census. Internal module names unchanged.
 - **2026-08-15** - Patient DME tab gets Add equipment (same panel=order door as Add supplies). Chart demographics stay read-only; no patient write model.
+- **2026-08-15** - Patient chart equipment/day uses catalog rates across every line and drops picked_up. See #34.

@@ -31,3 +31,4 @@ Include a commit SHA and issue reference when known.
 | Discharge override saves but the banner still says not ready | `setDischargeOverride` wrote a map that no screen read | `dischargeCopy` reads `getDischargeOverride` on the patient DME banner | 2026-08-15 | demo |
 | README showed merge conflict markers after PR #32 land | Rebase conflict resolution was overwritten or not staged cleanly before continue | Rewrite README clean and push to main immediately | 2026-08-15 | persist |
 | DME status text jammed against equipment name | equipment `<b>` and `order-sub` sat in an inline span | stack them in `.dme-row-main` column flex | 2026-08-15 | UI |
+| Patient chart shows \$2.00/day for Helen's wheelchair+oxygen order | Header used `equipment[0]` and a local RATES map | `patientEquipmentDailyUsd` / `orderDailyRateUsd` sum every line from CATALOG and skip `picked_up` | 2026-08-15 | demo |

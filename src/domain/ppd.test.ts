@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { CATALOG } from "@/domain/catalog";
 import { asInstant, frozenClock } from "@/domain/clock";
-import { censusPpd } from "@/domain/ppd";
+import { censusPpd, orderDailyRateUsd, patientEquipmentDailyUsd } from "@/domain/ppd";
 import { parseSampleOrders } from "@/parse/sample-orders";
 import { markPickedUp } from "@/domain/transition";
 
@@ -63,5 +63,42 @@ describe("censusPpd", () => {
       clock.now(),
     );
     expect(fresh.idlePickupDays).toBe(0);
+  });
+});
+
+describe("patientEquipmentDailyUsd", () => {
+  it("sums every HCPCS line on Helen's multi-line order", () => {
+    const clock = frozenClock("2026-08-14T17:00:00.000Z");
+    const orders = parseSampleOrders(
+      JSON.parse(readFileSync(samplePath, "utf8")),
+      clock,
+    );
+    const helen = orders.filter((order) => order.patientId === "PT-87602");
+    expect(patientEquipmentDailyUsd(helen, CATALOG)).toBe(5.34);
+    const multi = helen.find((order) => order.id === "DME-09911");
+    if (!multi) throw new Error("expected DME-09911");
+    expect(orderDailyRateUsd(multi, CATALOG)).toBe(5.34);
+  });
+
+  it("drops a line after mark picked up", () => {
+    const clock = frozenClock("2026-08-14T17:00:00.000Z");
+    const orders = parseSampleOrders(
+      JSON.parse(readFileSync(samplePath, "utf8")),
+      clock,
+    );
+    const helen = orders.find((order) => order.id === "DME-09911");
+    if (!helen || helen.status !== "pickup_triggered") {
+      throw new Error("expected Helen pickup_triggered");
+    }
+    const stopped = markPickedUp(helen, clock.now());
+    expect(orderDailyRateUsd(stopped, CATALOG)).toBe(0);
+    expect(
+      patientEquipmentDailyUsd(
+        orders
+          .map((order) => (order.id === "DME-09911" ? stopped : order))
+          .filter((order) => order.patientId === "PT-87602"),
+        CATALOG,
+      ),
+    ).toBe(0);
   });
 });
