@@ -39,3 +39,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Claude Design resume is 2a remaining frames only (chart, med events, supplies, vendor phone, DON approve + clock stop, two-line order). Do not redraw census or 1a/1b/2b/2c. See `docs/claude-design-2a-remaining.md`.
 - **2026-08-15** - Judge pitch lives on `/integration` as a typed `pitchPacket` (AI skip at $0, today vs us, mermaid). See #19.
 - **2026-08-15** - Pickup ends in `picked_up` with `pickedUpAt`. `triggerPickup` leaves a delayed row delayed. PPD stops billing that order. See #20.
+- **2026-08-15** - Unconfirmed orders stay `ordered`. A 24-hour grace projection flags DME-10231 at-risk. No new status. See #21.

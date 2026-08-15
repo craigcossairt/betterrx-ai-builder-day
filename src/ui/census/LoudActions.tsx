@@ -1,4 +1,5 @@
 import {
+  confirmOrderAction,
   markDeliveredAction,
   markPickedUpAction,
   requestPickupAction,
@@ -14,6 +15,16 @@ export function LoudActions({
   order: Order;
   role: RoleId;
 }) {
+  if (order.status === "ordered") {
+    return (
+      <form action={confirmOrderAction} className="loud-card-action">
+        <input type="hidden" name="orderId" value={order.id} />
+        <Button variant="app" size="sm" type="submit">
+          Vendor confirm
+        </Button>
+      </form>
+    );
+  }
   if (order.status === "in_transit_at_risk") {
     return (
       <form action={markDeliveredAction} className="loud-card-action">
