@@ -15,6 +15,7 @@ import {
 import { AppFrame } from "@/ui/chrome/AppFrame";
 import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
 import { InboxScreen } from "@/ui/order";
+import { VendorTaskScreen } from "@/ui/order/VendorTaskScreen";
 import { DonReport } from "@/ui/don/DonReport";
 import { PatientPicture } from "@/ui/patient/PatientPicture";
 import { parseRole } from "@/ui/roles";
@@ -62,7 +63,7 @@ export default async function Home({
   };
   const shared = Boolean(supabaseConfig());
   const sharedNote = role !== "don" && shared ? "Shared census." : undefined;
-  const donReport = <DonReport ppd={ppd} />;
+  const donReport = <DonReport ppd={ppd} orders={snapshot} now={now} />;
 
   const orderScreen = (
     <PlaceOrderForm
@@ -72,9 +73,17 @@ export default async function Home({
       surface={surface}
     />
   );
-  const inboxScreen = (
-    <InboxScreen role={role} surface={surface} messages={inbox} />
-  );
+  const inboxScreen =
+    role === "vendor" ? (
+      <VendorTaskScreen
+        role={role}
+        surface={surface}
+        orders={snapshot}
+        messages={inbox}
+      />
+    ) : (
+      <InboxScreen role={role} surface={surface} messages={inbox} />
+    );
   const censusScreen = (
     <>
       <CensusHeader lede={census.lede} />

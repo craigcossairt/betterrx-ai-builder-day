@@ -4,7 +4,7 @@ import { useActionState, useMemo, useState } from "react";
 import { placeOrderAction } from "@/app/actions";
 import type { Instant } from "@/domain/clock";
 import { costGate, type OfferCard } from "@/domain/offers";
-import type { Hcpcs } from "@/domain/order";
+import { asVendorId, type Hcpcs } from "@/domain/order";
 import {
   searchPatients,
   type CensusPatient,
@@ -18,13 +18,15 @@ import {
 } from "@/domain/shop";
 import { costNote } from "@/project/order-copy";
 import { offerStory } from "@/project/order-copy";
+import { reviewLines } from "@/project/line-review";
 import { Button } from "@/ui/Button";
 import { Input } from "@/ui/Input";
 import { Toast } from "@/ui/Toast";
-import { formatVendor } from "@/ui/format";
+import { formatVendor, formatWhen } from "@/ui/format";
 import { PhoneBack } from "@/ui/order/PhoneBack";
 import type { SurfaceId } from "@/ui/nav";
 import type { RoleId } from "@/ui/roles";
+import type { OrderType } from "@/domain/order";
 
 const KINDS: { id: ShopKind; label: string }[] = [
   { id: "medication", label: "Medication" },
@@ -49,6 +51,8 @@ export function PlaceOrderForm({
   const [itemQuery, setItemQuery] = useState("");
   const [lines, setLines] = useState<ShopItem[]>([]);
   const [vendorId, setVendorId] = useState("vendor-1");
+  const [orderType, setOrderType] = useState<OrderType>("stat");
+  const [reviewing, setReviewing] = useState(false);
   const [state, formAction, pending] = useActionState(placeOrderAction, {});
 
   const people = searchPatients(query);
@@ -64,12 +68,21 @@ export function PlaceOrderForm({
   const needsOverride = selected && !selected.preferred;
   const note = selected
     ? costNote({
-        orderType: "stat",
+        orderType,
         dailyRateUsd: selected.dailyRateUsd,
         hcpcs: primary,
       })
     : null;
+  const gate = selected
+    ? costGate({ orderType, dailyRateUsd: selected.dailyRateUsd })
+    : { verdict: "open" as const };
   const canSend = dmeLines.length > 0;
+  const reviews = reviewLines(
+    dmeLines,
+    asVendorId(vendorId),
+    offerSets,
+    deadline,
+  );
 
   const results = useMemo(
     () => hits.filter((item) => !lines.some((line) => line.code === item.code)),
@@ -91,6 +104,7 @@ export function PlaceOrderForm({
       ))}
       <input type="hidden" name="vendorId" value={selected?.vendorId ?? ""} />
       <input type="hidden" name="patientId" value={patient?.id ?? ""} />
+      <input type="hidden" name="orderType" value={orderType} />
       <header className="census-head">
         <PhoneBack role={role} surface={surface} />
         <p className="census-lede">New order</p>
@@ -132,6 +146,25 @@ export function PlaceOrderForm({
               <button type="button" onClick={() => setPatient(null)}>
                 Change
               </button>
+            </div>
+            <div className="seg" role="group" aria-label="Urgency">
+              {(
+                [
+                  { id: "stat" as const, label: "STAT" },
+                  { id: "routine" as const, label: "Routine" },
+                ] as const
+              ).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={
+                    orderType === item.id ? "seg-btn seg-btn--on" : "seg-btn"
+                  }
+                  onClick={() => setOrderType(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
             <div className="seg" role="group" aria-label="Order type">
               {KINDS.map((item) => (
@@ -279,15 +312,11 @@ export function PlaceOrderForm({
                         required
                       />
                     ) : null}
-                    {costGate({
-                      orderType: "stat",
-                      dailyRateUsd: selected?.dailyRateUsd ?? 0,
-                    }).verdict === "hold" ? (
-                      <Input
-                        name="donReason"
-                        label="Director of nursing reason"
-                        required
-                      />
+                    {gate.verdict === "hold" ? (
+                      <p className="cost-note">
+                        Over $3 a day. The order is held for the director of
+                        nursing. It does not go to a vendor until she approves.
+                      </p>
                     ) : null}
                   </>
                 ) : null}
@@ -306,8 +335,42 @@ export function PlaceOrderForm({
           </Toast>
         ) : null}
       </div>
-      {patient && kind !== "medication" ? (
-        <footer className="census-foot">
+      {patient && kind !== "medication" && reviewing ? (
+        <div className="review-sheet" role="dialog" aria-label="Send lines">
+          <p className="patient-title">
+            Send {dmeLines.length} {dmeLines.length === 1 ? "line" : "lines"}?
+          </p>
+          <p className="order-sub">
+            Discharge window {formatWhen(deadline)}
+          </p>
+          {reviews.map((line) => (
+            <div
+              key={line.code}
+              className={
+                line.vsWindow === "late"
+                  ? "review-line review-line--late"
+                  : "review-line"
+              }
+            >
+              <div>
+                <b>{line.name}</b>
+                <span className="order-sub">
+                  {line.code} · {formatVendor(line.vendorId)}
+                </span>
+              </div>
+              <div className="review-eta">
+                <b>{line.whenLabel}</b>
+                <span>{line.deltaLabel}</span>
+              </div>
+            </div>
+          ))}
+          {note ? <p className="cost-note">{note}</p> : null}
+          {gate.verdict === "hold" ? (
+            <p className="cost-note">
+              Routine over $3 is held for the director of nursing. STAT would
+              send now.
+            </p>
+          ) : null}
           <Button
             variant="app"
             type="submit"
@@ -316,9 +379,32 @@ export function PlaceOrderForm({
           >
             {pending
               ? "Sending…"
-              : canSend
-                ? "Send STAT order"
-                : "Add a DME item to send"}
+              : gate.verdict === "hold"
+                ? "Hold for DON"
+                : `Send ${dmeLines.length} ${dmeLines.length === 1 ? "line" : "lines"}`}
+          </Button>
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => setReviewing(false)}
+            style={{ width: "100%", minHeight: 44, justifyContent: "center" }}
+          >
+            Back
+          </Button>
+        </div>
+      ) : null}
+      {patient && kind !== "medication" && !reviewing ? (
+        <footer className="census-foot">
+          <Button
+            variant="app"
+            type="button"
+            disabled={pending || Boolean(state.ok) || !canSend}
+            onClick={() => setReviewing(true)}
+            style={{ width: "100%", minHeight: 48, justifyContent: "center" }}
+          >
+            {canSend
+              ? `Review ${dmeLines.length} ${dmeLines.length === 1 ? "line" : "lines"}`
+              : "Add a DME item to send"}
           </Button>
         </footer>
       ) : null}

@@ -23,6 +23,7 @@ import {
   confirmQuotedOrder,
   declineVendor,
   markDelivered,
+  markPickedUp,
   placeOrder,
   triggerPickup,
 } from "@/domain/transition";
@@ -60,19 +61,36 @@ export async function placeOrderAction(
     if (!patientId) return { error: "Pick a patient from the census." };
     const overrideReason = String(formData.get("overrideReason") ?? "").trim();
     const donReason = String(formData.get("donReason") ?? "").trim();
+    const orderTypeRaw = String(formData.get("orderType") ?? "stat");
+    const orderType =
+      orderTypeRaw === "routine" || orderTypeRaw === "admission"
+        ? orderTypeRaw
+        : "stat";
     const now = systemClock.now();
     const window = demoOfferWindow(now);
     const ranked = rankOptions(
       offersFor(hcpcs, window.preferredEta, window.lateEta),
       window.deadline,
     );
-    const chosen = chooseOffer({
-      ranked,
-      vendorId,
-      overrideReason,
-      donReason,
-      orderType: "stat",
+    const gatePreview = costGate({
+      orderType,
+      dailyRateUsd:
+        ranked.find((row) => row.vendorId === vendorId)?.dailyRateUsd ?? 0,
     });
+    const chosen =
+      gatePreview.verdict === "hold"
+        ? ranked.find((row) => row.vendorId === vendorId)
+        : chooseOffer({
+            ranked,
+            vendorId,
+            overrideReason,
+            donReason,
+            orderType,
+          });
+    if (!chosen) return { error: "unknown vendor option" };
+    if (chosen !== ranked[0] && overrideReason.length === 0) {
+      return { error: "override needs a reason" };
+    }
     const sku = CATALOG.find((row) => row.hcpcs === hcpcs);
     const store = await getHospiceStore();
     const existing = (await store.snapshot()).find(
@@ -80,12 +98,12 @@ export async function placeOrderAction(
     );
     const hospice = existing?.hospice ?? asHospiceName("Sample Hospice A");
     const gate = costGate({
-      orderType: "stat",
+      orderType,
       dailyRateUsd: chosen.dailyRateUsd,
     });
     const notes = [
       chosen !== ranked[0] ? `Override: ${overrideReason}` : null,
-      gate.verdict === "hold" && donReason ? `DON: ${donReason}` : null,
+      gate.verdict === "hold" ? "DON hold" : null,
       gate.verdict === "retro" ? gate.note : null,
     ]
       .filter(Boolean)
@@ -97,7 +115,7 @@ export async function placeOrderAction(
         const row = CATALOG.find((item) => item.hcpcs === code);
         return { hcpcs: code, name: row?.name ?? code };
       }) as [{ hcpcs: Hcpcs; name: string }, ...{ hcpcs: Hcpcs; name: string }[]],
-      orderType: "stat",
+      orderType,
       targetAt: window.deadline,
       now,
       quotedVendorId: chosen.vendorId,
@@ -105,11 +123,13 @@ export async function placeOrderAction(
     });
     if (notes) order.notes = notes;
     await store.replace(order);
-    queueConfirmSms({
-      now,
-      orderId: order.id,
-      equipmentName: sku?.name ?? hcpcs,
-    });
+    if (gate.verdict !== "hold") {
+      queueConfirmSms({
+        now,
+        orderId: order.id,
+        equipmentName: sku?.name ?? hcpcs,
+      });
+    }
     revalidatePath("/");
     return { ok: true };
   } catch (error) {
@@ -124,8 +144,13 @@ export async function confirmOrderAction(formData: FormData): Promise<void> {
   if (!current || current.status !== "ordered") return;
   const now = systemClock.now();
   const window = demoOfferWindow(now);
+  const late = String(formData.get("eta") ?? "") === "late";
+  const eta = late ? window.lateEta : window.preferredEta;
+  const quoted = late
+    ? { ...current, quotedEta: eta }
+    : current;
   await store.replace(
-    confirmQuotedOrder(current, asVendorId("vendor-1"), window.preferredEta),
+    confirmQuotedOrder(quoted, asVendorId("vendor-1"), eta),
   );
   revalidatePath("/");
 }
@@ -147,6 +172,66 @@ export async function markDeliveredAction(formData: FormData): Promise<void> {
     return;
   }
   await store.replace(markDelivered(current, systemClock.now()));
+  revalidatePath("/");
+}
+
+export async function markPickedUpAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const store = await getHospiceStore();
+  const current = await store.get(id);
+  if (
+    !current ||
+    (current.status !== "pickup_triggered" &&
+      current.status !== "pickup_delayed" &&
+      current.status !== "picked_up")
+  ) {
+    return;
+  }
+  await store.replace(markPickedUp(current, systemClock.now()));
+  revalidatePath("/");
+}
+
+export async function setPickupWindowAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const windowLabel = String(formData.get("window") ?? "").trim();
+  const store = await getHospiceStore();
+  const current = await store.get(id);
+  if (!current || current.status !== "pickup_triggered") return;
+  await store.replace({
+    ...current,
+    notes: `Pickup window: ${windowLabel || "Today 4-6 PM"}`,
+  });
+  revalidatePath("/");
+}
+
+export async function approveHoldAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const store = await getHospiceStore();
+  const current = await store.get(id);
+  if (!current || current.status !== "ordered") return;
+  if (!(current.notes ?? "").includes("DON hold")) return;
+  const now = systemClock.now();
+  current.notes = (current.notes ?? "").replace("DON hold", "DON approved");
+  await store.replace(current);
+  queueConfirmSms({
+    now,
+    orderId: current.id,
+    equipmentName: current.equipment[0].name,
+  });
+  revalidatePath("/");
+}
+
+export async function acknowledgeRetroAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const store = await getHospiceStore();
+  const current = await store.get(id);
+  if (!current) return;
+  const notes = current.notes ?? "";
+  if (notes.includes("DON acknowledged retro")) return;
+  await store.replace({
+    ...current,
+    notes: notes ? `${notes} DON acknowledged retro` : "DON acknowledged retro",
+  });
   revalidatePath("/");
 }
 

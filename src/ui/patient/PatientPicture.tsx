@@ -3,6 +3,8 @@ import { dischargeReady } from "@/domain/discharge";
 import { asPatientId, type Order } from "@/domain/order";
 import { lookupChart } from "@/parse/erx-payloads";
 import { projectCensus } from "@/project/census";
+import { projectChartView } from "@/project/chart-view";
+import { projectMedFills } from "@/project/med-fill";
 import { projectTrail } from "@/project/trail";
 import { requestPickupAction } from "@/app/actions";
 import { DischargeReadyForm } from "@/ui/DischargeReadyForm";
@@ -16,20 +18,6 @@ const RATES: Record<string, number> = {
   E1390: 3.34,
   E1130: 2.0,
 };
-
-function formatAddress(address: {
-  street1: string;
-  street2: string;
-  city: string;
-  state: string;
-  zip: string;
-}): string {
-  const line = [address.street1, address.street2].filter(Boolean).join(", ");
-  const city = [address.city, address.state, address.zip]
-    .filter(Boolean)
-    .join(", ");
-  return [line, city].filter(Boolean).join(". ");
-}
 
 export function PatientPicture({
   patientId,
@@ -48,17 +36,14 @@ export function PatientPicture({
 }) {
   const id = asPatientId(patientId);
   const chart = lookupChart(id);
+  const view = projectChartView(chart);
+  const fills = projectMedFills(chart.medications);
   const mine = orders.filter((order) => order.patientId === id);
   const census = projectCensus(mine, now);
   const dmeTotal = mine.reduce(
     (sum, order) => sum + (RATES[order.equipment[0].hcpcs] ?? 0),
     0,
   );
-  const medTotal = chart.medications.reduce(
-    (sum, med) => sum + med.unitPriceUsd,
-    0,
-  );
-  const total = medTotal + dmeTotal;
   const decision = dischargeReady(mine);
   const tabs: PatientTab[] = ["patient", "medication", "dme", "supplies"];
   const canPickup = role === "case_manager" || role === "don";
@@ -72,18 +57,17 @@ export function PatientPicture({
       ) : null}
       <div className="patient-pic-head">
         <div>
-          <div className="patient-id">{chart.patientId}</div>
-          <h1 className="patient-title">
-            {chart.displayName}
-            {chart.dob ? `, DOB ${chart.dob}` : ""}
-          </h1>
-          <p className="order-sub">
-            {chart.source === "erx"
-              ? "From BetterRX eRx event"
-              : "Hospice fixture. Same fields as the eRx patient event."}
-          </p>
+          <h1 className="patient-title">{view.displayName}</h1>
+          <p className="order-sub">{view.subtitle}</p>
+          <span
+            className={
+              view.source === "erx" ? "source-chip source-chip--erx" : "source-chip"
+            }
+          >
+            {view.sourceLabel}
+          </span>
         </div>
-        {total > 0 ? (
+        {dmeTotal > 0 ? (
           <div className="patient-total">
             <b>${dmeTotal.toFixed(2)}</b>
             <div>equipment / day</div>
@@ -105,85 +89,123 @@ export function PatientPicture({
                 ? "Medication"
                 : item === "dme"
                   ? `DME (${mine.length})`
-                  : "Supplies (0)"}
+                  : "Supplies"}
           </a>
         ))}
       </div>
       {tab === "patient" ? (
-        <dl className="chart-list">
-          <div>
-            <dt>Date of birth</dt>
-            <dd>{chart.dob || "Not on file"}</dd>
+        <div className="chart-card">
+          <div
+            className={
+              "value" in view.allergy ? "allergy-row" : "allergy-row allergy-row--none"
+            }
+          >
+            <span className="chart-label">Allergy</span>
+            <span className="allergy-value">
+              {"value" in view.allergy ? view.allergy.value : "None recorded"}
+            </span>
           </div>
-          <div>
-            <dt>Gender</dt>
-            <dd>{chart.gender || "Not on file"}</dd>
-          </div>
-          <div>
-            <dt>Phone</dt>
-            <dd>{chart.phone || "Not on file"}</dd>
-          </div>
-          <div>
-            <dt>Medical record</dt>
-            <dd>{chart.medRecNo || "Not on file"}</dd>
-          </div>
-          <div>
-            <dt>Address</dt>
-            <dd>{formatAddress(chart.address) || "Not on file"}</dd>
-          </div>
-          <div>
-            <dt>Diagnoses</dt>
-            <dd>
-              {chart.diagnoses.length === 0
-                ? "None on file"
-                : chart.diagnoses
-                    .map(
-                      (row) =>
-                        `${row.code}${row.isPrimary ? " (primary)" : ""}`,
-                    )
-                    .join(", ")}
-            </dd>
-          </div>
-          <div>
-            <dt>Allergies</dt>
-            <dd>
-              {chart.allergies.length === 0
-                ? "None on file"
-                : chart.allergies.join(", ")}
-            </dd>
-          </div>
-          <div>
-            <dt>Household contact</dt>
-            <dd>
-              {chart.householdContact ?? "None on file"}
-              <span className="order-sub">
-                Hospice fixture. Not on the eRx event.
+          <div className="chart-grid">
+            <div>
+              <span className="chart-label">Date of birth</span>
+              <span className="chart-value">{view.dob || "Not on file"}</span>
+            </div>
+            <div>
+              <span className="chart-label">Gender</span>
+              <span className="chart-value">{view.gender || "Not on file"}</span>
+            </div>
+            <div className="chart-grid-wide">
+              <span className="chart-label">Phone</span>
+              <span className="chart-value chart-value--phone">
+                {view.phone || "Not on file"}
               </span>
-            </dd>
+            </div>
+            <div className="chart-grid-wide">
+              <span className="chart-label">Address</span>
+              <span className="chart-value">{view.address.line}</span>
+              <span className="order-sub">{view.address.note}</span>
+            </div>
+            <div className="chart-grid-wide">
+              <span className="chart-label">Primary ICD-10</span>
+              <span className="chart-value">
+                {view.primaryIcd
+                  ? `${view.primaryIcd.code} · ${view.primaryIcd.title}`
+                  : "None on file"}
+              </span>
+            </div>
           </div>
-        </dl>
+          {view.household ? (
+            <div className="household-card">
+              <div className="household-top">
+                <span className="chart-label">Household contact</span>
+                <span className="source-chip">Hospice fixture</span>
+              </div>
+              <span className="chart-value">{view.household.name}</span>
+              <span className="order-sub">{view.household.note}</span>
+            </div>
+          ) : null}
+          <p className="ssn-note">
+            No SSN. It is not in the eRx event and this app never asks for one.
+          </p>
+        </div>
       ) : null}
       {tab === "medication" ? (
-        chart.medications.length === 0 ? (
+        fills.length === 0 ? (
           <div className="pic-card muted">
             No medication events on file. BetterRX pharmacy still owns eRx.
           </div>
         ) : (
           <div className="dme-rows">
-            {chart.medications.map((med) => (
-              <div key={med.externalId} className="pic-card">
-                <div className="pic-card-top">
-                  <b>{med.name}</b>
-                  <b>
-                    ${med.unitPriceUsd.toFixed(2)}/{med.unit}
-                  </b>
+            {fills.map((fill) => (
+              <div key={fill.finePrint} className="fill-card">
+                <div className="fill-bar">Filled by BetterRX pharmacy</div>
+                <div className="fill-body">
+                  <div className="fill-name">{fill.name}</div>
+                  {fill.sigs.map((sig) => (
+                    <div key={sig.text} className="sig-row">
+                      <span
+                        className={
+                          sig.label === "Severe"
+                            ? "sig-label sig-label--severe"
+                            : "sig-label"
+                        }
+                      >
+                        {sig.label}
+                      </span>
+                      <span className="sig-text">{sig.text}</span>
+                    </div>
+                  ))}
+                  <p className="fill-fine">{fill.finePrint}</p>
                 </div>
-                <p className="order-sub">
-                  NDC {med.ndc} · NPI {med.prescriberNpi} · {med.rateSource.toUpperCase()}
-                </p>
-                <p className="med-sig">{med.sig}</p>
               </div>
             ))}
+            {mine.length > 0 ? (
+              <a
+                className="equip-door"
+                href={boardHref({
+                  role,
+                  surface,
+                  patient: chart.patientId,
+                  tab: "dme",
+                })}
+              >
+                <span>
+                  <span className="chart-label">Equipment</span>
+                  <span className="chart-value">
+                    {mine
+                      .map((order) =>
+                        order.equipment.map((item) => item.name).join(", "),
+                      )
+                      .join(" · ")}
+                  </span>
+                  <span className="order-sub">
+                    Ordered here, delivered by a vendor. Medication stays in
+                    BetterRX pharmacy.
+                  </span>
+                </span>
+                <span aria-hidden="true">›</span>
+              </a>
+            ) : null}
           </div>
         )
       ) : null}
@@ -266,9 +288,26 @@ export function PatientPicture({
         </div>
       ) : null}
       {tab === "supplies" ? (
-        <div className="pic-card muted">
-          No supplies yet. Wound care, incontinence, and gloves order like
-          equipment. No pickup after a death.
+        <div className="supply-empty">
+          <p className="supply-lead">No supplies ordered.</p>
+          <ul className="supply-cats">
+            <li>Wound care</li>
+            <li>Incontinence</li>
+            <li>Gloves</li>
+          </ul>
+          <p className="order-sub">
+            Supplies are consumables. They are delivered and confirmed like
+            equipment, but they are never picked up, including after a death.
+          </p>
+          <a
+            className="supply-order"
+            href={boardHref({ role, surface, panel: "order" })}
+          >
+            Order supplies
+          </a>
+          <p className="ssn-note">
+            Ordered by description. No HCPCS code is assigned in this build.
+          </p>
         </div>
       ) : null}
     </section>
