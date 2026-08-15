@@ -8,6 +8,7 @@ import type {
   OrderedOrder,
   OrderType,
   PatientId,
+  PickedUpOrder,
   PickupDelayedOrder,
   PickupTriggeredOrder,
   PickupTrigger,
@@ -103,19 +104,12 @@ export function triggerPickup(
   order: DeliveredOrder | PickupTriggeredOrder | PickupDelayedOrder,
   trigger: PickupTrigger,
   now: Instant,
-): PickupTriggeredOrder {
-  if (order.status === "pickup_triggered" || order.status === "pickup_delayed") {
-    return {
-      id: order.id,
-      patientId: order.patientId,
-      hospice: order.hospice,
-      equipment: order.equipment,
-      notes: order.notes,
-      status: "pickup_triggered",
-      vendorId: order.vendorId,
-      trigger: order.trigger,
-      triggeredAt: order.triggeredAt,
-    };
+): PickupTriggeredOrder | PickupDelayedOrder {
+  if (order.status === "pickup_delayed") {
+    return order;
+  }
+  if (order.status === "pickup_triggered") {
+    return order;
   }
   return {
     id: order.id,
@@ -127,5 +121,23 @@ export function triggerPickup(
     vendorId: order.vendorId,
     trigger,
     triggeredAt: now,
+  };
+}
+
+export function markPickedUp(
+  order: PickupTriggeredOrder | PickupDelayedOrder,
+  now: Instant,
+): PickedUpOrder {
+  return {
+    id: order.id,
+    patientId: order.patientId,
+    hospice: order.hospice,
+    equipment: order.equipment,
+    notes: order.notes,
+    status: "picked_up",
+    vendorId: order.vendorId,
+    trigger: order.trigger,
+    triggeredAt: order.triggeredAt,
+    pickedUpAt: now,
   };
 }

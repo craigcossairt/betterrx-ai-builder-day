@@ -48,6 +48,7 @@ describe("dischargeReady", () => {
     expect(showDischargeGate("delivered")).toBe(true);
     expect(showDischargeGate("pickup_triggered")).toBe(false);
     expect(showDischargeGate("pickup_delayed")).toBe(false);
+    expect(showDischargeGate("picked_up")).toBe(false);
   });
 
   it("allows discharge once required equipment is delivered", () => {

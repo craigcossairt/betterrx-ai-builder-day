@@ -2,6 +2,7 @@ import {
   confirmOrderAction,
   declineOrderAction,
   markDeliveredAction,
+  markPickedUpAction,
   requestPickupAction,
 } from "@/app/actions";
 import { showDischargeGate } from "@/domain/discharge";
@@ -63,6 +64,16 @@ export function OrderActions({
             </Button>
           </form>
         </>
+      ) : null}
+      {(order.status === "pickup_triggered" ||
+        order.status === "pickup_delayed") &&
+      (role === "case_manager" || role === "don" || role === "vendor") ? (
+        <form action={markPickedUpAction}>
+          <input type="hidden" name="orderId" value={order.id} />
+          <Button variant="app" size="sm" type="submit">
+            Mark picked up
+          </Button>
+        </form>
       ) : null}
       {showDischargeGate(order.status) ? (
         <DischargeReadyForm patientId={order.patientId} />

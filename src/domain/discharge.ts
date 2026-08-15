@@ -19,5 +19,9 @@ export function dischargeReady(patientOrders: readonly Order[]): DischargeDecisi
 }
 
 export function showDischargeGate(status: OrderStatus): boolean {
-  return status !== "pickup_triggered" && status !== "pickup_delayed";
+  return (
+    status !== "pickup_triggered" &&
+    status !== "pickup_delayed" &&
+    status !== "picked_up"
+  );
 }

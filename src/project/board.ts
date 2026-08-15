@@ -5,6 +5,7 @@ import type {
   Order,
   OrderedOrder,
   OrderStatus,
+  PickedUpOrder,
   PickupDelayedOrder,
   PickupTriggeredOrder,
 } from "@/domain/order";
@@ -21,6 +22,7 @@ export type Board = {
   delivered: readonly DeliveredOrder[];
   pickupTriggered: readonly PickupTriggeredOrder[];
   pickupDelayed: readonly PickupDelayedOrder[];
+  pickedUp: readonly PickedUpOrder[];
   lanes: readonly [
     BoardLane<"ordered", OrderedOrder>,
     BoardLane<"dispatched", DispatchedOrder>,
@@ -28,6 +30,7 @@ export type Board = {
     BoardLane<"delivered", DeliveredOrder>,
     BoardLane<"pickup_triggered", PickupTriggeredOrder>,
     BoardLane<"pickup_delayed", PickupDelayedOrder>,
+    BoardLane<"picked_up", PickedUpOrder>,
   ];
 };
 
@@ -44,6 +47,7 @@ export function projectBoard(orders: readonly Order[]): Board {
   const pickupDelayed = orders.filter(
     (order) => order.status === "pickup_delayed",
   );
+  const pickedUp = orders.filter((order) => order.status === "picked_up");
   return {
     ordered,
     dispatched,
@@ -51,6 +55,7 @@ export function projectBoard(orders: readonly Order[]): Board {
     delivered,
     pickupTriggered,
     pickupDelayed,
+    pickedUp,
     lanes: [
       { status: "ordered", orders: ordered },
       { status: "dispatched", orders: dispatched },
@@ -58,6 +63,7 @@ export function projectBoard(orders: readonly Order[]): Board {
       { status: "delivered", orders: delivered },
       { status: "pickup_triggered", orders: pickupTriggered },
       { status: "pickup_delayed", orders: pickupDelayed },
+      { status: "picked_up", orders: pickedUp },
     ],
   };
 }

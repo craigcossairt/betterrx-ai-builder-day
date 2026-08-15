@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { asInstant } from "@/domain/clock";
+import { asInstant, frozenClock } from "@/domain/clock";
 import {
   asHospiceName,
   asOrderId,
@@ -9,14 +12,21 @@ import {
 } from "@/domain/order";
 import { demoOfferWindow, offersFor } from "@/domain/offers";
 import { rankOptions } from "@/domain/rank";
+import { parseSampleOrders } from "@/parse/sample-orders";
 import {
   confirmQuotedOrder,
   confirmVendor,
   declineVendor,
   markDelivered,
+  markPickedUp,
   placeOrder,
   triggerPickup,
 } from "@/domain/transition";
+
+const samplePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../docs/briefs/sample-orders.json",
+);
 
 describe("transitions", () => {
   it("places an ordered bed that is not blocked on paperwork", () => {
@@ -119,6 +129,44 @@ describe("transitions", () => {
       throw new Error("expected in_transit_at_risk");
     }
     expect(assessed.riskWhy).toMatch(/misses that window/);
+  });
+
+  it("keeps a delayed pickup delayed and keeps the fixture riskWhy", () => {
+    const clock = frozenClock("2026-08-14T17:00:00.000Z");
+    const orders = parseSampleOrders(
+      JSON.parse(readFileSync(samplePath, "utf8")),
+      clock,
+    );
+    const delayed = orders.find((order) => order.id === "DME-09803");
+    if (!delayed || delayed.status !== "pickup_delayed") {
+      throw new Error("expected DME-09803");
+    }
+    const again = triggerPickup(delayed, delayed.trigger, delayed.triggeredAt);
+    expect(again.status).toBe("pickup_delayed");
+    expect(again).toMatchObject({
+      status: "pickup_delayed",
+      riskWhy:
+        "Pickup was triggered four days ago with no scheduled retrieval. Family has called the hospice twice asking for the bed to be removed.",
+    });
+  });
+
+  it("marks a delayed pickup as picked up and keeps trigger fields", () => {
+    const clock = frozenClock("2026-08-14T17:00:00.000Z");
+    const orders = parseSampleOrders(
+      JSON.parse(readFileSync(samplePath, "utf8")),
+      clock,
+    );
+    const delayed = orders.find((order) => order.id === "DME-09803");
+    if (!delayed || delayed.status !== "pickup_delayed") {
+      throw new Error("expected DME-09803");
+    }
+    const now = asInstant("2026-08-14T17:00:00.000Z");
+    const picked = markPickedUp(delayed, now);
+    expect(picked.status).toBe("picked_up");
+    expect(picked.pickedUpAt).toBe(now);
+    expect(picked.vendorId).toBe(delayed.vendorId);
+    expect(picked.trigger).toBe(delayed.trigger);
+    expect(picked.triggeredAt).toBe(delayed.triggeredAt);
   });
 
   it("confirms a vendor onto a dispatched order", () => {

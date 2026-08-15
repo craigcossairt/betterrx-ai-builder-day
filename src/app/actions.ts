@@ -23,6 +23,7 @@ import {
   confirmQuotedOrder,
   declineVendor,
   markDelivered,
+  markPickedUp,
   placeOrder,
   triggerPickup,
 } from "@/domain/transition";
@@ -147,6 +148,21 @@ export async function markDeliveredAction(formData: FormData): Promise<void> {
     return;
   }
   await store.replace(markDelivered(current, systemClock.now()));
+  revalidatePath("/");
+}
+
+export async function markPickedUpAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const store = await getHospiceStore();
+  const current = await store.get(id);
+  if (
+    !current ||
+    (current.status !== "pickup_triggered" &&
+      current.status !== "pickup_delayed")
+  ) {
+    return;
+  }
+  await store.replace(markPickedUp(current, systemClock.now()));
   revalidatePath("/");
 }
 

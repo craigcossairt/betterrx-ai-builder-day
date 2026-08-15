@@ -37,6 +37,7 @@ type WireOrder = {
   proofOfDelivery?: WireProof;
   trigger?: string;
   triggeredAt?: string;
+  pickedUpAt?: string;
   risk?: WireRisk;
   notes?: string;
 };
@@ -184,6 +185,19 @@ export function parseSampleOrders(raw: unknown, clock: Clock): Order[] {
             `${path}.triggeredAt`,
           ),
           riskWhy: wire.risk?.why ?? "",
+        };
+      case "picked_up":
+        return {
+          ...base,
+          status: "picked_up",
+          vendorId: requireVendor(wire.vendorId, `${path}.vendorId`),
+          trigger: asTrigger(wire.trigger, `${path}.trigger`),
+          triggeredAt: requireTime(
+            wire.triggeredAt,
+            clock,
+            `${path}.triggeredAt`,
+          ),
+          pickedUpAt: requireTime(wire.pickedUpAt, clock, `${path}.pickedUpAt`),
         };
       default:
         throw new ParseError(`${path}.status`, `unknown status ${wire.status}`);

@@ -41,6 +41,7 @@ const REST_ORDER: readonly OrderStatus[] = [
   "dispatched",
   "delivered",
   "pickup_triggered",
+  "picked_up",
 ];
 
 const GEAR: Record<Hcpcs, string> = {
@@ -77,6 +78,7 @@ const SPEAK: { [S in OrderStatus]: Speaker<S> } = {
   },
   pickup_delayed: (order, gear, now) =>
     `The ${gear} has been waiting ${formatElapsed(order.triggeredAt, now)} for pickup.`,
+  picked_up: (_order, gear) => `The ${gear} is picked up.`,
 };
 
 export function censusSentence(order: Order, now: Instant): string {
@@ -94,6 +96,8 @@ export function censusSentence(order: Order, now: Instant): string {
       return SPEAK.in_transit_at_risk(order, gear, now);
     case "pickup_delayed":
       return SPEAK.pickup_delayed(order, gear, now);
+    case "picked_up":
+      return SPEAK.picked_up(order, gear, now);
   }
 }
 
@@ -111,6 +115,8 @@ function trackLabelFor(status: OrderStatus): TrackLabel {
       return "DONE";
     case "pickup_triggered":
       return "PICKUP";
+    case "picked_up":
+      return "DONE";
   }
 }
 
