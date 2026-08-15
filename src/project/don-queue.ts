@@ -1,7 +1,14 @@
 import type { CatalogSku } from "@/domain/catalog";
 import type { Instant } from "@/domain/clock";
 import { costGate } from "@/domain/offers";
-import type { Hcpcs, Order, OrderId } from "@/domain/order";
+import {
+  isHcpcs,
+  orderKind,
+  type Hcpcs,
+  type LineCode,
+  type Order,
+  type OrderId,
+} from "@/domain/order";
 import { lookupPatient } from "@/domain/patients";
 import { pickupElapsedDays } from "@/domain/pickup";
 
@@ -37,7 +44,8 @@ export type DonQueue = {
   clock: DonClock;
 };
 
-function rateFor(hcpcs: Hcpcs, catalog: readonly CatalogSku[]): number {
+function rateFor(hcpcs: LineCode, catalog: readonly CatalogSku[]): number {
+  if (!isHcpcs(hcpcs)) return 0;
   return catalog.find((sku) => sku.hcpcs === hcpcs)?.dailyRateUsd ?? 0;
 }
 
@@ -56,7 +64,9 @@ export function projectDonQueue(
 ): DonQueue {
   const waiting: DonWaiting[] = [];
   for (const order of orders) {
+    if (orderKind(order) === "supply") continue;
     const hcpcs = order.equipment[0].hcpcs;
+    if (!isHcpcs(hcpcs)) continue;
     const dailyRateUsd = rateFor(hcpcs, catalog);
     const who = lookupPatient(order.patientId).displayName;
     const name = order.equipment[0].name;

@@ -52,3 +52,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Supplies are real orders with `kind: supply` on the same Order union. Pickup throws. Discharge and PPD ignore them. See #25.
 - **2026-08-15** - Proof of delivery may carry an optional fixture `photoUrl`. Missing photo does not block delivered. See #26.
 - **2026-08-15** - Discharge override is visible on the patient DME banner. The write-only map was a silent no-op for judges.
+- **2026-08-15** - The six-item supply catalog (wound kit, foam, saline, briefs, underpads, gloves) places `kind: supply` orders. Ray's fixture kit still shows until a seed supply order exists. See #25 #29.
