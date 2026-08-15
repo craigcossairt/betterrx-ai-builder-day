@@ -61,12 +61,7 @@ export default async function Home({
     ),
   };
   const shared = Boolean(supabaseConfig());
-  const donNote =
-    role === "don"
-      ? `PPD $${ppd.actualUsd.toFixed(2)} vs $${ppd.targetUsd.toFixed(2)}. Idle pickup ${ppd.idlePickupDays} days.`
-      : shared
-        ? "Shared census."
-        : undefined;
+  const sharedNote = role !== "don" && shared ? "Shared census." : undefined;
   const donReport = <DonReport ppd={ppd} />;
 
   const orderScreen = (
@@ -84,7 +79,12 @@ export default async function Home({
     <>
       <CensusHeader lede={census.lede} />
       <CensusBoard lines={census.lines} role={role} surface={surface} />
-      <CensusFooter role={role} surface={surface} note={donNote} />
+      <CensusFooter
+        role={role}
+        surface={surface}
+        note={sharedNote}
+        strip={role === "don" ? <DonReport ppd={ppd} compact /> : null}
+      />
     </>
   );
   const patientScreen = patient ? (
@@ -105,7 +105,6 @@ export default async function Home({
     if (panel === "order") body = orderScreen;
     else if (panel === "inbox") body = inboxScreen;
     else if (patientScreen) body = patientScreen;
-    else if (role === "don") body = <>{censusScreen}{donReport}</>;
     else body = censusScreen;
   } else {
     body = (

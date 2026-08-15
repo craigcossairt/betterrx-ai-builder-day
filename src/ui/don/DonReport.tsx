@@ -1,7 +1,25 @@
 import { MEDS } from "@/domain/catalog";
 import type { PpdReport } from "@/domain/ppd";
 
-export function DonReport({ ppd }: { ppd: PpdReport }) {
+export function DonReport({
+  ppd,
+  compact = false,
+}: {
+  ppd: PpdReport;
+  compact?: boolean;
+}) {
+  const morphine = MEDS[0];
+  if (compact) {
+    return (
+      <aside className="don-report don-report--compact" aria-label="DME PPD">
+        <p>
+          DME PPD ${ppd.actualUsd.toFixed(2)} vs ${ppd.targetUsd.toFixed(2)}{" "}
+          fixture target. Idle pickup {ppd.idlePickupDays} days (Ray). Morphine
+          concentrate ${morphine.unitPriceUsd.toFixed(2)}/{morphine.unit} NADAC.
+        </p>
+      </aside>
+    );
+  }
   return (
     <section className="don-report" aria-label="DME cost PPD">
       <h1 className="patient-title">DME cost PPD</h1>
@@ -16,15 +34,15 @@ export function DonReport({ ppd }: { ppd: PpdReport }) {
         </div>
         <div>
           <dt>Target</dt>
-          <dd>${ppd.targetUsd.toFixed(2)} · fixture</dd>
+          <dd>${ppd.targetUsd.toFixed(2)} fixture</dd>
         </div>
         <div>
           <dt>Idle pickup days</dt>
-          <dd>{ppd.idlePickupDays} · Ray Delgado bed</dd>
+          <dd>{ppd.idlePickupDays} (Ray)</dd>
         </div>
         <div>
           <dt>Buffer days</dt>
-          <dd>{ppd.bufferDays} · not in this fixture</dd>
+          <dd>{ppd.bufferDays}. Not in this fixture.</dd>
         </div>
         <div>
           <dt>Preferred overrides</dt>
@@ -33,14 +51,13 @@ export function DonReport({ ppd }: { ppd: PpdReport }) {
         <div>
           <dt>Morphine concentrate</dt>
           <dd>
-            ${MEDS[0].unitPriceUsd.toFixed(2)}/{MEDS[0].unit} · NADAC
+            ${morphine.unitPriceUsd.toFixed(2)}/{morphine.unit} NADAC
           </dd>
         </div>
       </dl>
       <p className="order-sub">
-        E0250 and E1390 daily rates are CMS DMEPOS-shaped (fee schedule / 30).
-        Not a live PUF pull. E1130 is synthetic. PUF national volume is a pitch
-        fact, not an order source.
+        E0250 and E1390: CMS DMEPOS-shaped daily rate (not a live PUF pull).
+        E1130: synthetic.
       </p>
     </section>
   );

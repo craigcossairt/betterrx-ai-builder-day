@@ -45,7 +45,9 @@ export function CensusBoard({
               patient: line.order.patientId,
               tab: "dme",
             })}
-          />
+          >
+            <LoudActions order={line.order} role={role} />
+          </QuietRow>
         ))}
       </div>
     </section>

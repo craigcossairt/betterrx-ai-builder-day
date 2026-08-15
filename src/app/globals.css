@@ -828,6 +828,23 @@ body {
   gap: 12px;
 }
 
+.don-report--compact {
+  padding: 8px 0 0;
+  gap: 0;
+}
+
+.don-report--compact p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-500);
+  line-height: 1.45;
+}
+
+.quiet-row-block {
+  display: flex;
+  flex-direction: column;
+}
+
 .demo-chrome-link {
   font: 600 12px var(--font-ui);
   color: var(--blue-600);

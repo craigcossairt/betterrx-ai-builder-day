@@ -1,12 +1,15 @@
+import type { ReactNode } from "react";
 import type { CensusLine } from "@/project/census";
 import { TrackMark } from "@/ui/census/TrackMark";
 
 export function QuietRow({
   line,
   href,
+  children,
 }: {
   line: CensusLine;
   href?: string;
+  children?: ReactNode;
 }) {
   const inner = (
     <>
@@ -17,12 +20,18 @@ export function QuietRow({
       <TrackMark label={line.trackLabel} />
     </>
   );
-  if (href) {
-    return (
-      <a className="quiet-row" href={href}>
-        {inner}
-      </a>
-    );
-  }
-  return <div className="quiet-row">{inner}</div>;
+  const row = href ? (
+    <a className="quiet-row" href={href}>
+      {inner}
+    </a>
+  ) : (
+    <div className="quiet-row">{inner}</div>
+  );
+  if (!children) return row;
+  return (
+    <div className="quiet-row-block">
+      {row}
+      {children}
+    </div>
+  );
 }

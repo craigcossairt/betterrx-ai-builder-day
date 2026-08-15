@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { boardHref, type SurfaceId } from "@/ui/nav";
 import { canOrder as roleCanOrder } from "@/ui/roles";
 import type { RoleId } from "@/ui/roles";
@@ -6,10 +7,12 @@ export function CensusFooter({
   role,
   surface,
   note,
+  strip,
 }: {
   role: RoleId;
   surface?: SurfaceId;
   note?: string;
+  strip?: ReactNode;
 }) {
   return (
     <footer className="census-foot">
@@ -21,7 +24,7 @@ export function CensusFooter({
           New order
         </a>
       ) : null}
-      {note ? <p className="census-foot-note">{note}</p> : null}
+      {strip ?? (note ? <p className="census-foot-note">{note}</p> : null)}
     </footer>
   );
 }

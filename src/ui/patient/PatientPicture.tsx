@@ -79,7 +79,7 @@ export function PatientPicture({
           </h1>
           <p className="order-sub">
             {chart.source === "erx"
-              ? "From BetterRX eRx patient event"
+              ? "From BetterRX eRx event"
               : "Hospice fixture. Same fields as the eRx patient event."}
           </p>
         </div>
@@ -102,7 +102,7 @@ export function PatientPicture({
             {item === "patient"
               ? "Patient"
               : item === "medication"
-                ? `Medication (${chart.medications.length})`
+                ? "Medication"
                 : item === "dme"
                   ? `DME (${mine.length})`
                   : "Supplies (0)"}
