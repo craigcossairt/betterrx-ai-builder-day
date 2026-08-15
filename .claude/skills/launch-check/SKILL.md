@@ -44,7 +44,7 @@ For each critical screen, verify:
 
 - BetterRX blue for primary app actions (`Button variant="app"`, 6px radius)
 - Coral only on at-risk rows
-- Logos from `public/brand/` (`logo-black.svg`, `logo-pill.png`, icons)
+- Logos from `public/brand/` (`logo-black.svg`, icons)
 - No default framework placeholder icons visible
 
 ### 5. Static Analysis
