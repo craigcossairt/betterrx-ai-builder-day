@@ -1,4 +1,4 @@
-import { getHospiceStore } from "../src/store/hospice-store.ts";
+import { getHospiceStore } from "../src/store/hospice-store";
 
 const store = await getHospiceStore();
 const snap = await store.snapshot();

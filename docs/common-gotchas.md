@@ -15,3 +15,4 @@ Include a commit SHA and issue reference when known.
 | DON idle days stay 4 for any trigger date | `censusPpd` added four days to `triggeredAt` instead of measuring now | Pass `now` and use `daysBetween(triggeredAt, now)` | 2026-08-15 | #15 |
 | Cloud agent cannot `psql` to Supabase | Cursor redacts Vercel sensitive env to `[SENSITIVE]` on disk; REST `orders` 404s until DDL runs | Apply schema in `npm run build` on Vercel, where `POSTGRES_URL` is real | 2026-08-15 | persist |
 | Vercel MCP `list_projects` missed BetterRX | MCP listing was stale or filtered; REST `/v9/projects` showed `betterrx-ai-builder-day` | Use the Vercel REST API with `VERCEL_TOKEN` when MCP 404s | 2026-08-15 | persist |
+| Vercel `npm run build` fails TS5097 on seed script | `tsconfig` included `**/*.mts`, so Next typechecked `scripts/seed-if-empty.mts` | Exclude `scripts` from `tsconfig` | 2026-08-15 | persist |
