@@ -8,6 +8,7 @@ import type {
   OrderedOrder,
   OrderType,
   PatientId,
+  PickedUpOrder,
   PickupDelayedOrder,
   PickupTriggeredOrder,
   PickupTrigger,
@@ -127,5 +128,24 @@ export function triggerPickup(
     vendorId: order.vendorId,
     trigger,
     triggeredAt: now,
+  };
+}
+
+export function markPickedUp(
+  order: PickupTriggeredOrder | PickupDelayedOrder | PickedUpOrder,
+  now: Instant,
+): PickedUpOrder {
+  if (order.status === "picked_up") return order;
+  return {
+    id: order.id,
+    patientId: order.patientId,
+    hospice: order.hospice,
+    equipment: order.equipment,
+    notes: order.notes,
+    status: "picked_up",
+    vendorId: order.vendorId,
+    trigger: order.trigger,
+    triggeredAt: order.triggeredAt,
+    pickedUpAt: now,
   };
 }

@@ -73,13 +73,22 @@ export type PickupDelayedOrder = OrderBase & {
   riskWhy: string;
 };
 
+export type PickedUpOrder = OrderBase & {
+  status: "picked_up";
+  vendorId: VendorId;
+  trigger: PickupTrigger;
+  triggeredAt: import("./clock").Instant;
+  pickedUpAt: import("./clock").Instant;
+};
+
 export type Order =
   | OrderedOrder
   | DispatchedOrder
   | InTransitAtRiskOrder
   | DeliveredOrder
   | PickupTriggeredOrder
-  | PickupDelayedOrder;
+  | PickupDelayedOrder
+  | PickedUpOrder;
 
 export type OrderStatus = Order["status"];
 

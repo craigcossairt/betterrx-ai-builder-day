@@ -9,6 +9,7 @@ const LABELS: Record<OrderStatus, string> = {
   delivered: "Delivered",
   pickup_triggered: "Pickup triggered",
   pickup_delayed: "Pickup delayed",
+  picked_up: "Picked up",
 };
 
 export function formatLaneLabel(status: OrderStatus): string {

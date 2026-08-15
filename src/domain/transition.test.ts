@@ -14,6 +14,7 @@ import {
   confirmVendor,
   declineVendor,
   markDelivered,
+  markPickedUp,
   placeOrder,
   triggerPickup,
 } from "@/domain/transition";
@@ -119,6 +120,27 @@ describe("transitions", () => {
       throw new Error("expected in_transit_at_risk");
     }
     expect(assessed.riskWhy).toMatch(/misses that window/);
+  });
+
+  it("stops Ray's rental clock when the vendor marks the bed picked up", () => {
+    const delayed = {
+      id: asOrderId("DME-09803"),
+      patientId: asPatientId("PT-87411"),
+      hospice: asHospiceName("Sample Hospice C"),
+      equipment: [{ hcpcs: "E0250", name: "Hospital Bed" }] as [
+        { hcpcs: "E0250"; name: string },
+      ],
+      status: "pickup_delayed" as const,
+      vendorId: asVendorId("vendor-3"),
+      trigger: "patient_status_deceased" as const,
+      triggeredAt: asInstant("2026-08-10T17:00:00.000Z"),
+      riskWhy: "Family has called.",
+    };
+    const now = asInstant("2026-08-14T17:00:00.000Z");
+    const done = markPickedUp(delayed, now);
+    expect(done.status).toBe("picked_up");
+    expect(done.pickedUpAt).toBe(now);
+    expect(done.triggeredAt).toBe(delayed.triggeredAt);
   });
 
   it("confirms a vendor onto a dispatched order", () => {
