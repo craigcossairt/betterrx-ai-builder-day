@@ -1,7 +1,0 @@
-ts	phase	decision	why	evidence	result
-2026-08-15T18:01:20Z	frame	Done means a judge can click the three brief scenarios, see deliverables A-E, and the PR is on main	User is driving to judging. Predicate has to be checkable.	docs/briefs/dme-hackathon-bounty-brief.html:531-568	open
-2026-08-15T18:01:40Z	frame	Branch from origin/main after PR 28, not the stale local tip	Local main stopped at #30. Remote already merged the 2a frames.	origin/main 0588191	branched cursor/brief-polish-c1e5
-2026-08-15T18:02:00Z	harness	Four local coverage workers, not cloud	Judging is this afternoon. Cloud boot would burn the remaining clock.	/tmp/swarm-brief-polish/	workers running
-2026-08-15T18:04:00Z	pitch	Worker 4: mermaid is dumped as source, assumptions unlabeled, README is Day-1 not a judge path	A 5-min pitch cannot read flowchart LR.	/tmp/swarm-brief-polish/worker-4.md	ISSUES
-2026-08-15T18:05:30Z	unit	Added three scenario hrefs, a four-step flow, and labeled assumptions to pitchPacket	Worker 4: mermaid dump and unlabeled fixtures would fail a 5-min paper	src/project/pitch.ts src/app/integration/page.tsx	tests green
-2026-08-15T18:06:00Z	unit	Census vendor confirm is now Open vendor text. Chrome says Demo, not prototype. DON shows preferred overrides.	30 percent score is the SMS path. Prototype in chrome undercuts deliverable A.	src/ui/census/LoudActions.tsx src/ui/chrome/DemoChrome.tsx src/ui/don/DonReport.tsx	117 tests green

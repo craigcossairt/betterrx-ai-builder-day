@@ -7,7 +7,7 @@
 # of these hooks read $TOOL_INPUT, always got an empty string, and silently no-op'd
 # on every call: the formatter never ran and, worse, the sensitive-file blocker never
 # blocked. A hook that no-ops is indistinguishable from a hook that passes, so nothing
-# complained. Verify hooks with a deliberate violation (see SETUP.md § Sanity check),
+# complained. Verify hooks with a deliberate violation (see AGENTS.md § Cursor Cloud),
 # never by absence of complaints.
 #
 # Parsing: jq when available; otherwise POSIX sed. Never grep -P - BSD grep (macOS)

@@ -7,8 +7,6 @@ disable-model-invocation: true
 You are running a pre-demo audit. This ensures the app is presentable for user interviews,
 investor pitches, or a launch.
 
-<!-- FILL IN: the bracketed slots below once the project has real screens and branding. -->
-
 ## Audit Steps
 
 ### 1. Test Data Cleanup
@@ -20,19 +18,20 @@ Check for and flag any test/dev artifacts that would look unprofessional:
 - Check for debug print/log statements in production code paths
 
 ```bash
-grep -rn "TODO\|FIXME\|HACK\|XXX" <source-dir> | head -20
-grep -rn "console\.log\|debugPrint\|print(" <source-dir> | head -20
+grep -rn "TODO\|FIXME\|HACK\|XXX" src | head -20
+grep -rn "console\.log\|debugPrint\|print(" src | head -20
 ```
 
 ### 2. Critical Screen Audit
 
 Review each screen in the demo flow for polish (no layout overflow, no missing states):
 
-<!-- FILL IN: list your critical screens/pages as checkboxes, grouped by flow -->
-- [ ] Entry point (splash / landing / login)
-- [ ] Core flow screen 1
-- [ ] Core flow screen 2
-- [ ] Settings / profile
+- [ ] Census (phone): `/?role=admissions`
+- [ ] Discharge miss DME trail: `/?role=admissions&patient=PT-88502&tab=dme`
+- [ ] Delayed pickup: `/?role=case_manager&patient=PT-87411&tab=dme`
+- [ ] DON PPD oversight: `/?role=don&surface=desktop&panel=oversight`
+- [ ] Vendor confirm SMS: `/?role=vendor`
+- [ ] Pitch note: `/integration`
 
 ### 3. Error State Coverage
 
@@ -43,16 +42,16 @@ For each critical screen, verify:
 
 ### 4. Brand Consistency
 
-<!-- FILL IN: brand colors, fonts, logo asset names -->
-- Brand colors used consistently
-- Correct fonts for headings and body
-- Logo displays correctly
+- BetterRX blue for primary app actions (`Button variant="app"`, 6px radius)
+- Coral only on at-risk rows
+- Logos from `public/brand/` (`logo-black.svg`, icons)
 - No default framework placeholder icons visible
 
 ### 5. Static Analysis
 
 ```bash
-# FILL IN: your lint/typecheck command, e.g. `npm run lint` or `flutter analyze`
+npm test
+npm run lint
 ```
 
 ## Output Format

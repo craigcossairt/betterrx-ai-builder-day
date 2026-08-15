@@ -6,7 +6,7 @@ Lessons already baked into these scripts - keep them in mind when adding hooks:
   an empty string and the hook silently no-ops on every call - see `hook-file-path.sh` for the
   history of that bug.
 - **A hook that no-ops is indistinguishable from a hook that passes.** Verify every guardrail
-  with a deliberate violation (SETUP.md § Sanity check), never by absence of complaints.
+  with a deliberate violation (AGENTS.md § Cursor Cloud), never by absence of complaints.
 - **Never `grep -P`.** BSD grep (macOS) has no `-P`, and GNU grep's `-P` dies on non-UTF-8
   locales (seen in Git Bash on Windows). Use `jq`, or POSIX `sed` as the fallback.
 - **Blockers fail closed; helpers fail open.** `block-sensitive-files.sh` blocks when it cannot

@@ -20,7 +20,7 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-14** - Demo must be running code with real order state. Mockups and visual prototypes fail. See `docs/prd.md`.
 - **2026-08-14** - Bounty is DME only. Pharmacy stays BetterRX (fixture meds). Supplies is stretch after DME works, same board, no pickup, one-stop-shop pitch. See `docs/briefing-qa.md`.
 - **2026-08-14** - Pitch must answer Todd's buyer question: how do you decrease DME cost PPD. DON view shows actual vs target plus drivers. Tech PPD (BetterRX fee) is not that answer. No invented savings dollars. See `docs/prd.md`.
-- **2026-08-14** - Weekend planning notes live at `.scratch/betterrx-weekend-demo/`. GitHub Issues is the tracker. See `docs/agents/issue-tracker.md`.
+- **2026-08-14** - GitHub Issues is the tracker. (Weekend `.scratch` planning notes removed 2026-08-15; see later entry.) See `docs/agents/issue-tracker.md`.
 - **2026-08-14** - This environment's GitHub token can create, comment, label, and close issues (probe #5). If a later token 403s, fall back to asking Craig. See `docs/agents/issue-tracker.md`.
 - **2026-08-14** - Weekend fixture catalog: six sample orders, three SKUs (E0250, E1390 oxygen, E1130), two vendor options per card, CMS-shaped daily rates plus NADAC meds. Sample E0601-as-oxygen maps to E1390. See [What fixture catalog sits under the six sample orders?](https://github.com/craigcossairt/betterrx-ai-builder-day/issues/7).
 - **2026-08-15** - Landed the BetterRX design system as CSS tokens plus typed TSX in `src/ui`. Product screens use the eRX app look (system UI, blue actions, bordered cards). See #9.
@@ -54,3 +54,5 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Proof of delivery may carry an optional fixture `photoUrl`. Missing photo does not block delivered. See #26.
 - **2026-08-15** - Discharge override is visible on the patient DME banner. The write-only map was a silent no-op for judges.
 - **2026-08-15** - The six-item supply catalog (wound kit, foam, saline, briefs, underpads, gloves) places `kind: supply` orders. Ray's fixture kit still shows until a seed supply order exists. See #25 #29.
+- **2026-08-15** - Pruned Day-1 Trellis leftovers (`SETUP.md`, unused `brain/`, `.scratch` weekend notes, template graduation/skills docs). README is judge-first. GitHub Issues remains the only tracker.
+- **2026-08-15** - Made the GitHub repo public for bounty submission. Homepage is the Vercel production app.

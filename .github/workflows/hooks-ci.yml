@@ -17,7 +17,6 @@ on:
     paths:
       - '**/*.sh'
       - '.githooks/**'
-      - 'brain/bin/qmd'
       - '.claude/**'
       - '.cursor/**'
       - '.grok/**'
@@ -26,7 +25,6 @@ on:
     paths:
       - '**/*.sh'
       - '.githooks/**'
-      - 'brain/bin/qmd'
       - '.claude/**'
       - '.cursor/**'
       - '.grok/**'
@@ -61,7 +59,7 @@ jobs:
               1) ;;
               *) echo "::error file=$f::could not be scanned for CRLF (grep exit $rc) - tracked but missing or unreadable"; fail=1 ;;
             esac
-          done < <(git ls-files '*.sh' '.githooks/*' 'brain/bin/qmd')
+          done < <(git ls-files '*.sh' '.githooks/*')
           exit $fail
 
       - name: bash -n (syntax) on every script
@@ -69,7 +67,7 @@ jobs:
           fail=0
           while read -r f; do
             bash -n "$f" || { echo "::error file=$f::bash -n failed"; fail=1; }
-          done < <(git ls-files '*.sh' '.githooks/*' 'brain/bin/qmd')
+          done < <(git ls-files '*.sh' '.githooks/*')
           exit $fail
 
       - name: shellcheck
@@ -149,11 +147,11 @@ jobs:
           skills=(.claude/skills/*/SKILL.md)
           commands=(.claude/commands/*.md)
           # "Not present" and "present but empty" are different, and only one of
-          # them is a problem. SETUP.md § 5 says to delete skills and agents a
-          # project does not need, so an absent directory is a deliberate prune and
-          # this check simply does not apply. A directory that exists with nothing
-          # in it is a rename or a half-finished delete, which must not read as a
-          # pass - that is the failure mode this whole workflow is about.
+          # them is a problem. Deleting unused skills and agents is fine, so an
+          # absent directory is a deliberate prune and this check simply does not
+          # apply. A directory that exists with nothing in it is a rename or a
+          # half-finished delete, which must not read as a pass - that is the
+          # failure mode this whole workflow is about.
           for d in .claude/agents .claude/skills .claude/commands; do
             [ -d "$d" ] || continue
             case "$d" in
@@ -190,9 +188,9 @@ jobs:
           #     a malformed one. A rule with no check behind it is the failure mode
           #     this workflow exists to prevent, so both directions are checked.
           #
-          # A project that deleted the whole Cursor adapter (SETUP.md § 5) is not
-          # broken, it just has nothing to check. Keeping the adapter is what opts
-          # you into keeping it complete.
+          # A project that deleted the whole Cursor adapter is not broken, it just
+          # has nothing to check. Keeping the adapter is what opts you into
+          # keeping it complete.
           if [ ! -d .cursor ]; then
             echo "no Cursor adapter in this project - nothing to check"
             exit $fail

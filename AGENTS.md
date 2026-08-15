@@ -10,7 +10,7 @@
 - **Name:** BetterRX AI Builder Day
 - **What it is:** Weekend hackathon submission for the BetterRX DME Ordering and Visibility bounty ($10,000) at JustBuild AI Builder Day Part 2 (Aug 14-15 2026). Live notes: `docs/hackathon.md`, `docs/primary-bounty.md`, `docs/prd.md`. Official briefs and FAQ: `docs/briefs/`. Friday Q&A: `docs/briefing-qa.md`.
 - **Owner:** Craig Cossairt - craig@bloom.date
-- **Stage:** Next.js hospice app in progress (design system landed; issue #9 is the first board)
+- **Stage:** Running hospice DME board (phone-first census, place-order, patient picture, DON oversight, vendor SMS confirm, `/integration` pitch)
 - For the owner's background and working style, see `docs/about-me.md`
 
 ## What I Need From Agents
@@ -28,7 +28,7 @@
 too fast for a static config file. Read the live sources below before acting on anything that
 depends on what's currently active or due:
 
-- **Active issues + priorities** - https://github.com/craigcossairt/betterrx-ai-builder-day/issues (weekend planning notes also in `.scratch/betterrx-weekend-demo/`)
+- **Active issues + priorities** - https://github.com/craigcossairt/betterrx-ai-builder-day/issues
 - **Decision history (what was decided, when, why)** - `docs/decision-log.md`
 - **Known bug patterns** - `docs/common-gotchas.md`
 
@@ -63,13 +63,20 @@ npm run build
 
 ## Folder Structure
 
-<!-- FILL IN once the project takes shape. Keep this a map, not an inventory. -->
-
 ```
 .
 ├── CONTEXT.md               # domain glossary (hospice DME coordination)
-├── src/                     # Next.js app (ui, domain, parse, store)
-├── public/brand/            # BetterRX logos
+├── src/
+│   ├── app/                 # App Router pages, actions, /integration pitch
+│   ├── domain/              # Order union, risk, PPD, vendor rules
+│   ├── parse/               # sample-order / eRx boundary parsers
+│   ├── store/               # memory + Supabase order store
+│   ├── project/             # census / chart / inbox / DON projectors
+│   ├── inbox/               # vendor task projection
+│   └── ui/                  # BetterRX tokens + product chrome
+├── public/brand/            # BetterRX logos and PWA icons
+├── scripts/                 # schema apply + seed helpers
+├── supabase/migrations/     # hospice orders jsonb schema
 ├── docs/
 │   ├── hackathon.md         # event clock + BetterRX bounty notes
 │   ├── primary-bounty.md    # why this track, weekend-sized slice
@@ -77,32 +84,18 @@ npm run build
 │   ├── briefing-qa.md       # Friday presentation Q&A notes
 │   ├── briefs/              # official HTML briefs, FAQ, eRx payloads, sample-order JSON
 │   ├── agents/              # issue tracker, triage labels, domain-doc layout
-│   ├── adr/                 # architecture decision records (lazy; created when needed)
-│   ├── common-gotchas.md    # symptom → root cause → fix table (append after every bug fix)
+│   ├── adr/                 # architecture decision records
+│   ├── about-me.md          # owner context for agents
+│   ├── common-gotchas.md    # symptom → root cause → fix table
 │   ├── decision-log.md      # one line per decision
 │   └── methodology/         # TDD workflow, bug protocol, session habits
-├── .scratch/                # local wayfinder map (weekend planning)
 ├── .claude/                 # Claude Code adapter (hooks, commands, skills, agents)
 ├── .cursor/                 # Cursor adapter (rules + hooks + skill routers + environment.json)
 ├── .grok/                   # Grok Build adapter (config + hooks)
 ├── .githooks/               # real git pre-push hook (opt-in push gate)
 ├── bin/                     # verify-green, git-hook installer, harness hook adapter
-├── vendor/pstack/           # Lauren Tan's pstack (Cursor plugin, MIT)
-└── brain/                   # optional local knowledge base (see brain/README.md)
+└── vendor/pstack/           # Lauren Tan's pstack (Cursor plugin, MIT)
 ```
-
-If this project outgrows a single repo (second repo, non-code assets piling up), see
-`docs/growing-into-a-workspace.md` for the graduation path.
-
-## Agent skills
-
-### Issue tracker
-
-GitHub Issues is the tracker. Weekend planning notes also live at `.scratch/betterrx-weekend-demo/`. See `docs/agents/issue-tracker.md`.
-
-### Domain docs
-
-Single-context: `CONTEXT.md` at the repo root, ADRs under `docs/adr/` when they exist. See `docs/agents/domain.md`.
 
 ## Harness Wiring (summary)
 
@@ -295,7 +288,7 @@ Refresh the model names when the model family turns over; the tier structure is 
 - Use bullet points for action items
 - Use Markdown: sections, tables, numbered lists where appropriate
 - When writing externally-facing content, align with the brand voice
-  (no brand doc yet; keep copy short, specific, and human)
+  (brand tokens live in `src/ui`; keep copy short, specific, and human)
 - When writing internal/working docs, prioritize clarity and speed
 
 ## Cursor Cloud
@@ -316,9 +309,8 @@ Durable notes for cloud agents. Update as the project grows a real stack.
   error appears, rerun `sudo apt-get install -y shellcheck`.
 - **The tracked pre-push gate does not run in cloud agent sessions.** Cursor sets `core.hooksPath`
   to its own agent-hooks dir, so `.githooks/pre-push` (and thus `bin/verify-green.sh`) is bypassed.
-  The push gate is also OFF by default (`GREEN_COMMANDS` empty in `bin/verify-green.sh`). When the
-  project gains real checks, fill that array and run `bash bin/verify-green.sh` manually before
-  pushing.
+  Locally the gate runs `npm test` via `GREEN_COMMANDS` in `bin/verify-green.sh`. Run
+  `bash bin/verify-green.sh` before pushing from a laptop so the marker matches the tree.
 - **Verify guardrails with a deliberate violation, never absence of complaints.** A no-op hook
   looks identical to a passing one. Example: `echo '{"file_path":".env"}' | bash
   bin/run-claude-hook.sh cursor block-sensitive-files` must exit 2 (blocked); a normal path like
