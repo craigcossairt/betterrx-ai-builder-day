@@ -52,40 +52,40 @@ export async function placeOrderAction(formData: FormData): Promise<void> {
     now,
   });
   if (notes) order.notes = notes;
-  getHospiceStore().replace(order);
+  await (await getHospiceStore()).replace(order);
   seedSmsIfEmpty(now, order.id);
   revalidatePath("/");
 }
 
 export async function confirmOrderAction(formData: FormData): Promise<void> {
   const id = asOrderId(String(formData.get("orderId")));
-  const store = getHospiceStore();
-  const current = store.get(id);
+  const store = await getHospiceStore();
+  const current = await store.get(id);
   if (!current || current.status !== "ordered") return;
   const now = systemClock.now();
   const window = demoOfferWindow(now);
   const dispatched = confirmVendor(current, asVendorId("vendor-1"), window.preferredEta);
-  store.replace(assessDeliveryRisk(dispatched, window.deadline));
+  await store.replace(assessDeliveryRisk(dispatched, window.deadline));
   revalidatePath("/");
 }
 
 export async function declineOrderAction(formData: FormData): Promise<void> {
   const id = asOrderId(String(formData.get("orderId")));
-  const store = getHospiceStore();
-  const current = store.get(id);
+  const store = await getHospiceStore();
+  const current = await store.get(id);
   if (!current || current.status !== "ordered") return;
-  store.replace(declineVendor(current));
+  await store.replace(declineVendor(current));
   revalidatePath("/");
 }
 
 export async function markDeliveredAction(formData: FormData): Promise<void> {
   const id = asOrderId(String(formData.get("orderId")));
-  const store = getHospiceStore();
-  const current = store.get(id);
+  const store = await getHospiceStore();
+  const current = await store.get(id);
   if (!current || (current.status !== "dispatched" && current.status !== "in_transit_at_risk")) {
     return;
   }
-  store.replace(markDelivered(current, systemClock.now()));
+  await store.replace(markDelivered(current, systemClock.now()));
   revalidatePath("/");
 }
 
@@ -95,8 +95,8 @@ export async function requestPickupAction(formData: FormData): Promise<void> {
     String(formData.get("trigger")) === "patient_status_deceased"
       ? "patient_status_deceased"
       : "nurse_request";
-  const store = getHospiceStore();
-  const current = store.get(id);
+  const store = await getHospiceStore();
+  const current = await store.get(id);
   if (
     !current ||
     (current.status !== "delivered" &&
@@ -105,15 +105,17 @@ export async function requestPickupAction(formData: FormData): Promise<void> {
   ) {
     return;
   }
-  store.replace(triggerPickup(current, trigger, systemClock.now()));
+  await store.replace(triggerPickup(current, trigger, systemClock.now()));
   revalidatePath("/");
 }
 
 export async function markDischargeReadyAction(formData: FormData): Promise<void> {
   const patientId = asPatientId(String(formData.get("patientId")));
   const reason = String(formData.get("reason") ?? "").trim();
-  const store = getHospiceStore();
-  const patientOrders = store.snapshot().filter((order) => order.patientId === patientId);
+  const store = await getHospiceStore();
+  const patientOrders = (await store.snapshot()).filter(
+    (order) => order.patientId === patientId,
+  );
   const decision = dischargeReady(patientOrders);
   if (!decision.ready && reason.length === 0) {
     throw new Error("discharge blocked until delivered, or override with a reason");

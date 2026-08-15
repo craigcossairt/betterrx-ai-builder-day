@@ -38,13 +38,13 @@ If no, it goes in the issue tracker, not here.
 
 ## Tech Stack
 
-Next.js App Router + TypeScript + Tailwind on Vercel. Fixture JSON in memory for the first clickable slice. Supabase only if a real table is needed.
+Next.js App Router + TypeScript + Tailwind on Vercel. Orders persist in Supabase when env is set. Otherwise the in-memory store still boots from the sample JSON.
 
 | Layer | Technology |
 |---|---|
 | Frontend | Next.js 16 / React 19 / TypeScript / Tailwind 4 |
-| Backend | Next.js server actions + in-memory store |
-| Database | Fixture JSON (`docs/briefs/sample-orders.json`) |
+| Backend | Next.js server actions |
+| Database | Supabase `orders` jsonb (`nvkjnzagfwvltzpsxfcd`) when env is set |
 | Hosting | Vercel |
 | Design | BetterRX tokens + ported components in `src/ui` |
 | Issue Tracking | GitHub Issues |
@@ -54,6 +54,8 @@ Next.js App Router + TypeScript + Tailwind on Vercel. Fixture JSON in memory for
 
 ```bash
 npm ci
+# optional: copy .env.example to .env.local and add Supabase keys
+# paste supabase/migrations/0001_hospice.sql in the SQL editor
 npm run dev
 npm test
 npx next build

@@ -1,9 +1,9 @@
 import type { Order, OrderId } from "@/domain/order";
 
 export type HospiceStore = {
-  snapshot(): readonly Order[];
-  get(id: OrderId): Order | undefined;
-  replace(order: Order): void;
+  snapshot(): Promise<readonly Order[]>;
+  get(id: OrderId): Promise<Order | undefined>;
+  replace(order: Order): Promise<void>;
 };
 
 export function createHospiceStore(seed: readonly Order[]): HospiceStore {
@@ -16,13 +16,13 @@ export function createHospiceStore(seed: readonly Order[]): HospiceStore {
   }
   const orderIds = [...map.keys()];
   return {
-    snapshot() {
+    async snapshot() {
       return orderIds.map((id) => map.get(id)!);
     },
-    get(id) {
+    async get(id) {
       return map.get(id);
     },
-    replace(order) {
+    async replace(order) {
       if (!map.has(order.id)) orderIds.push(order.id);
       map.set(order.id, order);
     },

@@ -74,7 +74,7 @@ export default async function Home({
   searchParams: Promise<{ role?: string }>;
 }) {
   const role = parseRole((await searchParams).role);
-  const snapshot = getHospiceStore().snapshot();
+  const snapshot = await (await getHospiceStore()).snapshot();
   const board = projectBoard(snapshot);
   const roleLabel = ROLES.find((item) => item.id === role)?.label;
   const now = systemClock.now();
@@ -102,17 +102,7 @@ export default async function Home({
         fontFamily: "var(--font-ui)",
       }}
     >
-      <header
-        style={{
-          background: "#fff",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "12px 16px",
-          borderBottom: "1px solid var(--line-200)",
-          gap: 12,
-        }}
-      >
+      <header className="board-header">
         <Image
           src="/brand/logo-pill.png"
           alt="BetterRX"
@@ -124,7 +114,8 @@ export default async function Home({
           <RoleSwitcher role={role} />
         </Suspense>
       </header>
-      <div style={{ padding: 16, display: "grid", gap: 14, maxWidth: 560 }}>
+      <div className="board-shell">
+        <div className="board-rail">
         <div>
           <div
             style={{
@@ -144,7 +135,8 @@ export default async function Home({
           </div>
           <div style={{ fontSize: 13, color: "var(--ink-500)", marginTop: 2 }}>
             Viewing as {roleLabel}. Shared status is stored state. Vendor
-            confirm is the inbox below, not a login.
+            confirm is the inbox below, not a login. Add to Home Screen
+            installs the board.
           </div>
         </div>
         {role === "don" ? (
@@ -215,6 +207,8 @@ export default async function Home({
             </div>
           ))}
         </Card>
+        </div>
+        <div className="board-orders">
         {board.lanes.map((lane) =>
           lane.orders.map((order) => (
             <Card
@@ -309,6 +303,7 @@ export default async function Home({
             </Card>
           )),
         )}
+        </div>
       </div>
     </main>
   );

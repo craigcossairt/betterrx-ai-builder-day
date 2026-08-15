@@ -21,7 +21,7 @@ Sibling repos this weekend: [ai-builder-day-part-2](https://github.com/craigcoss
 
 - Repo: private, `main`
 - Stage: Next.js hospice app (BetterRX design system + first board)
-- Stack: Next.js + TypeScript + Tailwind on Vercel. Fixture JSON first.
+- Stack: Next.js + TypeScript + Tailwind on Vercel. Supabase `orders` jsonb when env is set.
 - Issues: https://github.com/craigcossairt/betterrx-ai-builder-day/issues
 
 ```bash
