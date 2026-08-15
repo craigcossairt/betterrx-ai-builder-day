@@ -54,7 +54,7 @@ Also linked from `/integration`:
 
 ## Status
 
-- Private repo on `main`
+- Public repo on `main`
 - Running hospice DME board with BetterRX product chrome
 - Stack: Next.js 16 + TypeScript + Tailwind 4 on Vercel
 - Pitch note: `/integration` (AI skip, differentiation, HCHB sketch, three demo taps)
