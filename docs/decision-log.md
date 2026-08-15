@@ -22,3 +22,11 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-14** - Pitch must answer Todd's buyer question: how do you decrease DME cost PPD. DON view shows actual vs target plus drivers. Tech PPD (BetterRX fee) is not that answer. No invented savings dollars. See `docs/prd.md`.
 - **2026-08-14** - Weekend planning notes live at `.scratch/betterrx-weekend-demo/`. GitHub Issues is the tracker. See `docs/agents/issue-tracker.md`.
 - **2026-08-14** - This environment's GitHub token can create, comment, label, and close issues (probe #5). If a later token 403s, fall back to asking Craig. See `docs/agents/issue-tracker.md`.
+- **2026-08-15** - Landed the BetterRX design system as CSS tokens plus typed TSX in `src/ui`. Product screens use the eRX app look (system UI, blue actions, bordered cards). See #9.
+- **2026-08-15** - Weekend app is Next.js 16 at the repo root with an in-memory hospice store. Sample JSON is parsed at the boundary. Wire E0601 oxygen maps to E1390. No Supabase for the first board. See #9.
+- **2026-08-15** - Order mutations stay on the same `Order` union (`placeOrder`, `confirmVendor`, `triggerPickup`, `assessDeliveryRisk`, `dischargeReady`, `censusPpd`). Vendor confirm is an in-app SMS panel. See #10-#15.
+- **2026-08-15** - Place-order shows ranked three-factor cards (stock, ETA, price). Guardrail and $3 DON gates live in `chooseOffer`. At-risk and delayed pickup escalate to named people. See #10 #12.
+- **2026-08-15** - Keep the in-memory Order union. Measure idle pickup days from trigger to now. Do not rewrite onto a normalized census before the pitch. See #15.
+- **2026-08-15** - Persist the same Order union as jsonb rows in Supabase project nvkjnzagfwvltzpsxfcd. Fall back to memory when keys are missing. PWA is installable standalone and does not cache the census.
+- **2026-08-15** - Apply `0001_hospice.sql` from the Vercel build (`scripts/apply-schema.mjs`) using the Supabase-injected `POSTGRES_URL`. Do not hand the owner a SQL paste. Preview env targets include the same keys as production.
+- **2026-08-15** - Census UI is one product shell (header, attention chips, expandable rows, order/inbox dialogs). Not a stack of independent cards.

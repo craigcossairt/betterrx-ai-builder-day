@@ -10,7 +10,7 @@
 - **Name:** BetterRX AI Builder Day
 - **What it is:** Weekend hackathon submission for the BetterRX DME Ordering and Visibility bounty ($10,000) at JustBuild AI Builder Day Part 2 (Aug 14-15 2026). Live notes: `docs/hackathon.md`, `docs/primary-bounty.md`, `docs/prd.md`. Official briefs and FAQ: `docs/briefs/`. Friday Q&A: `docs/briefing-qa.md`.
 - **Owner:** Craig Cossairt - craig@bloom.date
-- **Stage:** PRD ready, no app yet
+- **Stage:** Next.js hospice app in progress (design system landed; issue #9 is the first board)
 - For the owner's background and working style, see `docs/about-me.md`
 
 ## What I Need From Agents
@@ -38,26 +38,27 @@ If no, it goes in the issue tracker, not here.
 
 ## Tech Stack
 
-Stack is undecided. Default to whatever ships a working hospice-first demo fastest. Prefer the Bloom production stack unless something is clearly faster.
+Next.js App Router + TypeScript + Tailwind on Vercel. Orders persist in Supabase when env is set. Otherwise the in-memory store still boots from the sample JSON.
 
 | Layer | Technology |
 |---|---|
-| Frontend | TBD (likely Next.js / React / TypeScript / Tailwind) |
-| Backend | TBD |
-| Database | TBD |
-| Hosting | TBD (likely Vercel) |
+| Frontend | Next.js 16 / React 19 / TypeScript / Tailwind 4 |
+| Backend | Next.js server actions |
+| Database | Supabase `orders` jsonb (`nvkjnzagfwvltzpsxfcd`) when env is set |
+| Hosting | Vercel |
+| Design | BetterRX tokens + ported components in `src/ui` |
 | Issue Tracking | GitHub Issues |
 | Error Tracking | none yet |
 
 ## Getting Started
 
-No app yet. After a stack is chosen, put the real commands here.
-
 ```bash
-# install deps:
-# run dev server:
-# run tests:
-# lint / typecheck:
+npm ci
+# optional: copy .env.example to .env.local
+# `npm run build` applies supabase/migrations/0001_hospice.sql when POSTGRES_URL is set
+npm run dev
+npm test
+npm run build
 ```
 
 ## Folder Structure
@@ -67,6 +68,8 @@ No app yet. After a stack is chosen, put the real commands here.
 ```
 .
 ├── CONTEXT.md               # domain glossary (hospice DME coordination)
+├── src/                     # Next.js app (ui, domain, parse, store)
+├── public/brand/            # BetterRX logos
 ├── docs/
 │   ├── hackathon.md         # event clock + BetterRX bounty notes
 │   ├── primary-bounty.md    # why this track, weekend-sized slice
@@ -299,14 +302,14 @@ Refresh the model names when the model family turns over; the tier structure is 
 
 Durable notes for cloud agents. Update as the project grows a real stack.
 
-- **No application yet (PRD ready).** There is no dev server, build step, database, or web UI to
-  run. The runnable content is bash guardrail scripts plus docs. Once a stack lands, replace this
-  section's lint/test note and fill in `## Getting Started` with the real commands.
-- **Lint/test = the `hooks-ci` checks.** The canonical suite lives in
+- **App is Next.js at the repo root.** `npm ci`, `npm run dev`, `npm test`, `npm run build`.
+  Domain tests are Vitest. Guardrail lint is still the `hooks-ci` checks.
+  `npm run build` applies `supabase/migrations/0001_hospice.sql` when `POSTGRES_URL` is set.
+  This cloud pod redacts Vercel sensitive env to `[SENSITIVE]`, so schema apply happens on Vercel.
+- **Lint/test = `npm test` plus the `hooks-ci` checks.** The canonical guardrail suite lives in
   `.github/workflows/hooks-ci.yml`: CRLF scan, `bash -n`, `shellcheck -S warning -x`, exec-bit
   check on `.githooks/*` and `bin/*`, skill/command/router frontmatter validation, and JSON parse
-  of the harness config files. Run those same commands locally to reproduce CI; there is no
-  separate `npm test`.
+  of the harness config files. Run those same commands locally to reproduce hooks CI.
 - **`shellcheck` is the only tool not already in the base image.** `bash`, `git`, `node`, `npm`,
   `jq`, and `python3` are preinstalled; `bin/cloud-agent-install.sh` installs `shellcheck` (apt)
   and copies vendored pstack into `~/.cursor/plugins/local/pstack`. If a `shellcheck: not found`
