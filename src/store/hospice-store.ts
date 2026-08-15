@@ -10,7 +10,7 @@ import { createSupabaseStore } from "@/store/supabase-store";
 
 let singleton: Promise<HospiceStore> | undefined;
 
-function seedOrders() {
+export function loadSeedOrders() {
   const raw = JSON.parse(
     readFileSync(join(process.cwd(), "docs/briefs/sample-orders.json"), "utf8"),
   );
@@ -20,7 +20,7 @@ function seedOrders() {
 export function getHospiceStore(): Promise<HospiceStore> {
   if (singleton === undefined) {
     singleton = (async () => {
-      const seed = seedOrders();
+      const seed = loadSeedOrders();
       const config = supabaseConfig();
       const store = config
         ? await createSupabaseStore(

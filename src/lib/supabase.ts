@@ -45,5 +45,14 @@ export function createRestOrderClient(
         throw new Error(`orders upsert failed: ${response.status}`);
       }
     },
+    async removeAll() {
+      const response = await fetch(`${url}/rest/v1/orders?id=not.is.null`, {
+        method: "DELETE",
+        headers,
+      });
+      if (!response.ok) {
+        throw new Error(`orders delete failed: ${response.status}`);
+      }
+    },
   };
 }

@@ -14,6 +14,7 @@ import type {
   VendorId,
 } from "./order";
 import { asOrderId } from "./order";
+import { assessDeliveryRisk } from "./risk";
 
 export function placeOrder(input: {
   patientId: PatientId;
@@ -23,6 +24,8 @@ export function placeOrder(input: {
   targetAt: Instant;
   now: Instant;
   id?: string;
+  quotedVendorId?: VendorId;
+  quotedEta?: Instant;
 }): OrderedOrder {
   return {
     id: asOrderId(input.id ?? `DME-${input.now.slice(0, 19).replace(/[-:T]/g, "")}`),
@@ -34,7 +37,24 @@ export function placeOrder(input: {
     orderedAt: input.now,
     targetAt: input.targetAt,
     vendorId: null,
+    quotedVendorId: input.quotedVendorId,
+    quotedEta: input.quotedEta,
   };
+}
+
+export function confirmQuotedOrder(
+  order: OrderedOrder,
+  fallbackVendorId: VendorId,
+  fallbackEta: Instant,
+): DispatchedOrder | InTransitAtRiskOrder {
+  return assessDeliveryRisk(
+    confirmVendor(
+      order,
+      order.quotedVendorId ?? fallbackVendorId,
+      order.quotedEta ?? fallbackEta,
+    ),
+    order.targetAt,
+  );
 }
 
 export function confirmVendor(

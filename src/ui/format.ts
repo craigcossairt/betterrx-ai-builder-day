@@ -15,6 +15,12 @@ export function formatLaneLabel(status: OrderStatus): string {
   return LABELS[status];
 }
 
+export function formatVendor(vendorId: string): string {
+  if (vendorId === "vendor-1") return "Wasatch Home Medical";
+  if (vendorId === "vendor-2") return "Uintah Valley DME";
+  return vendorId;
+}
+
 export function formatWhen(at: Instant): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: DEMO_TIME_ZONE,

@@ -7,7 +7,10 @@ import {
   asVendorId,
   type DeliveredOrder,
 } from "@/domain/order";
+import { demoOfferWindow, offersFor } from "@/domain/offers";
+import { rankOptions } from "@/domain/rank";
 import {
+  confirmQuotedOrder,
   confirmVendor,
   declineVendor,
   markDelivered,
@@ -82,6 +85,40 @@ describe("transitions", () => {
     expect(delivered.status).toBe("delivered");
     expect(delivered.deliveredAt).toBe("2026-08-14T20:40:00.000Z");
     expect(delivered.proofOfDelivery).toEqual({ signature: true, timestamp: true });
+  });
+
+  it("keeps a late vendor quote so confirm flags the judge-placed order at-risk", () => {
+    const now = asInstant("2026-08-14T15:00:00.000Z");
+    const window = demoOfferWindow(now);
+    const ranked = rankOptions(
+      offersFor("E1390", window.preferredEta, window.lateEta),
+      window.deadline,
+    );
+    const late = ranked.find((option) => option.vendorId === "vendor-2");
+    if (!late) throw new Error("expected vendor-2");
+    const order = placeOrder({
+      patientId: asPatientId("PT-88502"),
+      hospice: asHospiceName("Sample Hospice A"),
+      equipment: [{ hcpcs: "E1390", name: "Oxygen Concentrator" }],
+      orderType: "stat",
+      targetAt: window.deadline,
+      now,
+      quotedVendorId: late.vendorId,
+      quotedEta: late.eta,
+    });
+    expect(order.quotedVendorId).toBe("vendor-2");
+    expect(order.quotedEta).toBe(window.lateEta);
+    const assessed = confirmQuotedOrder(
+      order,
+      asVendorId("vendor-1"),
+      window.preferredEta,
+    );
+    expect(assessed.vendorId).toBe("vendor-2");
+    expect(assessed.status).toBe("in_transit_at_risk");
+    if (assessed.status !== "in_transit_at_risk") {
+      throw new Error("expected in_transit_at_risk");
+    }
+    expect(assessed.riskWhy).toMatch(/misses that window/);
   });
 
   it("confirms a vendor onto a dispatched order", () => {

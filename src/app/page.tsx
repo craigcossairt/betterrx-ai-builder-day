@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { CATALOG, MEDS } from "@/domain/catalog";
 import { systemClock } from "@/domain/clock";
-import { dischargeReady } from "@/domain/discharge";
+import { dischargeReady, showDischargeGate } from "@/domain/discharge";
 import { escalate } from "@/domain/escalation";
 import { demoOfferWindow, offersFor, presentOffers } from "@/domain/offers";
 import { censusPpd } from "@/domain/ppd";
@@ -25,6 +25,7 @@ import {
   confirmOrderAction,
   declineOrderAction,
   markDeliveredAction,
+  resetDemoAction,
 } from "@/app/actions";
 
 function stampFor(order: Order): string | null {
@@ -59,6 +60,19 @@ function dischargeLine(order: Order, snapshot: readonly Order[]) {
   if (override) return `Discharge override: ${override}`;
   if (decision.ready) return "Discharge-ready. Required equipment is delivered.";
   return `Waiting on ${decision.blocking.join(", ")}.`;
+}
+
+function censusPatients(orders: readonly Order[]) {
+  const seen = new Map<string, { id: string; hospice: string }>();
+  for (const order of orders) {
+    if (!seen.has(order.patientId)) {
+      seen.set(order.patientId, {
+        id: order.patientId,
+        hospice: order.hospice,
+      });
+    }
+  }
+  return [...seen.values()];
 }
 
 function toneFor(status: Order["status"]) {
@@ -161,6 +175,11 @@ export default async function Home({
             <a className="app-btn app-btn--outline" href={boardHref(role, "inbox")}>
               Vendor inbox
             </a>
+            <form action={resetDemoAction}>
+              <button className="app-btn app-btn--outline" type="submit">
+                Reset demo
+              </button>
+            </form>
           </div>
         </section>
 
@@ -226,9 +245,11 @@ export default async function Home({
                       of trigger (labeled assumption).
                     </div>
                   ) : null}
-                  <div className="census-line">
-                    {dischargeLine(order, snapshot)}
-                  </div>
+                  {showDischargeGate(order.status) ? (
+                    <div className="census-line">
+                      {dischargeLine(order, snapshot)}
+                    </div>
+                  ) : null}
                   <OrderActions order={order} role={role} />
                 </div>
               </details>
@@ -239,7 +260,10 @@ export default async function Home({
 
       {panel === "order" ? (
         <PanelDialog title="Place an order" wide>
-          <PlaceOrderForm offerSets={offerSets} />
+          <PlaceOrderForm
+            offerSets={offerSets}
+            patients={censusPatients(snapshot)}
+          />
         </PanelDialog>
       ) : null}
       {panel === "inbox" ? (
