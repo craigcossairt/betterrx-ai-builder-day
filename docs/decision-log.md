@@ -36,3 +36,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - DON hold is strictly over $3. A rate of exactly $3 stays open. Census lines are quiet or loud; coral is only at-risk.
 - **2026-08-15** - Demo chrome (persona + Phone / Side-by-side / Desktop) sits outside the app. The app badge only names the role. Vendor sees inbox only. Patient picture has Medication / DME / Supplies. New order is patient search, then kind, then EMR or catalog search. No three-SKU chips. See #18.
 - **2026-08-15** - Patient tab shows eRx-shaped chart (DOB, gender, address, phone, diagnoses, allergies). SSN is omitted. Household contact is a hospice fixture, not an eRx field. Medication tab uses newMedications events. See #18.
+- **2026-08-15** - Claude Design resume is 2a remaining frames only (chart, med events, supplies, vendor phone, DON approve + clock stop, two-line order). Do not redraw census or 1a/1b/2b/2c. See `docs/claude-design-2a-remaining.md`.
