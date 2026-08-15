@@ -6,7 +6,7 @@ import {
   saveDeliveryPhotoAction,
   setPickupWindowAction,
 } from "@/app/actions";
-import type { Order } from "@/domain/order";
+import type { Order, OrderId } from "@/domain/order";
 import { getDeliveryPhoto } from "@/inbox/delivery-photos";
 import type { SmsMessage } from "@/inbox/sms-inbox";
 import { projectVendorTask } from "@/project/vendor-task";
@@ -21,13 +21,15 @@ export function VendorTaskScreen({
   surface,
   orders,
   messages,
+  orderId,
 }: {
   role: RoleId;
   surface?: SurfaceId;
   orders: readonly Order[];
   messages: readonly SmsMessage[];
+  orderId?: OrderId | null;
 }) {
-  const fromSms = messages[0]?.orderId;
+  const fromSms = orderId ?? messages[0]?.orderId;
   const task = projectVendorTask(orders, fromSms);
   return (
     <>
