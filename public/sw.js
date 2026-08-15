@@ -1,6 +1,6 @@
-const CACHE = "betterrx-dme-shell-v1";
+const CACHE = "betterrx-dme-shell-v2";
 const SHELL = [
-  "/brand/logo-pill.png",
+  "/brand/logo-black.svg",
   "/brand/icon-192.png",
   "/brand/icon-512.png",
   "/manifest.webmanifest",

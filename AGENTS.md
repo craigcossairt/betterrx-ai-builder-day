@@ -288,7 +288,7 @@ Refresh the model names when the model family turns over; the tier structure is 
 - Use bullet points for action items
 - Use Markdown: sections, tables, numbered lists where appropriate
 - When writing externally-facing content, align with the brand voice
-  (no brand doc yet; keep copy short, specific, and human)
+  (brand tokens live in `src/ui`; keep copy short, specific, and human)
 - When writing internal/working docs, prioritize clarity and speed
 
 ## Cursor Cloud

@@ -6,13 +6,11 @@
 *.pem
 *.key
 
-# Dependencies / build output (extend per stack)
+# Dependencies / build output
 node_modules/
 dist/
 build/
-.dart_tool/
 __pycache__/
-target/
 
 # Local agent state
 .claude/settings.local.json

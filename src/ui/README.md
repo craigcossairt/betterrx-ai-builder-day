@@ -13,8 +13,8 @@ Imported from `src/app/globals.css`. Poppins is loaded with `next/font` in `src/
 
 ## Components
 
-Import from `@/ui`. App surfaces use `Card variant="app"` and `Button variant="app"`.
+Live product screens import the pieces they need (`Button`, `Input`, `Toast`, census/chrome/order/patient modules). App actions use `Button variant="app"` (blue, 6px).
 
 ## Assets
 
-`public/brand/logo-pill.png`, `logo-black.svg`, `logo-outline-white.png`, `heart.png`.
+`public/brand/logo-black.svg`, `icon-192.png`, `icon-512.png`, `pod-sample.svg`.
