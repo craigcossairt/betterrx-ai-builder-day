@@ -9,4 +9,5 @@ Include a commit SHA and issue reference when known.
 
 | Symptom | Root Cause | Fix | Date | Ref |
 |---|---|---|---|---|
-| (Example - delete me) Login form submits twice on slow connections | Submit button stays enabled while the request is in flight | Disable the button on submit; added a regression test | 2026-07-01 | #42 |
+| Next.js 500: `parseRole() from the server but parseRole is on the client` | `parseRole` lived in a `"use client"` file and the server page imported it | Move role helpers to `src/ui/roles.ts` with no client directive | 2026-08-15 | #9 |
+| `next build` typechecks vendored pstack Bun scripts | Root `tsconfig` included `**/*.ts` | Exclude `vendor` | 2026-08-15 | #9 |

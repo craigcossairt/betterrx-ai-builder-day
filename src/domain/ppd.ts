@@ -1,0 +1,69 @@
+import type { CatalogSku } from "./catalog";
+import type { Instant } from "./clock";
+import type { Hcpcs, Order } from "./order";
+
+export const PPD_TARGET_USD = 1.85;
+
+export type PpdReport = {
+  actualUsd: number;
+  targetUsd: number;
+  patientDays: number;
+  idlePickupDays: number;
+};
+
+function rateFor(hcpcs: Hcpcs, catalog: readonly CatalogSku[]): number {
+  return catalog.find((sku) => sku.hcpcs === hcpcs)?.dailyRateUsd ?? 0;
+}
+
+function daysBetween(start: Instant, end: Instant): number {
+  return Math.max(
+    0,
+    Math.round(
+      (new Date(end).getTime() - new Date(start).getTime()) / 86_400_000,
+    ),
+  );
+}
+
+function stillOnRent(order: Order): boolean {
+  return (
+    order.status === "delivered" ||
+    order.status === "pickup_triggered" ||
+    order.status === "pickup_delayed"
+  );
+}
+
+export function censusPpd(
+  orders: readonly Order[],
+  catalog: readonly CatalogSku[],
+  windowDays: number,
+): PpdReport {
+  const patients = new Set(orders.map((order) => order.patientId));
+  const patientDays = patients.size * windowDays;
+  let billable = 0;
+  let idlePickupDays = 0;
+  for (const order of orders) {
+    const daily = order.equipment.reduce(
+      (sum, line) => sum + rateFor(line.hcpcs, catalog),
+      0,
+    );
+    if (order.status === "pickup_delayed") {
+      const idle = daysBetween(
+        order.triggeredAt,
+        // four extra days is the sample literal vs same-day pickup
+        new Date(
+          new Date(order.triggeredAt).getTime() + 4 * 86_400_000,
+        ).toISOString() as Instant,
+      );
+      idlePickupDays += idle;
+      billable += daily * idle;
+    } else if (stillOnRent(order) && order.status === "delivered") {
+      billable += daily * windowDays;
+    }
+  }
+  return {
+    actualUsd: patientDays === 0 ? 0 : billable / patientDays,
+    targetUsd: PPD_TARGET_USD,
+    patientDays,
+    idlePickupDays,
+  };
+}

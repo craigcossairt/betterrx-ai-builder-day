@@ -1,11 +1,23 @@
 import Image from "next/image";
 import { Suspense } from "react";
+import { CATALOG, MEDS } from "@/domain/catalog";
+import { censusPpd } from "@/domain/ppd";
+import { listSms } from "@/inbox/sms-inbox";
 import { getHospiceStore } from "@/store/hospice-store";
+import { getDischargeOverride } from "@/store/discharge-overrides";
 import { projectBoard } from "@/project/board";
-import { Badge, Card } from "@/ui";
+import { Badge, Button, Card } from "@/ui";
 import { formatLaneLabel, formatStamp } from "@/ui/format";
-import { parseRole, RoleSwitcher, ROLES } from "@/ui/RoleSwitcher";
+import { OrderActions } from "@/ui/OrderActions";
+import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
+import { RoleSwitcher } from "@/ui/RoleSwitcher";
+import { parseRole, ROLES } from "@/ui/roles";
 import type { Order } from "@/domain/order";
+import {
+  confirmOrderAction,
+  declineOrderAction,
+  markDeliveredAction,
+} from "@/app/actions";
 
 function stampFor(order: Order): string | null {
   switch (order.status) {
@@ -39,8 +51,11 @@ export default async function Home({
   searchParams: Promise<{ role?: string }>;
 }) {
   const role = parseRole((await searchParams).role);
-  const board = projectBoard(getHospiceStore().snapshot());
+  const snapshot = getHospiceStore().snapshot();
+  const board = projectBoard(snapshot);
   const roleLabel = ROLES.find((item) => item.id === role)?.label;
+  const ppd = censusPpd(snapshot, CATALOG, 7);
+  const inbox = listSms();
 
   return (
     <main
@@ -91,10 +106,69 @@ export default async function Home({
             Census board.
           </div>
           <div style={{ fontSize: 13, color: "var(--ink-500)", marginTop: 2 }}>
-            Viewing as {roleLabel}. Six synthetic Orders. Status is stored
-            state.
+            Viewing as {roleLabel}. Shared status is stored state. Vendor
+            confirm is the inbox below, not a login.
           </div>
         </div>
+        {role === "don" ? (
+          <Card variant="app" topBar title="DME cost PPD">
+            <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ink-900)" }}>
+              ${ppd.actualUsd.toFixed(2)}
+              <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-500)" }}>
+                {" "}
+                / patient-day vs ${ppd.targetUsd.toFixed(2)} target
+              </span>
+            </div>
+            <div style={{ fontSize: 13, color: "var(--ink-500)", marginTop: 8 }}>
+              Idle pickup days: {ppd.idlePickupDays}. Patient-days: {ppd.patientDays}.
+              Morphine concentrate {MEDS[0].unitPriceUsd.toFixed(2)}/{MEDS[0].unit} NADAC
+              next to DME lines. Numbers are fixture math, not a savings claim.
+            </div>
+          </Card>
+        ) : null}
+        {role !== "don" ? (
+          <Card variant="app" title="Place an order">
+            <PlaceOrderForm />
+          </Card>
+        ) : null}
+        <Card variant="app" title="Vendor SMS inbox">
+          <div style={{ fontSize: 13, color: "var(--ink-500)", marginBottom: 10 }}>
+            Simulated text. No vendor account.
+          </div>
+          {inbox.map((message) => (
+            <div
+              key={message.id}
+              style={{
+                border: "1px solid var(--line-200)",
+                borderRadius: 8,
+                padding: 12,
+                marginBottom: 8,
+              }}
+            >
+              <div style={{ fontSize: 13, color: "var(--ink-700)" }}>{message.body}</div>
+              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <form action={confirmOrderAction}>
+                  <input type="hidden" name="orderId" value={message.orderId} />
+                  <Button variant="app" size="sm" type="submit">
+                    Confirm
+                  </Button>
+                </form>
+                <form action={declineOrderAction}>
+                  <input type="hidden" name="orderId" value={message.orderId} />
+                  <Button variant="ghost" size="sm" type="submit">
+                    Decline
+                  </Button>
+                </form>
+                <form action={markDeliveredAction}>
+                  <input type="hidden" name="orderId" value={message.orderId} />
+                  <Button variant="outline" size="sm" type="submit">
+                    Delivered
+                  </Button>
+                </form>
+              </div>
+            </div>
+          ))}
+        </Card>
         {board.lanes.map((lane) =>
           lane.orders.map((order) => (
             <Card
@@ -169,6 +243,12 @@ export default async function Home({
                   {order.riskWhy}
                 </div>
               ) : null}
+              {getDischargeOverride(order.patientId) ? (
+                <div style={{ marginTop: 8, fontSize: 13, color: "var(--ink-500)" }}>
+                  Discharge override: {getDischargeOverride(order.patientId)}
+                </div>
+              ) : null}
+              <OrderActions order={order} role={role} />
             </Card>
           )),
         )}
