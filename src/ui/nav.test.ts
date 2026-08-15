@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { boardHref, chromeQuery, parsePanel, parseSurface } from "@/ui/nav";
+import {
+  boardHref,
+  chromeQuery,
+  parsePanel,
+  parseSurface,
+  parseTab,
+} from "@/ui/nav";
 import { parseRole } from "@/ui/roles";
 
 describe("boardHref", () => {
@@ -22,6 +28,18 @@ describe("boardHref", () => {
     ).toBe("/?role=admissions&surface=desktop&patient=PT-88502&tab=dme");
     expect(parseSurface("desktop")).toBe("desktop");
     expect(parseSurface("wide")).toBe("phone");
+  });
+
+  it("keeps the Patient chart tab on the query", () => {
+    expect(
+      boardHref({
+        role: "admissions",
+        surface: "desktop",
+        patient: "PT-88421",
+        tab: "patient",
+      }),
+    ).toBe("/?role=admissions&surface=desktop&patient=PT-88421&tab=patient");
+    expect(parseTab("patient")).toBe("patient");
   });
 });
 

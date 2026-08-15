@@ -2,7 +2,7 @@ import type { RoleId } from "@/ui/roles";
 
 export type BoardPanel = "order" | "inbox";
 export type SurfaceId = "phone" | "split" | "desktop";
-export type PatientTab = "medication" | "dme" | "supplies";
+export type PatientTab = "patient" | "medication" | "dme" | "supplies";
 
 export type BoardQuery = {
   role: RoleId;
@@ -18,7 +18,9 @@ export function parseSurface(raw: string | null | undefined): SurfaceId {
 }
 
 export function parseTab(raw: string | null | undefined): PatientTab {
-  if (raw === "medication" || raw === "supplies") return raw;
+  if (raw === "patient" || raw === "medication" || raw === "supplies") {
+    return raw;
+  }
   return "dme";
 }
 
@@ -58,7 +60,10 @@ export function chromeQuery(input: {
           : parsePanel(input.panel),
     patient: input.nextRole === "vendor" ? null : input.patient,
     tab:
-      input.tab === "medication" || input.tab === "supplies" || input.tab === "dme"
+      input.tab === "patient" ||
+      input.tab === "medication" ||
+      input.tab === "supplies" ||
+      input.tab === "dme"
         ? input.tab
         : null,
   };
