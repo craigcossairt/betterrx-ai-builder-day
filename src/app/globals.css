@@ -26,6 +26,350 @@ body {
   font-family: var(--font-ui);
 }
 
+.demo-chrome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--line-200);
+}
+
+.demo-chrome-mark {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-400);
+}
+
+.demo-chrome-reset button {
+  font: 600 12px var(--font-ui);
+  color: #fff;
+  background: var(--ink-900);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.seg {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-100);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.seg-btn {
+  font: 600 12px var(--font-ui);
+  color: var(--ink-500);
+  background: none;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.seg-btn--on {
+  background: #fff;
+  color: var(--ink-900);
+  box-shadow: 0 1px 2px rgba(36, 51, 63, 0.08);
+}
+
+.app-stage {
+  padding: 16px;
+}
+
+.app-shell {
+  background: #fff;
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-200);
+  overflow: hidden;
+}
+
+.app-stage--phone .app-shell {
+  width: min(400px, 100%);
+  min-height: 780px;
+  margin: 0 auto;
+  border-radius: 26px;
+  box-shadow: var(--shadow-card);
+}
+
+.app-stage--split .app-shell,
+.app-stage--desktop .app-shell {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  min-height: 780px;
+}
+
+.app-stage--split .app-shell {
+  width: min(920px, 100%);
+}
+
+.app-shell-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-200);
+}
+
+.role-badge {
+  background: var(--surface-100);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-700);
+  padding: 7px 13px;
+  border-radius: 999px;
+}
+
+.desk-split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  min-height: 0;
+}
+
+.app-stage--desktop .desk-split {
+  grid-template-columns: 360px minmax(0, 1fr);
+}
+
+.desk-census {
+  border-right: 1px solid var(--line-200);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.desk-main {
+  min-width: 0;
+  overflow: auto;
+}
+
+.desk-empty {
+  padding: 24px 18px;
+}
+
+.loud-card-link,
+.quiet-row {
+  text-decoration: none;
+  color: inherit;
+}
+
+.patient-pic {
+  padding: 14px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.patient-pic-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.patient-id {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+
+.patient-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.patient-total {
+  text-align: right;
+}
+
+.patient-total b {
+  font-size: 18px;
+}
+
+.patient-total div {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-400);
+}
+
+.pic-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--surface-100);
+}
+
+.pic-tab {
+  font: 600 13px var(--font-ui);
+  color: var(--ink-400);
+  text-decoration: none;
+  padding: 10px 12px;
+}
+
+.pic-tab--on {
+  color: var(--coral-600);
+  box-shadow: inset 0 -2px 0 var(--coral-500);
+}
+
+.pic-card,
+.dme-row,
+.discharge-banner,
+.picked-patient,
+.order-lines {
+  border: 1px solid var(--line-200);
+  border-radius: 14px;
+  padding: 13px 15px;
+}
+
+.pic-card.muted {
+  color: var(--ink-500);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.pic-card-top,
+.order-line,
+.trail-step,
+.picked-patient,
+.search-hit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.dme-row {
+  padding: 4px 15px;
+  margin-bottom: 8px;
+}
+
+.dme-row summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.dme-row summary::-webkit-details-marker {
+  display: none;
+}
+
+.dme-price,
+.search-pick {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-500);
+  flex: none;
+}
+
+.trail {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 10px 13px;
+  background: var(--surface-50);
+  border-radius: 10px;
+}
+
+.trail-step {
+  font-size: 12px;
+  color: var(--ink-400);
+  padding: 4px 0;
+}
+
+.trail-step--done {
+  color: var(--ink-900);
+}
+
+.discharge-banner {
+  background: #fbf3d9;
+  border-color: color-mix(in srgb, var(--gold-400) 50%, var(--line-200));
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.search-box {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1.5px solid var(--line-200);
+  border-radius: 10px;
+  padding: 13px 14px;
+  font-size: 16px;
+  font-family: var(--font-ui);
+}
+
+.search-hit,
+.picked-patient button,
+.order-line button,
+.emr-chip {
+  font-family: var(--font-ui);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.search-hit {
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--surface-100);
+}
+
+.search-pick {
+  color: var(--blue-600);
+}
+
+.picked-patient button,
+.emr-chip {
+  color: var(--blue-600);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.emr-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.emr-chip {
+  border: 1.5px solid var(--blue-500);
+  border-radius: 999px;
+  padding: 10px 14px;
+  min-height: 42px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+
+.order-line {
+  min-height: 46px;
+  border-bottom: 1px solid var(--surface-100);
+}
+
+.order-line:last-child {
+  border-bottom: none;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -445,17 +789,10 @@ body {
 }
 
 @media (min-width: 720px) {
-  body {
-    padding: 24px 16px 40px;
-  }
-
-  .phone-shell {
-    width: min(400px, 100%);
-    min-height: 780px;
-    margin: 0 auto;
+  .demo-chrome {
+    margin-top: 16px;
     border: 1px solid var(--line-200);
-    border-radius: 26px;
+    border-radius: 14px;
     box-shadow: var(--shadow-card);
-    overflow: hidden;
   }
 }

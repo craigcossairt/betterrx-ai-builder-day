@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
+import { Suspense } from "react";
+import { DemoChrome } from "@/ui/chrome/DemoChrome";
 import { PwaRegister } from "@/ui/PwaRegister";
 import "./globals.css";
 
@@ -34,6 +36,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full">
+        <Suspense>
+          <DemoChrome />
+        </Suspense>
         {children}
         <PwaRegister />
       </body>

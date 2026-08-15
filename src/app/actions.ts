@@ -46,7 +46,14 @@ export async function placeOrderAction(
   formData: FormData,
 ): Promise<ActionResult> {
   try {
-    const hcpcs = formData.get("hcpcs") as Hcpcs;
+    const codes = formData
+      .getAll("hcpcs")
+      .map((value) => String(value))
+      .filter((code): code is Hcpcs =>
+        CATALOG.some((sku) => sku.hcpcs === code),
+      );
+    if (codes.length === 0) return { error: "Add a DME item from search or EMR." };
+    const hcpcs = codes.includes("E1390") ? "E1390" : codes[0];
     const vendorId = asVendorId(String(formData.get("vendorId")));
     const patientId = asPatientId(String(formData.get("patientId") ?? "").trim());
     if (!patientId) return { error: "Pick a patient from the census." };
@@ -85,7 +92,10 @@ export async function placeOrderAction(
     const order = placeOrder({
       patientId,
       hospice,
-      equipment: [{ hcpcs, name: sku?.name ?? hcpcs }],
+      equipment: codes.map((code) => {
+        const row = CATALOG.find((item) => item.hcpcs === code);
+        return { hcpcs: code, name: row?.name ?? code };
+      }) as [{ hcpcs: Hcpcs; name: string }, ...{ hcpcs: Hcpcs; name: string }[]],
       orderType: "stat",
       targetAt: window.deadline,
       now,

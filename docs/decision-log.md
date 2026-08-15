@@ -34,3 +34,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Judge-placed orders keep the chosen vendor quote on `OrderedOrder`. Confirm uses that quote and the stored target. Demo reset reseeds the six fixtures. See the Fable review.
 - **2026-08-15** - Census direction is 2a sentences. Locked names are primary (Helen Vargas for PT-87602). STAT never waits on the $3 gate. Elapsed uses hours under 48 hours.
 - **2026-08-15** - DON hold is strictly over $3. A rate of exactly $3 stays open. Census lines are quiet or loud; coral is only at-risk.
+- **2026-08-15** - Demo chrome (persona + Phone / Side-by-side / Desktop) sits outside the app. The app badge only names the role. Vendor sees inbox only. Patient picture has Medication / DME / Supplies. New order is patient search, then kind, then EMR or catalog search. No three-SKU chips. See #18.
