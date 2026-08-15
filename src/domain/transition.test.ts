@@ -29,6 +29,25 @@ const samplePath = join(
 );
 
 describe("transitions", () => {
+  it("places bed and oxygen on one STAT order", () => {
+    const order = placeOrder({
+      patientId: asPatientId("PT-1"),
+      hospice: asHospiceName("Sample Hospice A"),
+      equipment: [
+        { hcpcs: "E0250", name: "Hospital Bed" },
+        { hcpcs: "E1390", name: "Oxygen Concentrator" },
+      ],
+      orderType: "stat",
+      targetAt: asInstant("2026-08-14T21:00:00.000Z"),
+      now: asInstant("2026-08-14T15:00:00.000Z"),
+    });
+    expect(order.status).toBe("ordered");
+    expect(order.equipment).toEqual([
+      { hcpcs: "E0250", name: "Hospital Bed" },
+      { hcpcs: "E1390", name: "Oxygen Concentrator" },
+    ]);
+  });
+
   it("places an ordered bed that is not blocked on paperwork", () => {
     const order = placeOrder({
       patientId: asPatientId("PT-1"),

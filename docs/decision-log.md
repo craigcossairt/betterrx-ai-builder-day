@@ -41,3 +41,4 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Pickup ends in `picked_up` with `pickedUpAt`. `triggerPickup` leaves a delayed row delayed. PPD stops billing that order. See #20.
 - **2026-08-15** - Unconfirmed orders stay `ordered`. A 24-hour grace projection flags DME-10231 at-risk. No new status. See #21.
 - **2026-08-15** - DON PPD does not print a buffer-day count. The fixture never computed that driver. See #24.
+- **2026-08-15** - One STAT send can carry bed and oxygen as two lines on one order. Each line shows its preferred ETA versus the discharge window. See #23.

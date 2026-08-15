@@ -6,6 +6,7 @@ import {
   bufferDaysCopy,
   costNote,
   offerStory,
+  preferredLineStory,
   sendLabel,
 } from "@/project/order-copy";
 
@@ -37,6 +38,27 @@ describe("offerStory", () => {
     expect(story.mark).toBe("OTHER OPTION");
     expect(story.headline).toBe("Arrives about 6:00 PM - 4 hours late.");
     expect(story.detail).toBe("Stock unknown · $3.37 a day");
+  });
+});
+
+describe("preferredLineStory", () => {
+  it("states each SKU ETA against the same discharge window", () => {
+    const bed = presentOffers(
+      offersFor("E0250", window.preferredEta, window.lateEta),
+      window.deadline,
+      CATALOG,
+    );
+    const oxygen = presentOffers(
+      offersFor("E1390", window.preferredEta, window.lateEta),
+      window.deadline,
+      CATALOG,
+    );
+    expect(preferredLineStory("E0250", bed, window.deadline)).toBe(
+      "Bed: Arrives about 12:00 PM - before discharge.",
+    );
+    expect(preferredLineStory("E1390", oxygen, window.deadline)).toBe(
+      "Oxygen: Arrives about 12:00 PM - before discharge.",
+    );
   });
 });
 

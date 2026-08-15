@@ -76,3 +76,14 @@ export function offerStory(card: OfferCard, deadline: Instant): OfferStory {
     detail: `${stockLabel(card.stock)} · $${card.dailyRateUsd.toFixed(2)} a day`,
   };
 }
+
+export function preferredLineStory(
+  hcpcs: Hcpcs,
+  cards: readonly OfferCard[],
+  deadline: Instant,
+): string {
+  const preferred = cards.find((card) => card.preferred) ?? cards[0];
+  if (!preferred) return skuLabel(hcpcs);
+  return `${skuLabel(hcpcs)}: ${offerStory(preferred, deadline).headline}`;
+}
+

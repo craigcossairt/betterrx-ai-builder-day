@@ -16,8 +16,7 @@ import {
   type ShopItem,
   type ShopKind,
 } from "@/domain/shop";
-import { costNote } from "@/project/order-copy";
-import { offerStory } from "@/project/order-copy";
+import { costNote, offerStory, preferredLineStory } from "@/project/order-copy";
 import { Button } from "@/ui/Button";
 import { Input } from "@/ui/Input";
 import { Toast } from "@/ui/Toast";
@@ -210,7 +209,14 @@ export function PlaceOrderForm({
                           <span>
                             <b>{line.name}</b>
                             <span className="order-sub">
-                              Recommended vendor · stock, ETA, and price below
+                              {line.kind === "dme" &&
+                              offerSets[line.code as Hcpcs]
+                                ? preferredLineStory(
+                                    line.code as Hcpcs,
+                                    offerSets[line.code as Hcpcs],
+                                    deadline,
+                                  )
+                                : "Recommended vendor · stock, ETA, and price below"}
                             </span>
                           </span>
                           <span className="dme-price">
