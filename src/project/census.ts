@@ -65,7 +65,10 @@ type Speaker<S extends OrderStatus> = (
 ) => string;
 
 const SPEAK: { [S in OrderStatus]: Speaker<S> } = {
-  ordered: (_order, gear) => `The ${gear} is waiting on a vendor.`,
+  ordered: (order, gear) =>
+    (order.notes ?? "").includes("DON hold")
+      ? `The ${gear} is held for the director of nursing.`
+      : `The ${gear} is waiting on a vendor.`,
   dispatched: (_order, gear) => `The ${gear} is on the way.`,
   delivered: (_order, gear) => `The ${gear} is delivered.`,
   pickup_triggered: (_order, gear) => `The ${gear} pickup is in motion.`,
@@ -172,7 +175,11 @@ export function projectCensus(orders: readonly Order[], now: Instant): Census {
     lines: [...attention, ...rest].map((order) => asLine(order, now)),
     atRisk,
     delayedPickup,
-    awaitingVendor: orders.filter((order) => order.status === "ordered").length,
+    awaitingVendor: orders.filter(
+      (order) =>
+        order.status === "ordered" &&
+        !(order.notes ?? "").includes("DON hold"),
+    ).length,
     lede: needsYouLine(atRisk + delayedPickup),
   };
 }

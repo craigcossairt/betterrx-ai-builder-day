@@ -21,7 +21,7 @@ export type ChartView = {
   gender: string;
   phone: string;
   address: { line: string; note: string };
-  primaryIcd: { code: string; title: string } | null;
+  primaryIcd: { code: string; title: string | null; note?: string } | null;
   household: { name: string; note: string } | null;
   noSsn: true;
 };
@@ -50,7 +50,13 @@ export function projectChartView(chart: PatientChart): ChartView {
           : "Hospice fixture. Seeded, not from a payload.",
     },
     primaryIcd: primary
-      ? { code: primary.code, title: ICD_TITLE[primary.code] ?? primary.code }
+      ? ICD_TITLE[primary.code]
+        ? { code: primary.code, title: ICD_TITLE[primary.code] }
+        : {
+            code: primary.code,
+            title: null,
+            note: "No title on file. This code is outside the fixture map.",
+          }
       : null,
     household: chart.householdContact
       ? {

@@ -1,6 +1,6 @@
 import { CATALOG } from "@/domain/catalog";
 import { systemClock } from "@/domain/clock";
-import { asPatientId } from "@/domain/order";
+import { asOrderId, asPatientId } from "@/domain/order";
 import { demoOfferWindow, offersFor, presentOffers } from "@/domain/offers";
 import { censusPpd } from "@/domain/ppd";
 import { listSms } from "@/inbox/sms-inbox";
@@ -17,6 +17,7 @@ import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
 import { InboxScreen } from "@/ui/order";
 import { PhoneBack } from "@/ui/order/PhoneBack";
 import { VendorTaskScreen } from "@/ui/order/VendorTaskScreen";
+import { AskWhyScreen } from "@/ui/don/AskWhyScreen";
 import { DonReport } from "@/ui/don/DonReport";
 import { PatientPicture } from "@/ui/patient/PatientPicture";
 import { parseRole } from "@/ui/roles";
@@ -38,6 +39,7 @@ export default async function Home({
     surface?: string;
     patient?: string;
     tab?: string;
+    order?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -46,6 +48,7 @@ export default async function Home({
   const panel = parsePanel(params.panel);
   const tab = parseTab(params.tab);
   const patient = params.patient ? asPatientId(params.patient) : null;
+  const askOrderId = params.order ? asOrderId(params.order) : null;
   const snapshot = await (await getHospiceStore()).snapshot();
   const now = systemClock.now();
   const census = projectCensus(snapshot, now);
@@ -78,12 +81,31 @@ export default async function Home({
     panel,
     hasPatient: Boolean(patient),
   });
-  const donReport = <DonReport ppd={ppd} orders={snapshot} now={now} />;
+  const donReport = (
+    <DonReport
+      ppd={ppd}
+      orders={snapshot}
+      now={now}
+      role={role}
+      surface={surface}
+    />
+  );
   const oversightScreen = (
     <div className="oversight-screen">
       {surface === "phone" ? <PhoneBack role={role} surface={surface} /> : null}
       {donReport}
     </div>
+  );
+  const askScreen = (
+    <AskWhyScreen
+      role={role}
+      surface={surface}
+      order={
+        askOrderId
+          ? (snapshot.find((row) => row.id === askOrderId) ?? null)
+          : null
+      }
+    />
   );
 
   const orderScreen = (
@@ -151,6 +173,7 @@ export default async function Home({
     if (main === "order") return orderScreen;
     if (main === "inbox") return inboxScreen;
     if (main === "oversight") return oversightScreen;
+    if (main === "ask") return askScreen;
     if (main === "patient") return patientScreen;
     return emptyMain;
   }
@@ -164,6 +187,8 @@ export default async function Home({
       inboxScreen
     ) : view.kind === "oversight" ? (
       oversightScreen
+    ) : view.kind === "ask" ? (
+      askScreen
     ) : view.kind === "patient" ? (
       patientScreen
     ) : view.kind === "census" ? (

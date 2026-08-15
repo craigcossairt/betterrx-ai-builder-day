@@ -1168,7 +1168,7 @@ body {
   gap: 10px;
 }
 
-.vendor-ask form button,
+.vendor-ask form button:not(.propose-chip),
 .vendor-ask .window-row button {
   width: 100%;
   min-height: 48px;
@@ -1193,6 +1193,7 @@ body {
   border-radius: 12px;
   padding: 14px 16px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -1207,6 +1208,82 @@ body {
   display: flex;
   flex-direction: column;
   gap: 3px;
+}
+
+.don-item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex: none;
+}
+
+.ask-why-link {
+  font: 600 13px var(--font-ui);
+  color: var(--blue-600);
+  text-decoration: none;
+}
+
+.ask-why {
+  padding: 18px 20px 24px;
+  gap: 12px;
+}
+
+.ask-form,
+.propose-form,
+.propose-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ask-preset {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line-200);
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: 600 14px var(--font-ui);
+  cursor: pointer;
+}
+
+.ask-answer,
+.ask-on-order {
+  border: 1px solid var(--coral-200);
+  background: var(--coral-50);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.ask-on-order {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.propose-days,
+.propose-hours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.propose-chip {
+  border: 1px solid var(--line-200);
+  background: #fff;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: 600 12px var(--font-ui);
+  cursor: pointer;
+}
+
+.propose-chip--on {
+  background: var(--ink-900);
+  color: #fff;
+  border-color: var(--ink-900);
 }
 
 .idle-num,
@@ -1271,6 +1348,19 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.review-try {
+  display: block;
+  margin-top: 4px;
+  font: 600 12px var(--font-ui);
+  color: var(--blue-600);
 }
 
 .review-line--late {

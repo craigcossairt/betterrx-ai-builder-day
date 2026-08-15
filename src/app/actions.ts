@@ -27,6 +27,12 @@ import {
   placeOrder,
   triggerPickup,
 } from "@/domain/transition";
+import { answerDonAsk, askDonWhy, resetDonAsks } from "@/inbox/don-ask";
+import {
+  clearDeliveryPhoto,
+  resetDeliveryPhotos,
+  saveDeliveryPhoto,
+} from "@/inbox/delivery-photos";
 import { queueConfirmSms, resetSms, seedSmsIfEmpty } from "@/inbox/sms-inbox";
 import {
   resetDischargeOverrides,
@@ -56,7 +62,21 @@ export async function placeOrderAction(
       );
     if (codes.length === 0) return { error: "Add a DME item from search or EMR." };
     const hcpcs = codes.includes("E1390") ? "E1390" : codes[0];
-    const vendorId = asVendorId(String(formData.get("vendorId")));
+    const defaultVendorId = asVendorId(String(formData.get("vendorId")));
+    const lineVendors = new Map<Hcpcs, ReturnType<typeof asVendorId>>();
+    for (const raw of formData.getAll("lineVendor")) {
+      const [code, vendor] = String(raw).split(":");
+      if (codes.includes(code as Hcpcs) && vendor) {
+        lineVendors.set(code as Hcpcs, asVendorId(vendor));
+      }
+    }
+    const groups = new Map<string, Hcpcs[]>();
+    for (const code of codes) {
+      const vendor = lineVendors.get(code) ?? defaultVendorId;
+      const bucket = groups.get(vendor) ?? [];
+      bucket.push(code);
+      groups.set(vendor, bucket);
+    }
     const patientId = asPatientId(String(formData.get("patientId") ?? "").trim());
     if (!patientId) return { error: "Pick a patient from the census." };
     const overrideReason = String(formData.get("overrideReason") ?? "").trim();
@@ -68,67 +88,71 @@ export async function placeOrderAction(
         : "stat";
     const now = systemClock.now();
     const window = demoOfferWindow(now);
-    const ranked = rankOptions(
-      offersFor(hcpcs, window.preferredEta, window.lateEta),
-      window.deadline,
-    );
-    const gatePreview = costGate({
-      orderType,
-      dailyRateUsd:
-        ranked.find((row) => row.vendorId === vendorId)?.dailyRateUsd ?? 0,
-    });
-    const chosen =
-      gatePreview.verdict === "hold"
-        ? ranked.find((row) => row.vendorId === vendorId)
-        : chooseOffer({
-            ranked,
-            vendorId,
-            overrideReason,
-            donReason,
-            orderType,
-          });
-    if (!chosen) return { error: "unknown vendor option" };
-    if (chosen !== ranked[0] && overrideReason.length === 0) {
-      return { error: "override needs a reason" };
-    }
-    const sku = CATALOG.find((row) => row.hcpcs === hcpcs);
     const store = await getHospiceStore();
     const existing = (await store.snapshot()).find(
       (row) => row.patientId === patientId,
     );
     const hospice = existing?.hospice ?? asHospiceName("Sample Hospice A");
-    const gate = costGate({
-      orderType,
-      dailyRateUsd: chosen.dailyRateUsd,
-    });
-    const notes = [
-      chosen !== ranked[0] ? `Override: ${overrideReason}` : null,
-      gate.verdict === "hold" ? "DON hold" : null,
-      gate.verdict === "retro" ? gate.note : null,
-    ]
-      .filter(Boolean)
-      .join(" ");
-    const order = placeOrder({
-      patientId,
-      hospice,
-      equipment: codes.map((code) => {
-        const row = CATALOG.find((item) => item.hcpcs === code);
-        return { hcpcs: code, name: row?.name ?? code };
-      }) as [{ hcpcs: Hcpcs; name: string }, ...{ hcpcs: Hcpcs; name: string }[]],
-      orderType,
-      targetAt: window.deadline,
-      now,
-      quotedVendorId: chosen.vendorId,
-      quotedEta: chosen.eta,
-    });
-    if (notes) order.notes = notes;
-    await store.replace(order);
-    if (gate.verdict !== "hold") {
-      queueConfirmSms({
-        now,
-        orderId: order.id,
-        equipmentName: sku?.name ?? hcpcs,
+    for (const [vendorKey, groupCodes] of groups) {
+      const vendorId = asVendorId(vendorKey);
+      const hcpcs = groupCodes.includes("E1390") ? "E1390" : groupCodes[0];
+      const ranked = rankOptions(
+        offersFor(hcpcs, window.preferredEta, window.lateEta),
+        window.deadline,
+      );
+      const gatePreview = costGate({
+        orderType,
+        dailyRateUsd:
+          ranked.find((row) => row.vendorId === vendorId)?.dailyRateUsd ?? 0,
       });
+      const chosen =
+        gatePreview.verdict === "hold"
+          ? ranked.find((row) => row.vendorId === vendorId)
+          : chooseOffer({
+              ranked,
+              vendorId,
+              overrideReason,
+              donReason,
+              orderType,
+            });
+      if (!chosen) return { error: "unknown vendor option" };
+      if (chosen !== ranked[0] && overrideReason.length === 0) {
+        return { error: "override needs a reason" };
+      }
+      const sku = CATALOG.find((row) => row.hcpcs === hcpcs);
+      const gate = costGate({
+        orderType,
+        dailyRateUsd: chosen.dailyRateUsd,
+      });
+      const notes = [
+        chosen !== ranked[0] ? `Override: ${overrideReason}` : null,
+        gate.verdict === "hold" ? "DON hold" : null,
+        gate.verdict === "retro" ? gate.note : null,
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const order = placeOrder({
+        patientId,
+        hospice,
+        equipment: groupCodes.map((code) => {
+          const row = CATALOG.find((item) => item.hcpcs === code);
+          return { hcpcs: code, name: row?.name ?? code };
+        }) as [{ hcpcs: Hcpcs; name: string }, ...{ hcpcs: Hcpcs; name: string }[]],
+        orderType,
+        targetAt: window.deadline,
+        now,
+        quotedVendorId: chosen.vendorId,
+        quotedEta: chosen.eta,
+      });
+      if (notes) order.notes = notes;
+      await store.replace(order);
+      if (gate.verdict !== "hold") {
+        queueConfirmSms({
+          now,
+          orderId: order.id,
+          equipmentName: sku?.name ?? hcpcs,
+        });
+      }
     }
     revalidatePath("/");
     return { ok: true };
@@ -288,10 +312,38 @@ export async function emrDeathAction(formData: FormData): Promise<void> {
   revalidatePath("/");
 }
 
+export async function askDonWhyAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const question = String(
+    formData.get("question") || formData.get("customQuestion") || "",
+  ).trim();
+  if (!question) return;
+  askDonWhy(id, question, systemClock.now());
+  revalidatePath("/");
+}
+
+export async function answerDonAskAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const text = String(formData.get("answer") ?? "").trim();
+  if (!text) return;
+  answerDonAsk(id, text, systemClock.now());
+  revalidatePath("/");
+}
+
+export async function saveDeliveryPhotoAction(formData: FormData): Promise<void> {
+  const id = asOrderId(String(formData.get("orderId")));
+  const remove = String(formData.get("remove") ?? "") === "1";
+  if (remove) clearDeliveryPhoto(id);
+  else saveDeliveryPhoto(id, systemClock.now());
+  revalidatePath("/");
+}
+
 export async function resetDemoAction(): Promise<void> {
   const store = await getHospiceStore();
   await store.reset(loadSeedOrders());
   resetSms();
+  resetDonAsks();
+  resetDeliveryPhotos();
   resetDischargeOverrides();
   await seedSmsIfEmpty(systemClock.now(), asOrderId("DME-10231"));
   revalidatePath("/");

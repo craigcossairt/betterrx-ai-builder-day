@@ -46,11 +46,13 @@ export function reviewLines(
   vendorId: VendorId,
   offerSets: Record<Hcpcs, OfferCard[]>,
   deadline: Instant,
+  lineVendors: Readonly<Record<string, string>> = {},
 ): LineReview[] {
   return lines.flatMap((line) => {
     if (!asHcpcs(line.code)) return [];
+    const chosen = lineVendors[line.code] ?? vendorId;
     const card =
-      offerSets[line.code]?.find((row) => row.vendorId === vendorId) ??
+      offerSets[line.code]?.find((row) => row.vendorId === chosen) ??
       offerSets[line.code]?.[0];
     if (!card) return [];
     return [

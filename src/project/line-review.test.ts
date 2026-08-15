@@ -39,4 +39,26 @@ describe("reviewLines", () => {
     expect(lateVendor[1]?.vsWindow).toBe("late");
     expect(lateVendor[1]?.deltaLabel).toMatch(/late/i);
   });
+
+  it("lets one line try the other vendor without moving the rest", () => {
+    const offerSets = {
+      E0250: presentOffers(offersFor("E0250", preferred, late), deadline, CATALOG),
+      E1390: presentOffers(offersFor("E1390", preferred, late), deadline, CATALOG),
+      E1130: presentOffers(offersFor("E1130", preferred, late), deadline, CATALOG),
+    };
+    const mixed = reviewLines(
+      [
+        { code: "E0250", name: "Hospital Bed" },
+        { code: "E1390", name: "Oxygen Concentrator" },
+      ],
+      asVendorId("vendor-1"),
+      offerSets,
+      deadline,
+      { E1390: "vendor-2" },
+    );
+    expect(mixed.map((line) => [line.code, line.vendorId, line.vsWindow])).toEqual([
+      ["E0250", "vendor-1", "early"],
+      ["E1390", "vendor-2", "late"],
+    ]);
+  });
 });

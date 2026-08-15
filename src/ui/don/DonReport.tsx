@@ -7,18 +7,25 @@ import {
   acknowledgeRetroAction,
   approveHoldAction,
 } from "@/app/actions";
+import { getDonAsk } from "@/inbox/don-ask";
 import { Button } from "@/ui/Button";
+import { boardHref, type SurfaceId } from "@/ui/nav";
+import type { RoleId } from "@/ui/roles";
 
 export function DonReport({
   ppd,
   orders = [],
   now,
   compact = false,
+  role = "don",
+  surface = "desktop",
 }: {
   ppd: PpdReport;
   orders?: readonly Order[];
   now?: Instant;
   compact?: boolean;
+  role?: RoleId;
+  surface?: SurfaceId;
 }) {
   const morphine = MEDS[0];
   if (compact) {
@@ -72,12 +79,29 @@ export function DonReport({
                 </span>
               </div>
               {item.kind === "hold" ? (
-                <form action={approveHoldAction}>
-                  <input type="hidden" name="orderId" value={item.orderId} />
-                  <Button variant="app" size="sm" type="submit">
-                    Approve
-                  </Button>
-                </form>
+                <div className="don-item-actions">
+                  <form action={approveHoldAction}>
+                    <input type="hidden" name="orderId" value={item.orderId} />
+                    <Button variant="app" size="sm" type="submit">
+                      Approve
+                    </Button>
+                  </form>
+                  <a
+                    className="ask-why-link"
+                    href={boardHref({
+                      role,
+                      surface,
+                      panel: "ask",
+                      order: item.orderId,
+                    })}
+                  >
+                    {getDonAsk(item.orderId)
+                      ? getDonAsk(item.orderId)?.answer
+                        ? "Reopen"
+                        : "Asked · waiting"
+                      : "Ask why"}
+                  </a>
+                </div>
               ) : (
                 <form action={acknowledgeRetroAction}>
                   <input type="hidden" name="orderId" value={item.orderId} />

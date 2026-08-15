@@ -6,7 +6,10 @@ import { projectCensus } from "@/project/census";
 import { projectChartView } from "@/project/chart-view";
 import { projectMedFills } from "@/project/med-fill";
 import { projectTrail } from "@/project/trail";
-import { requestPickupAction } from "@/app/actions";
+import { answerDonAskAction, requestPickupAction } from "@/app/actions";
+import { getDonAsk } from "@/inbox/don-ask";
+import { getDeliveryPhoto } from "@/inbox/delivery-photos";
+import { suppliesFor } from "@/domain/supplies";
 import { DischargeReadyForm } from "@/ui/DischargeReadyForm";
 import { Button } from "@/ui/Button";
 import { formatStamp } from "@/ui/format";
@@ -129,9 +132,14 @@ export function PatientPicture({
               <span className="chart-label">Primary ICD-10</span>
               <span className="chart-value">
                 {view.primaryIcd
-                  ? `${view.primaryIcd.code} · ${view.primaryIcd.title}`
+                  ? view.primaryIcd.title
+                    ? `${view.primaryIcd.code} · ${view.primaryIcd.title}`
+                    : view.primaryIcd.code
                   : "None on file"}
               </span>
+              {view.primaryIcd?.note ? (
+                <span className="order-sub">{view.primaryIcd.note}</span>
+              ) : null}
             </div>
           </div>
           {view.household ? (
@@ -223,6 +231,8 @@ export function PatientPicture({
                 line.order.status === "delivered" ||
                 line.order.status === "pickup_triggered" ||
                 line.order.status === "pickup_delayed";
+              const asked = getDonAsk(line.order.id);
+              const photo = getDeliveryPhoto(line.order.id);
               return (
                 <details key={line.order.id} className="dme-row">
                   <summary>
@@ -236,6 +246,29 @@ export function PatientPicture({
                       {rate ? `$${rate.toFixed(2)}/day` : ""}
                     </span>
                   </summary>
+                  {asked ? (
+                    <div className="ask-on-order">
+                      <span className="chart-label">DON asked</span>
+                      <p>{asked.question}</p>
+                      {asked.answer ? (
+                        <p className="order-sub">Nurse: {asked.answer.text}</p>
+                      ) : (
+                        <form action={answerDonAskAction}>
+                          <input type="hidden" name="orderId" value={line.order.id} />
+                          <input
+                            className="search-box"
+                            name="answer"
+                            required
+                            placeholder="One-line answer"
+                            aria-label="Answer the director"
+                          />
+                          <Button variant="app" size="sm" type="submit">
+                            Send answer
+                          </Button>
+                        </form>
+                      )}
+                    </div>
+                  ) : null}
                   {delivered?.proofOfDelivery ? (
                     <p className="order-sub">
                       Proof of delivery.
@@ -244,6 +277,9 @@ export function PatientPicture({
                         ? " Signature captured."
                         : ""}
                     </p>
+                  ) : null}
+                  {photo ? (
+                    <p className="order-sub">Delivery photo saved on the order.</p>
                   ) : null}
                   <ol className="trail">
                     {trail.map((step) => (
@@ -288,27 +324,41 @@ export function PatientPicture({
         </div>
       ) : null}
       {tab === "supplies" ? (
-        <div className="supply-empty">
-          <p className="supply-lead">No supplies ordered.</p>
-          <ul className="supply-cats">
-            <li>Wound care</li>
-            <li>Incontinence</li>
-            <li>Gloves</li>
-          </ul>
-          <p className="order-sub">
-            Supplies are consumables. They are delivered and confirmed like
-            equipment, but they are never picked up, including after a death.
-          </p>
-          <a
-            className="supply-order"
-            href={boardHref({ role, surface, panel: "order" })}
-          >
-            Order supplies
-          </a>
-          <p className="ssn-note">
-            Ordered by description. No HCPCS code is assigned in this build.
-          </p>
-        </div>
+        suppliesFor(id).length > 0 ? (
+          <div className="supply-empty">
+            {suppliesFor(id).map((row) => (
+              <div key={row.name} className="chart-card">
+                <b>{row.name}</b>
+                <p className="order-sub">
+                  Delivered. Stays in the home. Supplies are never picked up,
+                  including after a death.
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="supply-empty">
+            <p className="supply-lead">No supplies ordered.</p>
+            <ul className="supply-cats">
+              <li>Wound care</li>
+              <li>Incontinence</li>
+              <li>Gloves</li>
+            </ul>
+            <p className="order-sub">
+              Supplies are consumables. They are delivered and confirmed like
+              equipment, but they are never picked up, including after a death.
+            </p>
+            <a
+              className="supply-order"
+              href={boardHref({ role, surface, panel: "order" })}
+            >
+              Order supplies
+            </a>
+            <p className="ssn-note">
+              Ordered by description. No HCPCS code is assigned in this build.
+            </p>
+          </div>
+        )
       ) : null}
     </section>
   );

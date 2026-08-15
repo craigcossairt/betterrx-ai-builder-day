@@ -6,34 +6,35 @@ export default function IntegrationPage() {
       <p className="order-sub">
         <Link href="/?role=admissions&surface=desktop">Back to the app</Link>
       </p>
-      <h1 className="patient-title">Integration sketch</h1>
+      <h1 className="patient-title">How DME sits beside BetterRX</h1>
       <p>
-        No live EMR this weekend. BetterRX already receives ADT. DME sits
-        beside the same patient identifiers.
+        This page is a weekend note for judges. It is not a product screen and
+        there is no live EMR in this build.
+      </p>
+      <p>
+        BetterRX already receives hospice ADT. Eleanor Bishop&apos;s Patient
+        and Medication tabs are the FAQ eRx payload. This app adds equipment
+        beside those same patient identifiers. It does not write back to
+        pharmacy.
       </p>
       <ol className="trail">
         <li className="trail-step trail-step--done">
           <span>In. newOrUpdatePatient</span>
-          <span>Demographics, ICD-10, allergies</span>
+          <span>Demographics, ICD-10, allergies. No SSN.</span>
         </li>
         <li className="trail-step trail-step--done">
           <span>In. newMedications</span>
-          <span>NDC, SIG, prescriber NPI</span>
+          <span>NDC, SIG, prescriber NPI. Already filled by BetterRX.</span>
         </li>
         <li className="trail-step trail-step--done">
-          <span>Out. DME status events</span>
-          <span>Keyed by patient.identifiers</span>
+          <span>Out. DME status</span>
+          <span>Keyed by the same patient id. Confirm, deliver, pickup.</span>
         </li>
       </ol>
       <p>
-        HCHB is the partner-layer story. Existing DME vendors already plug in
-        that way. WellSky bought DME software in 2024, so some agencies may
-        already have bundled tooling.
-      </p>
-      <p className="order-sub">
-        Axxess is a partner connection, not an assumed open API. MatrixCare has
-        a bi-directional DME interface in the EHR. Paperwork does not block a
-        STAT bed.
+        HCHB is the named partner-layer story. Axxess and MatrixCare are
+        advertised BetterRX pharmacy connections, not open APIs we call this
+        weekend. Paperwork does not block a STAT bed.
       </p>
     </main>
   );

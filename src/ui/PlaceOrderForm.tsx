@@ -51,6 +51,7 @@ export function PlaceOrderForm({
   const [itemQuery, setItemQuery] = useState("");
   const [lines, setLines] = useState<ShopItem[]>([]);
   const [vendorId, setVendorId] = useState("vendor-1");
+  const [lineVendors, setLineVendors] = useState<Record<string, string>>({});
   const [orderType, setOrderType] = useState<OrderType>("stat");
   const [reviewing, setReviewing] = useState(false);
   const [state, formAction, pending] = useActionState(placeOrderAction, {});
@@ -65,7 +66,17 @@ export function PlaceOrderForm({
   const cards = offerSets[primary] ?? offerSets.E0250;
   const selected = cards.find((card) => card.vendorId === vendorId) ?? cards[0];
   const total = lines.reduce((sum, line) => sum + (line.dailyRateUsd ?? 0), 0);
-  const needsOverride = selected && !selected.preferred;
+  const reviews = reviewLines(
+    dmeLines,
+    asVendorId(vendorId),
+    offerSets,
+    deadline,
+    lineVendors,
+  );
+  const needsOverride = reviews.some((line) => {
+    const preferred = offerSets[line.code]?.find((card) => card.preferred);
+    return Boolean(preferred && preferred.vendorId !== line.vendorId);
+  });
   const note = selected
     ? costNote({
         orderType,
@@ -77,12 +88,6 @@ export function PlaceOrderForm({
     ? costGate({ orderType, dailyRateUsd: selected.dailyRateUsd })
     : { verdict: "open" as const };
   const canSend = dmeLines.length > 0;
-  const reviews = reviewLines(
-    dmeLines,
-    asVendorId(vendorId),
-    offerSets,
-    deadline,
-  );
 
   const results = useMemo(
     () => hits.filter((item) => !lines.some((line) => line.code === item.code)),
@@ -101,6 +106,14 @@ export function PlaceOrderForm({
     <form action={formAction} className="order-screen">
       {dmeLines.map((line) => (
         <input key={line.code} type="hidden" name="hcpcs" value={line.code} />
+      ))}
+      {dmeLines.map((line) => (
+        <input
+          key={`vendor-${line.code}`}
+          type="hidden"
+          name="lineVendor"
+          value={`${line.code}:${lineVendors[line.code] ?? vendorId}`}
+        />
       ))}
       <input type="hidden" name="vendorId" value={selected?.vendorId ?? ""} />
       <input type="hidden" name="patientId" value={patient?.id ?? ""} />
@@ -289,7 +302,10 @@ export function PlaceOrderForm({
                                   ? "offer-card offer-card--best"
                                   : "offer-card"
                             }
-                            onClick={() => setVendorId(card.vendorId)}
+                            onClick={() => {
+                              setVendorId(card.vendorId);
+                              setLineVendors({});
+                            }}
                           >
                             <div className="offer-card-top">
                               <b>{formatVendor(card.vendorId)}</b>
@@ -304,7 +320,7 @@ export function PlaceOrderForm({
                         );
                       })}
                     </div>
-                    {needsOverride ? (
+                    {needsOverride && !reviewing ? (
                       <Input
                         name="overrideReason"
                         label="Why this vendor?"
@@ -343,28 +359,50 @@ export function PlaceOrderForm({
           <p className="order-sub">
             Discharge window {formatWhen(deadline)}
           </p>
-          {reviews.map((line) => (
-            <div
-              key={line.code}
-              className={
-                line.vsWindow === "late"
-                  ? "review-line review-line--late"
-                  : "review-line"
-              }
-            >
-              <div>
-                <b>{line.name}</b>
-                <span className="order-sub">
-                  {line.code} · {formatVendor(line.vendorId)}
-                </span>
-              </div>
-              <div className="review-eta">
-                <b>{line.whenLabel}</b>
-                <span>{line.deltaLabel}</span>
-              </div>
-            </div>
-          ))}
+          {reviews.map((line) => {
+            const other =
+              line.vendorId === "vendor-1" ? "vendor-2" : "vendor-1";
+            return (
+              <button
+                key={line.code}
+                type="button"
+                className={
+                  line.vsWindow === "late"
+                    ? "review-line review-line--late"
+                    : "review-line"
+                }
+                onClick={() =>
+                  setLineVendors((current) => ({
+                    ...current,
+                    [line.code]: other,
+                  }))
+                }
+              >
+                <div>
+                  <b>{line.name}</b>
+                  <span className="order-sub">
+                    {line.code} · {formatVendor(line.vendorId)}
+                  </span>
+                  <span className="review-try">
+                    Try {formatVendor(other)}
+                  </span>
+                </div>
+                <div className="review-eta">
+                  <b>{line.whenLabel}</b>
+                  <span>{line.deltaLabel}</span>
+                </div>
+              </button>
+            );
+          })}
           {note ? <p className="cost-note">{note}</p> : null}
+          {needsOverride ? (
+            <Input
+              name="overrideReason"
+              label="Why this vendor?"
+              hint="Required when a line skips the recommended option."
+              required
+            />
+          ) : null}
           {gate.verdict === "hold" ? (
             <p className="cost-note">
               Routine over $3 is held for the director of nursing. STAT would

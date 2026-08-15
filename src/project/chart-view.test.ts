@@ -23,6 +23,19 @@ describe("projectChartView", () => {
     expect(JSON.stringify(view)).not.toContain("123-35-3752");
   });
 
+  it("says when an ICD code has no fixture title", () => {
+    const chart = lookupChart(asPatientId("PT-88421"));
+    const view = projectChartView({
+      ...chart,
+      diagnoses: [{ codeType: "icd10Code", code: "Z99.99", isPrimary: true }],
+    });
+    expect(view.primaryIcd).toEqual({
+      code: "Z99.99",
+      title: null,
+      note: "No title on file. This code is outside the fixture map.",
+    });
+  });
+
   it("keeps Helen as a hospice fixture, not an on-service hold patient", () => {
     const view = projectChartView(lookupChart(asPatientId("PT-87602")));
     expect(view.source).toBe("hospice_fixture");

@@ -20,8 +20,14 @@ describe("projectDonQueue", () => {
       frozenClock("2026-08-14T17:00:00.000Z"),
     );
     const queue = projectDonQueue(orders, CATALOG, now);
-    expect(queue.waiting.map((item) => item.kind)).toEqual(["retro"]);
+    expect(queue.waiting.map((item) => item.kind)).toEqual(["hold", "retro"]);
     expect(queue.waiting[0]).toMatchObject({
+      kind: "hold",
+      orderId: "DME-10322",
+      who: "Sam Whitaker",
+      hcpcs: "E1390",
+    });
+    expect(queue.waiting[1]).toMatchObject({
       kind: "retro",
       orderId: "DME-10305",
       who: "Margaret Holt",
@@ -44,6 +50,7 @@ describe("projectDonQueue", () => {
         : order,
     );
     const queue = projectDonQueue(orders, CATALOG, now);
-    expect(queue.waiting).toEqual([]);
+    expect(queue.waiting.map((item) => item.kind)).toEqual(["hold"]);
+    expect(queue.waiting[0]?.orderId).toBe("DME-10322");
   });
 });

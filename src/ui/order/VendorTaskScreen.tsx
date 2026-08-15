@@ -3,13 +3,16 @@ import {
   declineOrderAction,
   markDeliveredAction,
   markPickedUpAction,
+  saveDeliveryPhotoAction,
   setPickupWindowAction,
 } from "@/app/actions";
 import type { Order } from "@/domain/order";
+import { getDeliveryPhoto } from "@/inbox/delivery-photos";
 import type { SmsMessage } from "@/inbox/sms-inbox";
 import { projectVendorTask } from "@/project/vendor-task";
 import { Button } from "@/ui/Button";
 import { PhoneBack } from "@/ui/order/PhoneBack";
+import { ProposePickup } from "@/ui/order/ProposePickup";
 import type { SurfaceId } from "@/ui/nav";
 import type { RoleId } from "@/ui/roles";
 
@@ -99,13 +102,26 @@ export function VendorTaskScreen({
             {task.kind === "deliver" ? (
               <div className="vendor-ask">
                 <p className="vendor-q">Dropped it off?</p>
+                {getDeliveryPhoto(task.orderId) ? (
+                  <p className="order-sub">Photo saved on the order.</p>
+                ) : (
+                  <form action={saveDeliveryPhotoAction}>
+                    <input type="hidden" name="orderId" value={task.orderId} />
+                    <Button variant="outline" type="submit">
+                      Save the photo to the order
+                    </Button>
+                  </form>
+                )}
                 <form action={markDeliveredAction}>
                   <input type="hidden" name="orderId" value={task.orderId} />
                   <Button variant="app" type="submit">
                     Mark delivered
                   </Button>
                 </form>
-                <p className="ssn-note">Photo is optional. Not stored in this build.</p>
+                <p className="ssn-note">
+                  The photo is a stand-in. It stays on the order so the trail
+                  can show it.
+                </p>
               </div>
             ) : null}
             {task.kind === "pickup_window" ? (
@@ -126,6 +142,7 @@ export function VendorTaskScreen({
                     Tomorrow AM
                   </Button>
                 </form>
+                <ProposePickup orderId={task.orderId} />
               </div>
             ) : null}
             {task.kind === "picked_up" ? (

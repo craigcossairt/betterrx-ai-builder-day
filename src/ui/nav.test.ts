@@ -16,7 +16,16 @@ describe("boardHref", () => {
     );
     expect(parsePanel("order")).toBe("order");
     expect(parsePanel("oversight")).toBe("oversight");
+    expect(parsePanel("ask")).toBe("ask");
     expect(parsePanel("nope")).toBeNull();
+    expect(
+      boardHref({
+        role: "don",
+        surface: "desktop",
+        panel: "ask",
+        order: "DME-10322",
+      }),
+    ).toBe("/?role=don&surface=desktop&panel=ask&order=DME-10322");
   });
 
   it("keeps the demo surface and a patient on the query", () => {
@@ -29,6 +38,7 @@ describe("boardHref", () => {
       }),
     ).toBe("/?role=admissions&surface=desktop&patient=PT-88502&tab=dme");
     expect(parseSurface("desktop")).toBe("desktop");
+    expect(parseSurface("split")).toBe("desktop");
     expect(parseSurface("wide")).toBe("phone");
   });
 
@@ -101,6 +111,25 @@ describe("resolveBoardView", () => {
     ).toEqual({ kind: "oversight" });
   });
 
+  it("opens Ask why on the DON phone and desktop", () => {
+    expect(
+      resolveBoardView({
+        role: "don",
+        surface: "phone",
+        panel: "ask",
+        hasPatient: false,
+      }),
+    ).toEqual({ kind: "ask" });
+    expect(
+      resolveBoardView({
+        role: "don",
+        surface: "desktop",
+        panel: "ask",
+        hasPatient: true,
+      }),
+    ).toEqual({ kind: "desk", main: "ask" });
+  });
+
   it("keeps the vendor on the SMS task on every surface", () => {
     expect(
       resolveBoardView({
@@ -140,6 +169,25 @@ describe("chromeQuery", () => {
         nextRole: "admissions",
         surface: "desktop",
         panel: "oversight",
+        patient: null,
+        tab: null,
+      }),
+    ).toEqual({
+      role: "admissions",
+      surface: "desktop",
+      panel: null,
+      patient: null,
+      tab: null,
+    });
+  });
+
+  it("drops Ask why when leaving the DON persona", () => {
+    expect(
+      chromeQuery({
+        role: "don",
+        nextRole: "admissions",
+        surface: "desktop",
+        panel: "ask",
         patient: null,
         tab: null,
       }),
