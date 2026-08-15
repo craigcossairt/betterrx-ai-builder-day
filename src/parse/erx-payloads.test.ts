@@ -38,4 +38,15 @@ describe("parseErxFile", () => {
     expect(JSON.stringify(eleanor)).not.toContain("123-35-3752");
     expect(eleanor).not.toHaveProperty("ssn");
   });
+
+  it("gives Margaret one morphine event in the same eRx shape", () => {
+    const file = JSON.parse(readFileSync(payloadPath, "utf8"));
+    const parsed = parseErxFile(file);
+    const margaret = chartFor(asPatientId("PT-88502"), parsed);
+    expect(margaret.source).toBe("hospice_fixture");
+    expect(margaret.medications).toHaveLength(1);
+    expect(margaret.medications[0]?.ndc).toBe("00054051741");
+    expect(margaret.medications[0]?.prescriberNpi).toBe("1497771109");
+    expect(JSON.stringify(margaret)).not.toContain("123-35-3752");
+  });
 });
