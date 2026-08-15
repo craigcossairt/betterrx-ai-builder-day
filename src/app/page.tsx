@@ -74,6 +74,8 @@ export default async function Home({
       lateEta={window.lateEta}
       role={role}
       surface={surface}
+      initialPatientId={patient ?? undefined}
+      initialKind={tab === "supplies" ? "supplies" : "dme"}
     />
   );
   const inboxScreen = (

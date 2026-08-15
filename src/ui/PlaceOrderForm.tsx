@@ -4,8 +4,9 @@ import { useActionState, useMemo, useState } from "react";
 import { placeOrderAction } from "@/app/actions";
 import type { Instant } from "@/domain/clock";
 import { costGate, supplyOffers, type OfferCard } from "@/domain/offers";
-import type { Hcpcs } from "@/domain/order";
+import { asPatientId, type Hcpcs } from "@/domain/order";
 import {
+  lookupPatient,
   searchPatients,
   type CensusPatient,
 } from "@/domain/patients";
@@ -38,6 +39,8 @@ export function PlaceOrderForm({
   lateEta,
   role,
   surface,
+  initialPatientId,
+  initialKind,
 }: {
   offerSets: Record<Hcpcs, OfferCard[]>;
   deadline: Instant;
@@ -45,10 +48,14 @@ export function PlaceOrderForm({
   lateEta: Instant;
   role: RoleId;
   surface: SurfaceId;
+  initialPatientId?: string;
+  initialKind?: ShopKind;
 }) {
   const [query, setQuery] = useState("");
-  const [patient, setPatient] = useState<CensusPatient | null>(null);
-  const [kind, setKind] = useState<ShopKind>("dme");
+  const [patient, setPatient] = useState<CensusPatient | null>(
+    initialPatientId ? lookupPatient(asPatientId(initialPatientId)) : null,
+  );
+  const [kind, setKind] = useState<ShopKind>(initialKind ?? "dme");
   const [itemQuery, setItemQuery] = useState("");
   const [lines, setLines] = useState<ShopItem[]>([]);
   const [vendorId, setVendorId] = useState("vendor-1");

@@ -292,7 +292,18 @@ export function PatientPicture({
         supplies.length === 0 ? (
           <div className="pic-card muted">
             No supplies yet. Wound care, incontinence, and gloves order like
-            equipment. No pickup after a death.
+            equipment. No pickup after a death.{" "}
+            <a
+              href={boardHref({
+                role,
+                surface,
+                panel: "order",
+                patient: id,
+                tab: "supplies",
+              })}
+            >
+              Order supplies
+            </a>
           </div>
         ) : (
           <div className="dme-rows">
