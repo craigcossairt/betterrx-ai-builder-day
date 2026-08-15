@@ -17,6 +17,7 @@ const SKUS: { hcpcs: "E0250" | "E1390"; name: string }[] = [
 export type OrderPatient = {
   id: string;
   hospice: string;
+  displayName: string;
 };
 
 function stockLabel(stock: OfferCard["stock"]): string {
@@ -38,7 +39,9 @@ export function PlaceOrderForm({
   const [patientId, setPatientId] = useState(patients[0]?.id ?? "");
   const selected = cards.find((card) => card.vendorId === vendorId) ?? cards[0];
   const needsOverride = !selected.preferred;
-  const needsDon = selected.dailyRateUsd >= COST_THRESHOLD_USD;
+  const orderType = "stat" as const;
+  const needsDon =
+    selected.dailyRateUsd >= COST_THRESHOLD_USD && orderType !== "stat";
   const [state, formAction, pending] = useActionState(placeOrderAction, {});
 
   function pickSku(next: "E0250" | "E1390") {
@@ -74,10 +77,10 @@ export function PlaceOrderForm({
             }}
           >
             <div style={{ fontWeight: 700, color: "var(--ink-900)" }}>
-              {patient.id}
+              {patient.displayName}
             </div>
             <div style={{ fontSize: 13, color: "var(--ink-500)" }}>
-              {patient.hospice}
+              {patient.id} · {patient.hospice}
             </div>
           </button>
         ))}
@@ -173,7 +176,7 @@ export function PlaceOrderForm({
         <Input
           name="donReason"
           label="Director of nursing reason"
-          hint="Required when the daily rate is $3.00 or more."
+          hint="Required on routine orders at $3.00 a day or more. STAT sends now."
           required
         />
       ) : null}

@@ -6,12 +6,13 @@ import { dischargeReady, showDischargeGate } from "@/domain/discharge";
 import { escalate } from "@/domain/escalation";
 import { demoOfferWindow, offersFor, presentOffers } from "@/domain/offers";
 import { censusPpd } from "@/domain/ppd";
-import { PICKUP_SLA_HOURS, pickupElapsedDays } from "@/domain/pickup";
+import { PICKUP_SLA_HOURS, formatElapsed } from "@/domain/pickup";
 import { listSms } from "@/inbox/sms-inbox";
 import { supabaseConfig } from "@/lib/supabase";
 import { getHospiceStore } from "@/store/hospice-store";
 import { getDischargeOverride } from "@/store/discharge-overrides";
-import { projectCensus } from "@/project/census";
+import { lookupPatient } from "@/domain/patients";
+import { censusSentence, projectCensus } from "@/project/census";
 import { Badge, Button } from "@/ui";
 import { formatLaneLabel, formatStamp } from "@/ui/format";
 import { OrderActions } from "@/ui/OrderActions";
@@ -63,16 +64,27 @@ function dischargeLine(order: Order, snapshot: readonly Order[]) {
 }
 
 function censusPatients(orders: readonly Order[]) {
-  const seen = new Map<string, { id: string; hospice: string }>();
+  const seen = new Map<
+    string,
+    { id: string; hospice: string; displayName: string }
+  >();
   for (const order of orders) {
     if (!seen.has(order.patientId)) {
       seen.set(order.patientId, {
         id: order.patientId,
         hospice: order.hospice,
+        displayName: lookupPatient(order.patientId).displayName,
       });
     }
   }
   return [...seen.values()];
+}
+
+function needsYouLine(count: number): string {
+  if (count === 0) return "No one is waiting on you.";
+  if (count === 1) return "One patient needs you.";
+  if (count === 2) return "Two patients need you.";
+  return `${count} patients need you.`;
 }
 
 function toneFor(status: Order["status"]) {
@@ -200,11 +212,15 @@ export default async function Home({
         )}
 
         <section className="census" aria-label="Patient census">
+          <p className="census-lede">
+            {needsYouLine(census.atRisk + census.delayedPickup)}
+          </p>
           {census.rows.map((row) => {
             const order = row.order;
             const why =
               "riskWhy" in order && order.riskWhy ? order.riskWhy : null;
             const handoff = escalationLine(order);
+            const sentence = censusSentence(order, now);
             return (
               <details
                 key={order.id}
@@ -215,21 +231,17 @@ export default async function Home({
               >
                 <summary className="census-summary">
                   <div className="census-who">
-                    <div className="census-patient">{order.patientId}</div>
+                    <div className="census-patient">{sentence}</div>
                     <div className="census-sub">
-                      {order.id} · {order.hospice}
+                      {lookupPatient(order.patientId).displayName} ·{" "}
+                      {order.patientId} · {order.id}
                     </div>
                   </div>
-                  <div className="census-equip">
-                    {order.equipment.map((line) => (
-                      <div key={`${order.id}-${line.hcpcs}`}>
-                        <strong>{line.hcpcs}</strong> {line.name}
-                      </div>
-                    ))}
-                  </div>
-                  <Badge tone={toneFor(order.status)}>
-                    {formatLaneLabel(order.status)}
-                  </Badge>
+                  {row.attention ? (
+                    <Badge tone={toneFor(order.status)}>
+                      {formatLaneLabel(order.status)}
+                    </Badge>
+                  ) : null}
                 </summary>
                 <div className="census-body">
                   <div className="census-line">{stampFor(order)}</div>
@@ -240,9 +252,9 @@ export default async function Home({
                   {order.status === "pickup_triggered" ||
                   order.status === "pickup_delayed" ? (
                     <div className="census-line">
-                      {pickupElapsedDays(order.triggeredAt, now)} days since
-                      trigger. Pickup expected within {PICKUP_SLA_HOURS} hours
-                      of trigger (labeled assumption).
+                      {formatElapsed(order.triggeredAt, now)} since trigger.
+                      Pickup expected within {PICKUP_SLA_HOURS} hours of
+                      trigger (labeled assumption).
                     </div>
                   ) : null}
                   {showDischargeGate(order.status) ? (

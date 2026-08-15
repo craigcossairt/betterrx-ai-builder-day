@@ -172,6 +172,14 @@ body {
   overflow: hidden;
 }
 
+.census-lede {
+  margin: 0;
+  padding: 14px 16px 4px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
 .census-row {
   border-top: 1px solid var(--line-200);
 }
