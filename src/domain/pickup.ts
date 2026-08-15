@@ -1,10 +1,11 @@
 import type { Instant } from "./clock";
-import type {
-  DeliveredOrder,
-  Order,
-  PatientId,
-  PickupDelayedOrder,
-  PickupTriggeredOrder,
+import {
+  orderKind,
+  type DeliveredOrder,
+  type Order,
+  type PatientId,
+  type PickupDelayedOrder,
+  type PickupTriggeredOrder,
 } from "./order";
 
 export type PickupEligibleOrder =
@@ -25,6 +26,7 @@ export function emrDeathTargets(
   patientId?: PatientId | null,
 ): PickupEligibleOrder[] {
   return orders.filter((order): order is PickupEligibleOrder => {
+    if (orderKind(order) === "supply") return false;
     if (!isPickupEligible(order)) return false;
     if (patientId) return order.patientId === patientId;
     return order.status === "delivered" || order.patientId === "PT-87602";

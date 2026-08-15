@@ -3,7 +3,7 @@
 import { useActionState, useMemo, useState } from "react";
 import { placeOrderAction } from "@/app/actions";
 import type { Instant } from "@/domain/clock";
-import { costGate, type OfferCard } from "@/domain/offers";
+import { costGate, supplyOffers, type OfferCard } from "@/domain/offers";
 import { asPatientId, asVendorId, type Hcpcs, type OrderType } from "@/domain/order";
 import {
   lookupPatient,
@@ -37,6 +37,8 @@ const KINDS: { id: ShopKind; label: string }[] = [
 export function PlaceOrderForm({
   offerSets,
   deadline,
+  preferredEta,
+  lateEta,
   role,
   surface,
   initialPatientId = null,
@@ -44,6 +46,8 @@ export function PlaceOrderForm({
 }: {
   offerSets: Record<Hcpcs, OfferCard[]>;
   deadline: Instant;
+  preferredEta: Instant;
+  lateEta: Instant;
   role: RoleId;
   surface: SurfaceId;
   initialPatientId?: string | null;
@@ -67,10 +71,26 @@ export function PlaceOrderForm({
   const emr = patient ? shopItems({ kind, emrFor: patient.id }) : [];
   const hits = searchShop({ kind, query: itemQuery });
   const dmeLines = lines.filter((line) => line.kind === "dme");
+  const supplyLines = Object.entries(qty).flatMap(([code, count]) => {
+    const item = supplyCatalog()
+      .flatMap((row) => row.items)
+      .find((row) => row.code === code);
+    return item && count > 0
+      ? Array.from({ length: count }, () => item)
+      : [];
+  });
   const primary = (dmeLines.find((line) => line.code === "E1390")?.code ??
     dmeLines[0]?.code ??
     "E0250") as Hcpcs;
-  const cards = offerSets[primary] ?? offerSets.E0250;
+  const cards =
+    kind === "supplies"
+      ? supplyOffers(
+          supplyLines[0]?.dailyRateUsd ?? 1.1,
+          preferredEta,
+          lateEta,
+          deadline,
+        )
+      : (offerSets[primary] ?? offerSets.E0250);
   const selected = cards.find((card) => card.vendorId === vendorId) ?? cards[0];
   const total = lines.reduce((sum, line) => sum + (line.dailyRateUsd ?? 0), 0);
   const reviews = reviewLines(
@@ -84,24 +104,17 @@ export function PlaceOrderForm({
     const preferred = offerSets[line.code]?.find((card) => card.preferred);
     return Boolean(preferred && preferred.vendorId !== line.vendorId);
   });
-  const note = selected
-    ? costNote({
-        orderType,
-        dailyRateUsd: selected.dailyRateUsd,
-        hcpcs: primary,
-      })
-    : null;
+  const note =
+    kind === "dme" && selected
+      ? costNote({
+          orderType,
+          dailyRateUsd: selected.dailyRateUsd,
+          hcpcs: primary,
+        })
+      : null;
   const gate = selected
     ? costGate({ orderType, dailyRateUsd: selected.dailyRateUsd })
     : { verdict: "open" as const };
-  const supplyLines = Object.entries(qty).flatMap(([code, count]) => {
-    const item = supplyCatalog()
-      .flatMap((row) => row.items)
-      .find((row) => row.code === code);
-    return item && count > 0
-      ? Array.from({ length: count }, () => item)
-      : [];
-  });
   const canSend = dmeLines.length > 0 || supplyLines.length > 0;
 
   const results = useMemo(
@@ -119,6 +132,11 @@ export function PlaceOrderForm({
 
   return (
     <form action={formAction} className="order-screen">
+      <input
+        type="hidden"
+        name="kind"
+        value={kind === "supplies" ? "supply" : "dme"}
+      />
       {dmeLines.map((line) => (
         <input key={line.code} type="hidden" name="hcpcs" value={line.code} />
       ))}
@@ -134,8 +152,8 @@ export function PlaceOrderForm({
         <input
           key={`${line.code}-${index}`}
           type="hidden"
-          name="supply"
-          value={line.name}
+          name="supplyCode"
+          value={line.code}
         />
       ))}
       <input type="hidden" name="vendorId" value={selected?.vendorId ?? ""} />
@@ -506,9 +524,13 @@ export function PlaceOrderForm({
               ? "Sending…"
               : gate.verdict === "hold"
                 ? "Hold for DON"
-                : `Send ${dmeLines.length + supplyLines.length} ${
-                    dmeLines.length + supplyLines.length === 1 ? "line" : "lines"
-                  }`}
+                : kind === "supplies"
+                  ? "Send supply order"
+                  : `Send ${dmeLines.length + supplyLines.length} ${
+                      dmeLines.length + supplyLines.length === 1
+                        ? "line"
+                        : "lines"
+                    }`}
           </Button>
           <Button
             variant="outline"
@@ -533,7 +555,9 @@ export function PlaceOrderForm({
               ? `Review ${dmeLines.length + supplyLines.length} ${
                   dmeLines.length + supplyLines.length === 1 ? "line" : "lines"
                 }`
-              : "Add an item to send"}
+              : kind === "supplies"
+                ? "Add a supply to send"
+                : "Add a DME item to send"}
           </Button>
         </footer>
       ) : null}

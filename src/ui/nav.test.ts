@@ -42,6 +42,19 @@ describe("boardHref", () => {
     expect(parseSurface("wide")).toBe("phone");
   });
 
+  it("opens New order on the open patient supplies tab", () => {
+    expect(
+      boardHref({
+        role: "admissions",
+        panel: "order",
+        patient: "PT-87950",
+        tab: "supplies",
+      }),
+    ).toBe(
+      "/?role=admissions&panel=order&patient=PT-87950&tab=supplies",
+    );
+  });
+
   it("opens one vendor order from the query", () => {
     expect(boardHref({ role: "vendor", order: "DME-09803" })).toBe(
       "/?role=vendor&order=DME-09803",

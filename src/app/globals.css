@@ -391,6 +391,14 @@ body {
   display: none;
 }
 
+.pod-photo {
+  display: block;
+  width: 160px;
+  height: auto;
+  margin: 8px 0 12px;
+  border: 1px solid var(--ink-200, #d0d7e2);
+}
+
 .dme-price,
 .search-pick {
   font-size: 13px;

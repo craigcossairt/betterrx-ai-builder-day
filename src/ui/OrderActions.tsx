@@ -6,7 +6,7 @@ import {
   requestPickupAction,
 } from "@/app/actions";
 import { showDischargeGate } from "@/domain/discharge";
-import type { Order } from "@/domain/order";
+import { orderKind, type Order } from "@/domain/order";
 import { Button } from "@/ui/Button";
 import { DischargeReadyForm } from "@/ui/DischargeReadyForm";
 import type { RoleId } from "@/ui/roles";
@@ -39,12 +39,17 @@ export function OrderActions({
       {order.status === "dispatched" || order.status === "in_transit_at_risk" ? (
         <form action={markDeliveredAction}>
           <input type="hidden" name="orderId" value={order.id} />
+          <label className="order-sub">
+            <input type="checkbox" name="attachPhoto" value="1" /> Attach fixture
+            delivery photo
+          </label>
           <Button variant="app" size="sm" type="submit">
             Proof of delivery
           </Button>
         </form>
       ) : null}
-      {(order.status === "delivered" ||
+      {orderKind(order) !== "supply" &&
+      (order.status === "delivered" ||
         order.status === "pickup_triggered" ||
         order.status === "pickup_delayed") &&
       (role === "case_manager" || role === "don") ? (

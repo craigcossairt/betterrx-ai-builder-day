@@ -4,23 +4,55 @@ export type VendorId = string & { readonly brand: "VendorId" };
 export type HospiceName = string & { readonly brand: "HospiceName" };
 
 export type Hcpcs = "E0250" | "E1390" | "E1130";
+export type SupplyCode =
+  | "SUP-WOUND"
+  | "SUP-FOAM"
+  | "SUP-SALINE"
+  | "SUP-BRIEFS"
+  | "SUP-PADS"
+  | "SUP-GLOVES";
+export type LineCode = Hcpcs | SupplyCode;
+export type OrderKind = "dme" | "supply";
 export type OrderType = "admission" | "routine" | "stat";
 export type PickupTrigger = "patient_status_deceased" | "nurse_request";
 
+export const SUPPLY_CODES = [
+  "SUP-WOUND",
+  "SUP-FOAM",
+  "SUP-SALINE",
+  "SUP-BRIEFS",
+  "SUP-PADS",
+  "SUP-GLOVES",
+] as const;
+
 export type EquipmentLine = {
-  hcpcs: Hcpcs;
+  hcpcs: LineCode;
   name: string;
 };
+
+export function isHcpcs(code: string): code is Hcpcs {
+  return code === "E0250" || code === "E1390" || code === "E1130";
+}
+
+export function isSupplyCode(code: string): code is SupplyCode {
+  return (SUPPLY_CODES as readonly string[]).includes(code);
+}
+
+export function orderKind(order: { kind?: OrderKind }): OrderKind {
+  return order.kind ?? "dme";
+}
 
 export type ProofOfDelivery = {
   signature: boolean;
   timestamp: boolean;
+  photoUrl?: string;
 };
 
 type OrderBase = {
   id: OrderId;
   patientId: PatientId;
   hospice: HospiceName;
+  kind?: OrderKind;
   equipment: readonly [EquipmentLine, ...EquipmentLine[]];
   notes?: string;
 };

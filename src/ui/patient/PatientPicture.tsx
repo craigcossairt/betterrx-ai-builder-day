@@ -1,6 +1,7 @@
 import type { Instant } from "@/domain/clock";
-import { dischargeReady } from "@/domain/discharge";
-import { asPatientId, type Order } from "@/domain/order";
+import { dischargeCopy, dischargeReady } from "@/domain/discharge";
+import { getDischargeOverride } from "@/store/discharge-overrides";
+import { asPatientId, orderKind, type Order } from "@/domain/order";
 import { lookupChart } from "@/parse/erx-payloads";
 import { projectCensus } from "@/project/census";
 import { projectChartView } from "@/project/chart-view";
@@ -46,8 +47,10 @@ export function PatientPicture({
   const view = projectChartView(chart);
   const fills = projectMedFills(chart.medications);
   const mine = orders.filter((order) => order.patientId === id);
-  const census = projectCensus(mine, now);
-  const dmeTotal = mine.reduce(
+  const dme = mine.filter((order) => orderKind(order) !== "supply");
+  const supplies = mine.filter((order) => orderKind(order) === "supply");
+  const census = projectCensus(dme, now);
+  const dmeTotal = dme.reduce(
     (sum, order) => sum + (RATES[order.equipment[0].hcpcs] ?? 0),
     0,
   );
@@ -95,8 +98,8 @@ export function PatientPicture({
               : item === "medication"
                 ? "Medication"
                 : item === "dme"
-                  ? `DME (${mine.length})`
-                  : "Supplies"}
+                  ? `DME (${dme.length})`
+                  : `Supplies (${supplies.length + suppliesFor(id).length})`}
           </a>
         ))}
       </div>
@@ -222,7 +225,7 @@ export function PatientPicture({
         )
       ) : null}
       {tab === "dme" ? (
-        mine.length === 0 ? (
+        dme.length === 0 ? (
           <div className="pic-card muted">No equipment yet.</div>
         ) : (
           <div className="dme-rows">
@@ -283,9 +286,18 @@ export function PatientPicture({
                       {delivered.proofOfDelivery.signature
                         ? " Signature captured."
                         : ""}
+                      {delivered.proofOfDelivery.photoUrl
+                        ? " Photo on file."
+                        : ""}
                     </p>
                   ) : null}
-                  {photo ? (
+                  {delivered?.proofOfDelivery.photoUrl ? (
+                    <img
+                      className="pod-photo"
+                      src={delivered.proofOfDelivery.photoUrl}
+                      alt="Fixture delivery photo. Not a patient image."
+                    />
+                  ) : photo ? (
                     <p className="order-sub">Delivery photo saved on the order.</p>
                   ) : null}
                   <ol className="trail">
@@ -330,42 +342,14 @@ export function PatientPicture({
           </div>
         )
       ) : null}
-      {tab === "dme" && mine.length > 0 ? (
+      {tab === "dme" && dme.length > 0 ? (
         <div className="discharge-banner">
-          {decision.ready
-            ? "Discharge-ready. Required equipment is delivered."
-            : `Not discharge-ready yet. Waiting on: ${"blocking" in decision ? decision.blocking.join(", ") : ""}.`}
+          {dischargeCopy(decision, getDischargeOverride(id))}
           <DischargeReadyForm patientId={id} />
         </div>
       ) : null}
       {tab === "supplies" ? (
-        suppliesFor(id).length > 0 ? (
-          <div className="supply-empty">
-            {suppliesFor(id).map((row) => (
-              <div key={row.name} className="chart-card">
-                <b>{row.name}</b>
-                <p className="order-sub">
-                  Delivered. Stays in the home. Supplies are never picked up,
-                  including after a death.
-                </p>
-              </div>
-            ))}
-            {canOrder(role) ? (
-              <a
-                className="supply-order"
-                href={boardHref({
-                  role,
-                  surface,
-                  panel: "order",
-                  patient: chart.patientId,
-                  kind: "supplies",
-                })}
-              >
-                Add supplies
-              </a>
-            ) : null}
-          </div>
-        ) : (
+        supplies.length === 0 && suppliesFor(id).length === 0 ? (
           <div className="supply-empty">
             <p className="supply-lead">No supplies ordered.</p>
             <ul className="supply-cats">
@@ -374,8 +358,8 @@ export function PatientPicture({
               <li>Gloves</li>
             </ul>
             <p className="order-sub">
-              Supplies are consumables. They are delivered and confirmed like
-              equipment, but they are never picked up, including after a death.
+              Supplies are consumables. They order like equipment. They are
+              never picked up, including after a death.
             </p>
             {canOrder(role) ? (
               <a
@@ -386,14 +370,67 @@ export function PatientPicture({
                   panel: "order",
                   patient: chart.patientId,
                   kind: "supplies",
+                  tab: "supplies",
                 })}
               >
                 Add supplies
               </a>
             ) : null}
-            <p className="ssn-note">
-              Ordered by description. No HCPCS code is assigned in this build.
-            </p>
+          </div>
+        ) : (
+          <div className="dme-rows">
+            {supplies.map((order) => (
+              <details key={order.id} className="dme-row" open>
+                <summary>
+                  <span>
+                    <b>
+                      {order.equipment.map((item) => item.name).join(", ")}
+                    </b>
+                    <span className="order-sub">
+                      Consumable. Stays after death. No pickup.
+                    </span>
+                  </span>
+                </summary>
+                <p className="order-sub">
+                  {order.status === "ordered"
+                    ? "Waiting on the supply vendor."
+                    : order.status === "delivered"
+                      ? "Delivered. This stays in the home."
+                      : "On the way."}
+                </p>
+              </details>
+            ))}
+            {suppliesFor(id)
+              .filter(
+                (row) =>
+                  !supplies.some((order) =>
+                    order.equipment.some((item) => item.name === row.name),
+                  ),
+              )
+              .map((row) => (
+                <div key={row.name} className="chart-card">
+                  <b>{row.name}</b>
+                  <p className="order-sub">
+                    Delivered. Stays in the home. Supplies are never picked up,
+                    including after a death.
+                  </p>
+                </div>
+              ))}
+            {canOrder(role) ? (
+              <a
+                className="supply-order"
+                href={boardHref({
+                  role,
+                  surface,
+                  panel: "order",
+                  patient: chart.patientId,
+                  kind: "supplies",
+                  tab: "supplies",
+                })}
+              >
+                Add supplies
+              </a>
+            ) : null}
           </div>
         )
       ) : null}
