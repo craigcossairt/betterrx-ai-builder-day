@@ -8,15 +8,18 @@ import { demoOfferWindow, offersFor, presentOffers } from "@/domain/offers";
 import { censusPpd } from "@/domain/ppd";
 import { PICKUP_SLA_HOURS, pickupElapsedDays } from "@/domain/pickup";
 import { listSms } from "@/inbox/sms-inbox";
+import { supabaseConfig } from "@/lib/supabase";
 import { getHospiceStore } from "@/store/hospice-store";
 import { getDischargeOverride } from "@/store/discharge-overrides";
-import { projectBoard } from "@/project/board";
-import { Badge, Button, Card } from "@/ui";
+import { projectCensus } from "@/project/census";
+import { Badge, Button } from "@/ui";
 import { formatLaneLabel, formatStamp } from "@/ui/format";
 import { OrderActions } from "@/ui/OrderActions";
 import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
 import { RoleSwitcher } from "@/ui/RoleSwitcher";
 import { parseRole, ROLES } from "@/ui/roles";
+import { boardHref, parsePanel } from "@/ui/nav";
+import { PanelDialog } from "@/ui/PanelDialog";
 import type { Order } from "@/domain/order";
 import {
   confirmOrderAction,
@@ -45,7 +48,7 @@ function escalationLine(order: Order): string | null {
   if (!handoff) return null;
   const role =
     handoff.role === "don" ? "director of nursing" : "case manager";
-  return `Escalation: ${handoff.name}, ${role}.`;
+  return `${handoff.name}, ${role}`;
 }
 
 function dischargeLine(order: Order, snapshot: readonly Order[]) {
@@ -54,8 +57,8 @@ function dischargeLine(order: Order, snapshot: readonly Order[]) {
   );
   const override = getDischargeOverride(order.patientId);
   if (override) return `Discharge override: ${override}`;
-  if (decision.ready) return "Discharge-ready: required equipment is delivered.";
-  return `Not discharge-ready. Waiting on ${decision.blocking.join(", ")}.`;
+  if (decision.ready) return "Discharge-ready. Required equipment is delivered.";
+  return `Waiting on ${decision.blocking.join(", ")}.`;
 }
 
 function toneFor(status: Order["status"]) {
@@ -71,11 +74,13 @@ function toneFor(status: Order["status"]) {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ role?: string }>;
+  searchParams: Promise<{ role?: string; panel?: string }>;
 }) {
-  const role = parseRole((await searchParams).role);
+  const params = await searchParams;
+  const role = parseRole(params.role);
+  const panel = parsePanel(params.panel);
   const snapshot = await (await getHospiceStore()).snapshot();
-  const board = projectBoard(snapshot);
+  const census = projectCensus(snapshot);
   const roleLabel = ROLES.find((item) => item.id === role)?.label;
   const now = systemClock.now();
   const ppd = censusPpd(snapshot, CATALOG, 7, now);
@@ -93,98 +98,159 @@ export default async function Home({
       CATALOG,
     ),
   };
+  const shared = Boolean(supabaseConfig());
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "var(--surface-100)",
-        fontFamily: "var(--font-ui)",
-      }}
-    >
-      <header className="board-header">
-        <Image
-          src="/brand/logo-pill.png"
-          alt="BetterRX"
-          width={120}
-          height={34}
-          priority
-        />
-        <Suspense>
-          <RoleSwitcher role={role} />
-        </Suspense>
-      </header>
-      <div className="board-shell">
-        <div className="board-rail">
-        <div>
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              letterSpacing: "0.12em",
-              color: "var(--coral-600)",
-              textTransform: "uppercase",
-            }}
-          >
-            Hospice DME
-          </div>
-          <div
-            style={{ fontSize: 21, fontWeight: 700, color: "var(--ink-900)" }}
-          >
-            Census board.
-          </div>
-          <div style={{ fontSize: 13, color: "var(--ink-500)", marginTop: 2 }}>
-            Viewing as {roleLabel}. Shared status is stored state. Vendor
-            confirm is the inbox below, not a login. Add to Home Screen
-            installs the board.
+    <div className="app-frame">
+      <header className="app-topbar">
+        <div className="app-brand">
+          <Image
+            src="/brand/logo-pill.png"
+            alt="BetterRX"
+            width={120}
+            height={34}
+            priority
+          />
+          <div>
+            <div className="app-eyebrow">Hospice DME</div>
+            <div className="app-title">Census</div>
           </div>
         </div>
-        {role === "don" ? (
-          <Card variant="app" topBar title="DME cost PPD">
-            <div style={{ fontSize: 24, fontWeight: 700, color: "var(--ink-900)" }}>
-              ${ppd.actualUsd.toFixed(2)}
-              <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink-500)" }}>
-                {" "}
-                / patient-day vs ${ppd.targetUsd.toFixed(2)} target
-              </span>
-            </div>
-            <div style={{ fontSize: 13, color: "var(--ink-500)", marginTop: 8 }}>
-              Drivers: {ppd.idlePickupDays} idle pickup days after death,{" "}
-              {ppd.bufferDays} buffer days before discharge,{" "}
-              {ppd.preferredOverrides} preferred-option overrides. Patient-days:{" "}
-              {ppd.patientDays}. Morphine concentrate $
-              {MEDS[0].unitPriceUsd.toFixed(2)}/{MEDS[0].unit} NADAC next to DME
-              lines. Numbers are fixture math, not a savings claim.
-            </div>
-            <div style={{ marginTop: 12, fontSize: 13, color: "var(--ink-700)" }}>
-              At-risk:{" "}
-              {board.inTransitAtRisk.map((order) => order.id).join(", ") || "none"}.
-              Delayed pickup:{" "}
-              {board.pickupDelayed.map((order) => order.id).join(", ") || "none"}.
-            </div>
-          </Card>
-        ) : null}
-        {role !== "don" ? (
-          <Card variant="app" title="Place an order">
-            <PlaceOrderForm offerSets={offerSets} />
-          </Card>
-        ) : null}
-        <Card variant="app" title="Vendor SMS inbox">
-          <div style={{ fontSize: 13, color: "var(--ink-500)", marginBottom: 10 }}>
-            Simulated text. No vendor account.
+        <div className="app-topbar-meta">
+          <div className="app-store-flag">
+            {shared ? "Shared census" : "This device only"}
           </div>
+          <Suspense>
+            <RoleSwitcher role={role} />
+          </Suspense>
+        </div>
+      </header>
+
+      <div className="app-main">
+        <section className="app-toolbar" aria-label="Census summary">
+          <div className="app-chips">
+            <div className="app-chip app-chip--alert">
+              <strong>{census.atRisk}</strong>
+              <span>At risk</span>
+            </div>
+            <div className="app-chip app-chip--alert">
+              <strong>{census.delayedPickup}</strong>
+              <span>Delayed pickup</span>
+            </div>
+            <div className="app-chip">
+              <strong>{census.awaitingVendor}</strong>
+              <span>Awaiting vendor</span>
+            </div>
+            <div className="app-chip">
+              <strong>{inbox.length}</strong>
+              <span>Inbox</span>
+            </div>
+            {role === "don" ? (
+              <div className="app-chip app-chip--ppd">
+                <strong>${ppd.actualUsd.toFixed(2)}</strong>
+                <span>PPD vs ${ppd.targetUsd.toFixed(2)}</span>
+              </div>
+            ) : null}
+          </div>
+          <div className="app-toolbar-actions">
+            {role !== "don" ? (
+              <a className="app-btn app-btn--primary" href={boardHref(role, "order")}>
+                New order
+              </a>
+            ) : null}
+            <a className="app-btn app-btn--outline" href={boardHref(role, "inbox")}>
+              Vendor inbox
+            </a>
+          </div>
+        </section>
+
+        {role === "don" ? (
+          <p className="app-ppd-note">
+            Drivers: {ppd.idlePickupDays} idle pickup days after death,{" "}
+            {ppd.bufferDays} buffer days before discharge,{" "}
+            {ppd.preferredOverrides} preferred-option overrides. Patient-days:{" "}
+            {ppd.patientDays}. Morphine concentrate $
+            {MEDS[0].unitPriceUsd.toFixed(2)}/{MEDS[0].unit} NADAC sits next to
+            DME lines. Fixture math, not a savings claim. Viewing as {roleLabel}.
+          </p>
+        ) : (
+          <p className="app-ppd-note">
+            Viewing as {roleLabel}. Status is stored state. Vendor confirm is
+            the inbox, not a login.
+          </p>
+        )}
+
+        <section className="census" aria-label="Patient census">
+          {census.rows.map((row) => {
+            const order = row.order;
+            const why =
+              "riskWhy" in order && order.riskWhy ? order.riskWhy : null;
+            const handoff = escalationLine(order);
+            return (
+              <details
+                key={order.id}
+                className={
+                  row.attention ? "census-row census-row--attention" : "census-row"
+                }
+                open={row.attention}
+              >
+                <summary className="census-summary">
+                  <div className="census-who">
+                    <div className="census-patient">{order.patientId}</div>
+                    <div className="census-sub">
+                      {order.id} · {order.hospice}
+                    </div>
+                  </div>
+                  <div className="census-equip">
+                    {order.equipment.map((line) => (
+                      <div key={`${order.id}-${line.hcpcs}`}>
+                        <strong>{line.hcpcs}</strong> {line.name}
+                      </div>
+                    ))}
+                  </div>
+                  <Badge tone={toneFor(order.status)}>
+                    {formatLaneLabel(order.status)}
+                  </Badge>
+                </summary>
+                <div className="census-body">
+                  <div className="census-line">{stampFor(order)}</div>
+                  {why ? <div className="census-why">{why}</div> : null}
+                  {handoff ? (
+                    <div className="census-line">Escalation: {handoff}.</div>
+                  ) : null}
+                  {order.status === "pickup_triggered" ||
+                  order.status === "pickup_delayed" ? (
+                    <div className="census-line">
+                      {pickupElapsedDays(order.triggeredAt, now)} days since
+                      trigger. Pickup expected within {PICKUP_SLA_HOURS} hours
+                      of trigger (labeled assumption).
+                    </div>
+                  ) : null}
+                  <div className="census-line">
+                    {dischargeLine(order, snapshot)}
+                  </div>
+                  <OrderActions order={order} role={role} />
+                </div>
+              </details>
+            );
+          })}
+        </section>
+      </div>
+
+      {panel === "order" ? (
+        <PanelDialog title="Place an order" wide>
+          <PlaceOrderForm offerSets={offerSets} />
+        </PanelDialog>
+      ) : null}
+      {panel === "inbox" ? (
+        <PanelDialog title="Vendor SMS inbox">
+          <p className="app-ppd-note" style={{ marginTop: 0 }}>
+            Simulated text. No vendor account.
+          </p>
           {inbox.map((message) => (
-            <div
-              key={message.id}
-              style={{
-                border: "1px solid var(--line-200)",
-                borderRadius: 8,
-                padding: 12,
-                marginBottom: 8,
-              }}
-            >
-              <div style={{ fontSize: 13, color: "var(--ink-700)" }}>{message.body}</div>
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <div key={message.id} className="inbox-item">
+              <div className="census-line">{message.body}</div>
+              <div className="inbox-actions">
                 <form action={confirmOrderAction}>
                   <input type="hidden" name="orderId" value={message.orderId} />
                   <Button variant="app" size="sm" type="submit">
@@ -206,105 +272,8 @@ export default async function Home({
               </div>
             </div>
           ))}
-        </Card>
-        </div>
-        <div className="board-orders">
-        {board.lanes.map((lane) =>
-          lane.orders.map((order) => (
-            <Card
-              key={order.id}
-              variant="app"
-              topBar={
-                order.status === "in_transit_at_risk" ||
-                order.status === "pickup_delayed"
-              }
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 8,
-                  alignItems: "flex-start",
-                }}
-              >
-                <div>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: "var(--ink-900)",
-                    }}
-                  >
-                    {order.id}
-                  </div>
-                  <div style={{ fontSize: 13, color: "var(--ink-500)" }}>
-                    {order.patientId} · {order.hospice}
-                  </div>
-                </div>
-                <Badge tone={toneFor(order.status)}>
-                  {formatLaneLabel(order.status)}
-                </Badge>
-              </div>
-              <ul
-                style={{
-                  margin: "12px 0 0",
-                  padding: 0,
-                  listStyle: "none",
-                  display: "grid",
-                  gap: 4,
-                }}
-              >
-                {order.equipment.map((line) => (
-                  <li
-                    key={`${order.id}-${line.hcpcs}`}
-                    style={{ fontSize: 14, color: "var(--ink-700)" }}
-                  >
-                    <strong>{line.hcpcs}</strong> {line.name}
-                  </li>
-                ))}
-              </ul>
-              <div
-                style={{
-                  marginTop: 10,
-                  fontSize: 12,
-                  color: "var(--ink-500)",
-                }}
-              >
-                {stampFor(order)}
-              </div>
-              {"riskWhy" in order && order.riskWhy ? (
-                <div
-                  style={{
-                    marginTop: 8,
-                    fontSize: 13,
-                    color: "var(--red-500)",
-                  }}
-                >
-                  {order.riskWhy}
-                </div>
-              ) : null}
-              {escalationLine(order) ? (
-                <div style={{ marginTop: 8, fontSize: 13, color: "var(--ink-700)" }}>
-                  {escalationLine(order)}
-                </div>
-              ) : null}
-              {order.status === "pickup_triggered" ||
-              order.status === "pickup_delayed" ? (
-                <div style={{ marginTop: 8, fontSize: 13, color: "var(--ink-500)" }}>
-                  {pickupElapsedDays(order.triggeredAt, now)} days since trigger.
-                  Pickup expected within {PICKUP_SLA_HOURS} hours of trigger
-                  (labeled assumption).
-                </div>
-              ) : null}
-              <div style={{ marginTop: 8, fontSize: 13, color: "var(--ink-500)" }}>
-                {dischargeLine(order, snapshot)}
-              </div>
-              <OrderActions order={order} role={role} />
-            </Card>
-          )),
-        )}
-        </div>
-      </div>
-    </main>
+        </PanelDialog>
+      ) : null}
+    </div>
   );
 }

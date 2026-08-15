@@ -5,6 +5,7 @@ import type { MouseEvent, ReactNode } from "react";
 export type DialogProps = {
   open?: boolean;
   title?: string;
+  wide?: boolean;
   onClose?: () => void;
   actions?: ReactNode;
   children?: ReactNode;
@@ -13,6 +14,7 @@ export type DialogProps = {
 export function Dialog({
   open = true,
   title,
+  wide = false,
   onClose,
   actions,
   children,
@@ -37,8 +39,9 @@ export function Dialog({
           background: "#fff",
           borderRadius: "var(--radius-lg)",
           boxShadow: "var(--shadow-pop)",
-          width: "min(480px,90vw)",
-          overflow: "hidden",
+          width: wide ? "min(560px,94vw)" : "min(480px,90vw)",
+          maxHeight: "90vh",
+          overflow: "auto",
         }}
       >
         <div
