@@ -19,7 +19,7 @@ export function CensusBoard({
   const loud = lines.filter((line) => line.kind === "loud");
   const quiet = lines.filter((line) => line.kind === "quiet");
   return (
-    <section className="census-board" aria-label="Patient census">
+    <section className="census-board" aria-label="Patients">
       <div className="loud-stack">
         {loud.map((line) => (
           <LoudCard

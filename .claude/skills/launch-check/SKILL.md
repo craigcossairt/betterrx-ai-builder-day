@@ -26,7 +26,7 @@ grep -rn "console\.log\|debugPrint\|print(" src | head -20
 
 Review each screen in the demo flow for polish (no layout overflow, no missing states):
 
-- [ ] Census (phone): `/?role=admissions`
+- [ ] Patients (phone): `/?role=admissions`
 - [ ] Discharge miss DME trail: `/?role=admissions&patient=PT-88502&tab=dme`
 - [ ] Delayed pickup: `/?role=case_manager&patient=PT-87411&tab=dme`
 - [ ] DON PPD oversight: `/?role=don&surface=desktop&panel=oversight`

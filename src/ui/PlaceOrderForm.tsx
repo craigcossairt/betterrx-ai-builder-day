@@ -441,7 +441,7 @@ export function PlaceOrderForm({
         ) : null}
         {state.ok ? (
           <Toast tone="success" title="Order placed">
-            Confirm it from the census or the vendor inbox.
+            Confirm it from Patients or the vendor inbox.
           </Toast>
         ) : null}
       </div>
