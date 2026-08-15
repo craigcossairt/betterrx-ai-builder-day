@@ -30,7 +30,7 @@ Format: `- **YYYY-MM-DD** - Decision description. See <issue-ref>.`
 - **2026-08-15** - Keep the in-memory Order union. Measure idle pickup days from trigger to now. Do not rewrite onto a normalized census before the pitch. See #15.
 - **2026-08-15** - Persist the same Order union as jsonb rows in Supabase project nvkjnzagfwvltzpsxfcd. Fall back to memory when keys are missing. PWA is installable standalone and does not cache the census.
 - **2026-08-15** - Apply `0001_hospice.sql` from the Vercel build (`scripts/apply-schema.mjs`) using the Supabase-injected `POSTGRES_URL`. Do not hand the owner a SQL paste. Preview env targets include the same keys as production.
-- **2026-08-15** - Census chrome is the 2a phone frame: name first, no chips, quiet rows stay closed, one blue Order equipment action. Inbox and reset live in the footnote. See #18.
+- **2026-08-15** - Census chrome is the 2a phone frame: name first, no chips, quiet rows stay closed, one blue Order equipment action. Inbox and reset live in the footnote. Place-order and inbox replace the census inside the same phone shell. Vendor cards speak a sentence. See #18.
 - **2026-08-15** - Judge-placed orders keep the chosen vendor quote on `OrderedOrder`. Confirm uses that quote and the stored target. Demo reset reseeds the six fixtures. See the Fable review.
 - **2026-08-15** - Census direction is 2a sentences. Locked names are primary (Helen Vargas for PT-87602). STAT never waits on the $3 gate. Elapsed uses hours under 48 hours.
 - **2026-08-15** - DON hold is strictly over $3. A rate of exactly $3 stays open. Census lines are quiet or loud; coral is only at-risk.

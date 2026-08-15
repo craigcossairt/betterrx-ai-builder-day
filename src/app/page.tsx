@@ -11,13 +11,12 @@ import {
   CensusBoard,
   CensusFooter,
   CensusHeader,
-  InboxMessage,
   PhoneShell,
 } from "@/ui/census";
 import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
+import { InboxScreen } from "@/ui/order";
 import { parseRole, ROLES } from "@/ui/roles";
 import { parsePanel } from "@/ui/nav";
-import { PanelDialog } from "@/ui/PanelDialog";
 import type { Order } from "@/domain/order";
 
 function censusPatients(orders: readonly Order[]) {
@@ -63,6 +62,11 @@ export default async function Home({
       window.deadline,
       CATALOG,
     ),
+    E1130: presentOffers(
+      offersFor("E1130", window.preferredEta, window.lateEta),
+      window.deadline,
+      CATALOG,
+    ),
   };
   const shared = Boolean(supabaseConfig());
   const donNote =
@@ -72,34 +76,32 @@ export default async function Home({
         ? "Shared census."
         : undefined;
 
+  if (panel === "order") {
+    return (
+      <PhoneShell>
+        <PlaceOrderForm
+          offerSets={offerSets}
+          patients={censusPatients(snapshot)}
+          deadline={window.deadline}
+          role={role}
+        />
+      </PhoneShell>
+    );
+  }
+
+  if (panel === "inbox") {
+    return (
+      <PhoneShell>
+        <InboxScreen role={role} messages={inbox} />
+      </PhoneShell>
+    );
+  }
+
   return (
     <PhoneShell>
       <CensusHeader role={role} lede={census.lede} />
       <CensusBoard lines={census.lines} role={role} />
-      <CensusFooter
-        role={role}
-        canOrder={role !== "don"}
-        note={donNote}
-      />
-
-      {panel === "order" ? (
-        <PanelDialog title="Place an order" wide>
-          <PlaceOrderForm
-            offerSets={offerSets}
-            patients={censusPatients(snapshot)}
-          />
-        </PanelDialog>
-      ) : null}
-      {panel === "inbox" ? (
-        <PanelDialog title="Vendor SMS inbox">
-          <p className="app-ppd-note" style={{ marginTop: 0 }}>
-            Simulated text. No vendor account.
-          </p>
-          {inbox.map((message) => (
-            <InboxMessage key={message.id} message={message} />
-          ))}
-        </PanelDialog>
-      ) : null}
+      <CensusFooter role={role} canOrder={role !== "don"} note={donNote} />
     </PhoneShell>
   );
 }

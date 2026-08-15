@@ -277,6 +277,173 @@ body {
   margin-top: 8px;
 }
 
+.order-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.phone-back {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue-500);
+  text-decoration: none;
+}
+
+.order-sub {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--ink-500);
+}
+
+.patient-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.patient-chip {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-500);
+  background: #fff;
+  border: 1px solid var(--line-200);
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.patient-chip--on {
+  color: var(--blue-600);
+  border-color: var(--blue-500);
+  background: var(--blue-50);
+}
+
+.order-body {
+  flex: 1;
+  padding: 14px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sku-row {
+  display: flex;
+  gap: 8px;
+}
+
+.sku-tile {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-400);
+  background: #fff;
+  border: 1.5px solid var(--line-200);
+  border-radius: 12px;
+  padding: 13px 8px;
+  cursor: pointer;
+}
+
+.sku-tile span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sku-tile--on {
+  color: var(--ink-900);
+  border-color: var(--blue-500);
+  border-width: 2.5px;
+  background: var(--blue-50);
+}
+
+.offer-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.offer-card {
+  text-align: left;
+  font-family: var(--font-ui);
+  background: #fff;
+  border: 1.5px solid var(--line-200);
+  border-radius: 16px;
+  padding: 15px 16px;
+  cursor: pointer;
+}
+
+.offer-card--best {
+  border-color: var(--green-500);
+  border-width: 2px;
+}
+
+.offer-card--on:not(.offer-card--best) {
+  border-color: var(--blue-500);
+}
+
+.offer-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.offer-card-top b {
+  font-size: 16px;
+  color: var(--ink-900);
+}
+
+.offer-mark {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink-400);
+}
+
+.offer-card--best .offer-mark {
+  background: var(--green-50);
+  color: #2e7d36;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.offer-headline {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--ink-900);
+}
+
+.offer-detail {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--ink-500);
+}
+
+.cost-note {
+  margin: 0;
+  background: var(--surface-50);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-700);
+}
+
+.order-error {
+  margin: 0;
+  color: var(--red-500);
+  font-size: 14px;
+}
+
 @media (min-width: 720px) {
   body {
     padding: 24px 16px 40px;
