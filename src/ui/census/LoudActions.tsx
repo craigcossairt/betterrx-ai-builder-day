@@ -1,31 +1,33 @@
 import {
-  confirmOrderAction,
   markDeliveredAction,
   markPickedUpAction,
   requestPickupAction,
 } from "@/app/actions";
 import { orderKind, type Order } from "@/domain/order";
 import { Button } from "@/ui/Button";
+import { boardHref, type SurfaceId } from "@/ui/nav";
 import type { RoleId } from "@/ui/roles";
 
 export function LoudActions({
   order,
   role,
+  surface,
 }: {
   order: Order;
   role: RoleId;
+  surface: SurfaceId;
 }) {
   if (orderKind(order) === "supply" && order.status !== "ordered") {
     return null;
   }
   if (order.status === "ordered") {
     return (
-      <form action={confirmOrderAction} className="loud-card-action">
-        <input type="hidden" name="orderId" value={order.id} />
-        <Button variant="app" size="sm" type="submit">
-          Vendor confirm
-        </Button>
-      </form>
+      <a
+        className="loud-card-action loud-card-jump"
+        href={boardHref({ role: "vendor", surface, order: order.id })}
+      >
+        Open vendor text
+      </a>
     );
   }
   if (order.status === "in_transit_at_risk") {

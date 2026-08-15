@@ -151,6 +151,9 @@ export function DonReport({
           </div>
           <b>${ppd.targetUsd.toFixed(2)}</b>
         </div>
+        <p className="order-sub">
+          Preferred-option overrides this window: {ppd.preferredOverrides}.
+        </p>
         <p className="ssn-note">
           $1.85 is the fixture target. No savings percentage is claimed. The
           idle trail is the explanation.

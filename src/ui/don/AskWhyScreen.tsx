@@ -81,7 +81,8 @@ export function AskWhyScreen({
           Send to the ordering nurse
         </Button>
         <p className="ssn-note">
-          It lands on the order the nurse is already looking at. No inbox.
+          It lands on the order the nurse is already looking at, and in Waiting
+          on you.
         </p>
       </form>
     </section>
