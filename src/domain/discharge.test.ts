@@ -8,7 +8,11 @@ import {
   type DeliveredOrder,
   type OrderedOrder,
 } from "@/domain/order";
-import { dischargeReady, showDischargeGate } from "@/domain/discharge";
+import {
+  dischargeCopy,
+  dischargeReady,
+  showDischargeGate,
+} from "@/domain/discharge";
 
 const patient = asPatientId("PT-1");
 const hospice = asHospiceName("Sample Hospice A");
@@ -53,5 +57,15 @@ describe("dischargeReady", () => {
 
   it("allows discharge once required equipment is delivered", () => {
     expect(dischargeReady([delivered])).toEqual({ ready: true });
+  });
+
+  it("states an override when equipment is still out", () => {
+    const blocked = dischargeReady([ordered]);
+    expect(dischargeCopy(blocked)).toBe(
+      "Not discharge-ready yet. Waiting on: Hospital Bed.",
+    );
+    expect(dischargeCopy(blocked, "Family driving to the house now")).toBe(
+      "Discharge-ready with override. Family driving to the house now",
+    );
   });
 });

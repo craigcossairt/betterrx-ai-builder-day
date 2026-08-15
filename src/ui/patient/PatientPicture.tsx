@@ -1,5 +1,6 @@
 import type { Instant } from "@/domain/clock";
-import { dischargeReady } from "@/domain/discharge";
+import { dischargeCopy, dischargeReady } from "@/domain/discharge";
+import { getDischargeOverride } from "@/store/discharge-overrides";
 import { asPatientId, orderKind, type Order } from "@/domain/order";
 import { lookupChart } from "@/parse/erx-payloads";
 import { projectCensus } from "@/project/census";
@@ -282,9 +283,7 @@ export function PatientPicture({
       ) : null}
       {tab === "dme" && dme.length > 0 ? (
         <div className="discharge-banner">
-          {decision.ready
-            ? "Discharge-ready. Required equipment is delivered."
-            : `Not discharge-ready yet. Waiting on: ${"blocking" in decision ? decision.blocking.join(", ") : ""}.`}
+          {dischargeCopy(decision, getDischargeOverride(id))}
           <DischargeReadyForm patientId={id} />
         </div>
       ) : null}

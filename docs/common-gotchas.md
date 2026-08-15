@@ -24,3 +24,5 @@ Include a commit SHA and issue reference when known.
 | Order tiles do nothing on `127.0.0.1:3000` | Next 16 blocks `/_next/static` for that host; the form still posts without JS | Set `allowedDevOrigins: ["127.0.0.1", "localhost"]` in `next.config.ts` | 2026-08-15 | #18 |
 | Vendor → Admissions RN still shows the vendor inbox | Demo chrome kept `panel=inbox` when leaving vendor | `chromeQuery` clears panel when the role leaves vendor | 2026-08-15 | #18 |
 | Request pickup on DME-09803 drops the delayed demo | `triggerPickup` rewrote `pickup_delayed` to `pickup_triggered` and stripped `riskWhy` | Return the delayed order unchanged; use `markPickedUp` to stop the PPD clock | 2026-08-15 | #20 |
+| `tsc` fails TS2304 `Cannot find name 'Hcpcs'` after supply stretch | `placeOrderAction` still casts lines as `Hcpcs` after the type import was dropped | Keep `type Hcpcs` in the `@/domain/order` import | 2026-08-15 | #29 |
+| Discharge override saves but the banner still says not ready | `setDischargeOverride` wrote a map that no screen read | `dischargeCopy` reads `getDischargeOverride` on the patient DME banner | 2026-08-15 | demo |
