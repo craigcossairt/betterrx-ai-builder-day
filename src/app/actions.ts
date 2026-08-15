@@ -198,3 +198,19 @@ export async function resetDemoAction(): Promise<void> {
   await seedSmsIfEmpty(systemClock.now(), asOrderId("DME-10231"));
   revalidatePath("/");
 }
+
+export async function emrDeathAction(formData: FormData): Promise<void> {
+  const raw = String(formData.get("patientId") ?? "").trim();
+  const patientId = raw ? asPatientId(raw) : null;
+  const store = await getHospiceStore();
+  const now = systemClock.now();
+  const snapshot = await store.snapshot();
+  for (const current of snapshot) {
+    if (patientId && current.patientId !== patientId) continue;
+    if (current.status !== "delivered") continue;
+    await store.replace(
+      triggerPickup(current, "patient_status_deceased", now),
+    );
+  }
+  revalidatePath("/");
+}

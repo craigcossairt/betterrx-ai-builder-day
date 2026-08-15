@@ -1,4 +1,4 @@
-import { CATALOG, MEDS } from "@/domain/catalog";
+import { CATALOG } from "@/domain/catalog";
 import { systemClock } from "@/domain/clock";
 import { asPatientId } from "@/domain/order";
 import { demoOfferWindow, offersFor, presentOffers } from "@/domain/offers";
@@ -15,6 +15,7 @@ import {
 import { AppFrame } from "@/ui/chrome/AppFrame";
 import { PlaceOrderForm } from "@/ui/PlaceOrderForm";
 import { InboxScreen } from "@/ui/order";
+import { DonReport } from "@/ui/don/DonReport";
 import { PatientPicture } from "@/ui/patient/PatientPicture";
 import { parseRole } from "@/ui/roles";
 import { parsePanel, parseSurface, parseTab } from "@/ui/nav";
@@ -62,10 +63,11 @@ export default async function Home({
   const shared = Boolean(supabaseConfig());
   const donNote =
     role === "don"
-      ? `PPD $${ppd.actualUsd.toFixed(2)} vs $${ppd.targetUsd.toFixed(2)}. Idle pickup ${ppd.idlePickupDays} days. Morphine concentrate $${MEDS[0].unitPriceUsd.toFixed(2)}/${MEDS[0].unit}.`
+      ? `PPD $${ppd.actualUsd.toFixed(2)} vs $${ppd.targetUsd.toFixed(2)}. Idle pickup ${ppd.idlePickupDays} days.`
       : shared
         ? "Shared census."
         : undefined;
+  const donReport = <DonReport ppd={ppd} />;
 
   const orderScreen = (
     <PlaceOrderForm
@@ -103,6 +105,7 @@ export default async function Home({
     if (panel === "order") body = orderScreen;
     else if (panel === "inbox") body = inboxScreen;
     else if (patientScreen) body = patientScreen;
+    else if (role === "don") body = <>{censusScreen}{donReport}</>;
     else body = censusScreen;
   } else {
     body = (
@@ -113,11 +116,14 @@ export default async function Home({
             ? orderScreen
             : panel === "inbox"
               ? inboxScreen
-              : patientScreen ?? (
+              : patientScreen ??
+                (role === "don" ? (
+                  donReport
+                ) : (
                   <p className="order-sub desk-empty">
                     Select a patient from the census.
                   </p>
-                )}
+                ))}
         </main>
       </div>
     );

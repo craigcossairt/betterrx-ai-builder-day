@@ -24,7 +24,7 @@ export function LoudActions({
     );
   }
   if (
-    order.status === "pickup_delayed" &&
+    (order.status === "delivered" || order.status === "pickup_delayed") &&
     (role === "case_manager" || role === "don")
   ) {
     return (

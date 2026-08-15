@@ -788,6 +788,52 @@ body {
   font-size: 14px;
 }
 
+.chart-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chart-list > div {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--surface-100);
+}
+
+.chart-list dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-400);
+}
+
+.chart-list dd {
+  margin: 0;
+  font-size: 14px;
+}
+
+.med-sig {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.don-report,
+.integration-page {
+  padding: 18px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-chrome-link {
+  font: 600 12px var(--font-ui);
+  color: var(--blue-600);
+  text-decoration: none;
+}
+
 @media (min-width: 720px) {
   .demo-chrome {
     margin-top: 16px;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { resetDemoAction } from "@/app/actions";
+import { emrDeathAction, resetDemoAction } from "@/app/actions";
 import { boardHref, chromeQuery, parseSurface, type SurfaceId } from "@/ui/nav";
 import { parseRole, ROLES, type RoleId } from "@/ui/roles";
 
@@ -68,9 +68,16 @@ export function DemoChrome() {
           </button>
         ))}
       </div>
+      <form action={emrDeathAction} className="demo-chrome-reset">
+        {patient ? <input type="hidden" name="patientId" value={patient} /> : null}
+        <button type="submit">EMR death event</button>
+      </form>
       <form action={resetDemoAction} className="demo-chrome-reset">
         <button type="submit">Reset</button>
       </form>
+      <a className="demo-chrome-link" href="/integration">
+        Integration
+      </a>
     </div>
   );
 }
